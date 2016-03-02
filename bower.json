@@ -1,0 +1,26 @@
+{
+  "name": "fl-booking-js",
+  "description": "A schedule booking widget",
+  "main": "fl-booking-js",
+  "authors": [
+    "lazamar @ FourLabs"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "booking",
+    "scheduling",
+    "bookingjs"
+  ],
+  "moduleType": [],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "x-div": "~1.0.2"
+  }
+}
