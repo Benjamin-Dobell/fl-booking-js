@@ -1,17 +1,21 @@
 /*globals process, module, require*/
-'use strict';
 
 module.exports = function (grunt) {
 
-  // Actually load this plugin's task(s).
+  //Runs booking.js building routine.
   grunt.registerMultiTask('build-bookingjs',
     'Build booking-js.',
     function () {
+      'use strict';
+
+      if (!this.data.src) {
+        throw Error('build-bookingjs: No src field provided in config.');
+      }
 
       //Tell grunt this is an async task.
       var done = this.async();
       var rootDir = process.cwd();
-      var bookingJsDir = 'lib/booking-js';
+      var bookingJsDir = this.data.src;
       try {
         process.chdir(bookingJsDir);
       } catch (e) {

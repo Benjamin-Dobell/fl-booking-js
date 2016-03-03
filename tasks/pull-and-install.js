@@ -4,13 +4,20 @@ module.exports = function (grunt) {
   'use strict';
 
   // Actually load this plugin's task(s).
-  grunt.registerMultiTask('postinstall',
+  grunt.registerMultiTask('pull-and-install',
     'Build booking-js.',
     function () {
+      var dest = this.data.dest;
+      var bookingjsGit = this.data.repo;
+
+      if (!dest) {
+        throw Error('pull-and-install: No "dest" variable in config.');
+      } else if (!bookingjsGit) {
+        throw Error('pull-and-install: No "bookingjsGit" variable in config.');
+      }
+
       var fs = require('fs');
       var rootDir = process.cwd();
-      var libFolder = 'lib';
-      var bookingjsGit = 'https://github.com/timekit-io/booking-js.git';
 
       try {
         process.chdir(libFolder);
