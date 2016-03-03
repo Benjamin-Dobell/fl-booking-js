@@ -1,4 +1,4 @@
-var FLScheduler = function FLScheduler() {
+module.exports = (function FLScheduler() {
   'use strict';
 
   if (!(this instanceof FLScheduler)) {
@@ -7,7 +7,7 @@ var FLScheduler = function FLScheduler() {
 
   var _this = this;
   function request(method, url, data) {
-    baseUrl = data.api;
+    var baseUrl = APIGLOBAL;
 
     if (!baseUrl) {
       throw Error('Fatal: No "api" property in bookingjs config object.');
@@ -64,4 +64,4 @@ var FLScheduler = function FLScheduler() {
   // });
 
   return this;
-};
+}());

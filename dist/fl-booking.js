@@ -1,4 +1,7 @@
-(function webpackUniversalModuleDefinition(root, factory) {
+(function () {
+  var APIGLOBAL;
+  
+;(function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory(require("jQuery"));
 	else if(typeof define === 'function' && define.amd)
@@ -16313,7 +16316,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 7 */
 /***/ function(module, exports) {
 
-	var FLScheduler = function FLScheduler() {
+	module.exports = (function FLScheduler() {
 	  'use strict';
 	
 	  if (!(this instanceof FLScheduler)) {
@@ -16322,7 +16325,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  var _this = this;
 	  function request(method, url, data) {
-	    baseUrl = data.api;
+	    var baseUrl = APIGLOBAL;
 	
 	    if (!baseUrl) {
 	      throw Error('Fatal: No "api" property in bookingjs config object.');
@@ -16379,7 +16382,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // });
 	
 	  return this;
-	};
+	}());
 
 
 /***/ },
@@ -19430,9 +19433,8 @@ xController(function (rootEl) {
    * @param {Object} config A configuration object
    * @return {void} [description]
    */
-  function initBookingJs(targetEl, config, apiUrl) {
+  function initBookingJs(targetEl, config) {
     var def = {
-      api: apiUrl, //This is essential for the thing to work.
       name: 'Book an interview',
       targetEl: targetEl,
       email: 'info@slvolunteers.com',
@@ -19517,12 +19519,13 @@ xController(function (rootEl) {
 
   function init() {
     var baseFolder = document.currentScript.src.replace(/\/[^\/]+$/, '');
-    var apiUrl = rootEl.dataset.api || 'http://localhost:4000';
+    APIGLOBAL = rootEl.dataset.api || 'http://localhost:4000'; //Global variable defined in head.js
     var config = rootEl.dataset.configObj;
-    initBookingJs(rootEl, config, apiUrl);
+    initBookingJs(rootEl, config);
     setAutoFillForm();
 
   }
 
   init();
 });
+;}());

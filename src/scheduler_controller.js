@@ -20,9 +20,8 @@ xController(function (rootEl) {
    * @param {Object} config A configuration object
    * @return {void} [description]
    */
-  function initBookingJs(targetEl, config, apiUrl) {
+  function initBookingJs(targetEl, config) {
     var def = {
-      api: apiUrl, //This is essential for the thing to work.
       name: 'Book an interview',
       targetEl: targetEl,
       email: 'info@slvolunteers.com',
@@ -107,9 +106,9 @@ xController(function (rootEl) {
 
   function init() {
     var baseFolder = document.currentScript.src.replace(/\/[^\/]+$/, '');
-    var apiUrl = rootEl.dataset.api || 'http://localhost:4000';
+    APIGLOBAL = rootEl.dataset.api || 'http://localhost:4000'; //Global variable defined in head.js
     var config = rootEl.dataset.configObj;
-    initBookingJs(rootEl, config, apiUrl);
+    initBookingJs(rootEl, config);
     setAutoFillForm();
 
   }
