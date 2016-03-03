@@ -2,6 +2,7 @@
   "name": "fl-booking-js",
   "description": "A schedule booking widget",
   "main": "fl-booking-js",
+  "version": "1.0.1",
   "authors": [
     "lazamar @ FourLabs"
   ],
@@ -19,7 +20,10 @@
     "bower_components",
     "test",
     "tests",
-    "lib/*"
+    "lib/*",
+    "tasks",
+    "src",
+    "Gruntfile"
   ],
   "devDependencies": {
     "x-div": "~1.0.2"
