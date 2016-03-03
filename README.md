@@ -9,3 +9,9 @@ data-controller='js/scheduler/scheduler_controller'
 data-api="http://localhost:4000">
 </x-div>
 ```
+
+## Installation
+**Bower**
+```
+bower install fl-booking-js --save
+```
