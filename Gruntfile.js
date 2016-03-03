@@ -47,12 +47,20 @@ module.exports = function (grunt) {
         dest: 'lib/modified-booking-js',
       },
     },
+    uglify: {
+      task: {
+        files: {
+          'dist/fl-booking.min.js': ['dist/fl-booking.js'],
+        },
+      },
+    },
   });
 
   // Actually load this plugin's task(s).
   grunt.loadTasks('./tasks');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.registerTask('default', ['build-bookingjs']);
-  grunt.registerTask('build', ['copy-folder', 'npmInstall', 'prepare-bookingjs', 'build-bookingjs', 'concat']);
+  grunt.registerTask('build', ['copy-folder', 'npmInstall', 'prepare-bookingjs', 'build-bookingjs', 'concat', 'uglify']);
   grunt.registerTask('postinstall', ['gitClone', 'copy-folder', 'npmInstall']);
 };
