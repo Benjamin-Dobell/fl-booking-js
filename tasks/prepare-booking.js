@@ -21,6 +21,7 @@ module.exports = function (grunt) {
         throw Error('prepare-bookingjs: No schedulerAPI file provided in config.');
       }
 
+      grunt.verbose.writeln('Current working directory: ' + process.cwd());
       var match = src.match(/^(.+\/)([^\/]+)$/) || [];
       var srcFolder = match[1];
       var srcFileName = match[2];
@@ -40,12 +41,13 @@ module.exports = function (grunt) {
       grunt.log.writeln('Copying ' + schedulerAPI + ' to ' + srcFolder + schedulerFileName);
 
       //Copy schedulerAPI file to src folder;
+      grunt.log.writeln('Reading from ' + schedulerAPI);
       var schedulerFileContent = fs.readFileSync(schedulerAPI, 'utf8');
+      grunt.log.writeln('And writing it into ' + srcFolder + schedulerFileName);
       fs.writeFileSync(srcFolder + schedulerFileName, schedulerFileContent, 'utf8');
 
-      grunt.verbose.writeln('Reading from ' + src);
-
       //Replate timekit api in src file
+      grunt.verbose.writeln('Reading from ' + src);
       var bookingjsFileContent = fs.readFileSync(src, 'utf8');
 
       var modifiedBookingjsFileContent = bookingjsFileContent.replace(/var\s+timekit\s+=[^;]+/,
