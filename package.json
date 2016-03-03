@@ -5,6 +5,7 @@
   "main": "fl-booking-js",
   "scripts": {
     "postinstall": "grunt postinstall",
+    "build": "grunt build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -18,6 +19,7 @@
     "bower": "^1.7.7",
     "child-process-promise": "^1.1.0",
     "grunt": "^0.4.5",
-    "grunt-contrib-concat": "^1.0.0"
+    "grunt-contrib-concat": "^1.0.0",
+    "ncp": "^2.0.0"
   }
 }

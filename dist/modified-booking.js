@@ -70,7 +70,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var $               = __webpack_require__(1);
 	window.fullcalendar = __webpack_require__(2);
 	var moment          = window.moment = __webpack_require__(3);
-	var timekit         = __webpack_require__(7);
+	var timekit = FLScheduler();
+
 	__webpack_require__(29);
 	var interpolate     = __webpack_require__(30);
 	
@@ -690,7 +691,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	 * FullCalendar v2.6.1
+	 * FullCalendar v2.6.0
 	 * Docs & License: http://fullcalendar.io/
 	 * (c) 2015 Adam Shaw
 	 */
@@ -710,8 +711,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	;;
 	
 	var FC = $.fullCalendar = {
-		version: "2.6.1",
-		internalApiVersion: 3
+		version: "2.6.0",
+		internalApiVersion: 2
 	};
 	var fcViews = FC.views = {};
 	
@@ -2755,14 +2756,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		},
 	
 	
-		// When called, if coord caches aren't built, builds them
-		ensureBuilt: function() {
-			if (!this.origin) {
-				this.build();
-			}
-		},
-	
-	
 		// Compute and return what the elements' bounding rectangle is, from the user's perspective.
 		// Right now, only returns a rectangle if constrained by an overflow:scroll element.
 		queryBoundingRect: function() {
@@ -2815,8 +2808,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		// Given a left offset (from document left), returns the index of the el that it horizontally intersects.
 		// If no intersection is made, or outside of the boundingRect, returns undefined.
 		getHorizontalIndex: function(leftOffset) {
-			this.ensureBuilt();
-	
 			var boundingRect = this.boundingRect;
 			var lefts = this.lefts;
 			var rights = this.rights;
@@ -2836,8 +2827,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		// Given a top offset (from document top), returns the index of the el that it vertically intersects.
 		// If no intersection is made, or outside of the boundingRect, returns undefined.
 		getVerticalIndex: function(topOffset) {
-			this.ensureBuilt();
-	
 			var boundingRect = this.boundingRect;
 			var tops = this.tops;
 			var bottoms = this.bottoms;
@@ -2856,14 +2845,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 		// Gets the left offset (from document left) of the element at the given index
 		getLeftOffset: function(leftIndex) {
-			this.ensureBuilt();
 			return this.lefts[leftIndex];
 		},
 	
 	
 		// Gets the left position (from offsetParent left) of the element at the given index
 		getLeftPosition: function(leftIndex) {
-			this.ensureBuilt();
 			return this.lefts[leftIndex] - this.origin.left;
 		},
 	
@@ -2871,7 +2858,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		// Gets the right offset (from document left) of the element at the given index.
 		// This value is NOT relative to the document's right edge, like the CSS concept of "right" would be.
 		getRightOffset: function(leftIndex) {
-			this.ensureBuilt();
 			return this.rights[leftIndex];
 		},
 	
@@ -2879,35 +2865,30 @@ return /******/ (function(modules) { // webpackBootstrap
 		// Gets the right position (from offsetParent left) of the element at the given index.
 		// This value is NOT relative to the offsetParent's right edge, like the CSS concept of "right" would be.
 		getRightPosition: function(leftIndex) {
-			this.ensureBuilt();
 			return this.rights[leftIndex] - this.origin.left;
 		},
 	
 	
 		// Gets the width of the element at the given index
 		getWidth: function(leftIndex) {
-			this.ensureBuilt();
 			return this.rights[leftIndex] - this.lefts[leftIndex];
 		},
 	
 	
 		// Gets the top offset (from document top) of the element at the given index
 		getTopOffset: function(topIndex) {
-			this.ensureBuilt();
 			return this.tops[topIndex];
 		},
 	
 	
 		// Gets the top position (from offsetParent top) of the element at the given position
 		getTopPosition: function(topIndex) {
-			this.ensureBuilt();
 			return this.tops[topIndex] - this.origin.top;
 		},
 	
 		// Gets the bottom offset (from the document top) of the element at the given index.
 		// This value is NOT relative to the offsetParent's bottom edge, like the CSS concept of "bottom" would be.
 		getBottomOffset: function(topIndex) {
-			this.ensureBuilt();
 			return this.bottoms[topIndex];
 		},
 	
@@ -2915,14 +2896,12 @@ return /******/ (function(modules) { // webpackBootstrap
 		// Gets the bottom position (from the offsetParent top) of the element at the given index.
 		// This value is NOT relative to the offsetParent's bottom edge, like the CSS concept of "bottom" would be.
 		getBottomPosition: function(topIndex) {
-			this.ensureBuilt();
 			return this.bottoms[topIndex] - this.origin.top;
 		},
 	
 	
 		// Gets the height of the element at the given index
 		getHeight: function(topIndex) {
-			this.ensureBuilt();
 			return this.bottoms[topIndex] - this.tops[topIndex];
 		}
 	
@@ -4440,9 +4419,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 		// Generates a semicolon-separated CSS string to be used for the default rendering of a background event.
 		// Called by the fill system.
+		// TODO: consolidate with getEventSkinCss?
 		bgEventSegCss: function(seg) {
+			var view = this.view;
+			var event = seg.event;
+			var source = event.source || {};
+	
 			return {
-				'background-color': this.getSegSkinCss(seg)['background-color']
+				'background-color':
+					event.backgroundColor ||
+					event.color ||
+					source.backgroundColor ||
+					source.color ||
+					view.opt('eventBackgroundColor') ||
+					view.opt('eventColor')
 			};
 		},
 	
@@ -5025,8 +5015,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	
 		// Utility for generating event skin-related CSS properties
-		getSegSkinCss: function(seg) {
-			var event = seg.event;
+		getEventSkinCss: function(event) {
 			var view = this.view;
 			var source = event.source || {};
 			var eventColor = event.color;
@@ -6249,7 +6238,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			var isResizableFromEnd = !disableResizing && event.allDay &&
 				seg.isEnd && view.isEventResizableFromEnd(event);
 			var classes = this.getSegClasses(seg, isDraggable, isResizableFromStart || isResizableFromEnd);
-			var skinCss = cssToStr(this.getSegSkinCss(seg));
+			var skinCss = cssToStr(this.getEventSkinCss(event));
 			var timeHtml = '';
 			var timeText;
 			var titleHtml;
@@ -7605,7 +7594,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			var isResizableFromStart = !disableResizing && seg.isStart && view.isEventResizableFromStart(event);
 			var isResizableFromEnd = !disableResizing && seg.isEnd && view.isEventResizableFromEnd(event);
 			var classes = this.getSegClasses(seg, isDraggable, isResizableFromStart || isResizableFromEnd);
-			var skinCss = cssToStr(this.getSegSkinCss(seg));
+			var skinCss = cssToStr(this.getEventSkinCss(event));
 			var timeText;
 			var fullTimeText; // more verbose time text. for the print stylesheet
 			var startTimeText; // just the start time text
@@ -8016,12 +8005,9 @@ return /******/ (function(modules) { // webpackBootstrap
 		// document handlers, bound to `this` object
 		documentMousedownProxy: null, // TODO: doesn't work with touch
 	
-		// now indicator
-		isNowIndicatorRendered: null,
-		initialNowDate: null, // result first getNow call
-		initialNowQueriedMs: null, // ms time the getNow was called
-		nowIndicatorTimeoutID: null, // for refresh timing of now indicator
-		nowIndicatorIntervalID: null, // "
+		// for refresh timing of now indicator
+		nowIndicatorTimeoutID: null,
+		nowIndicatorIntervalID: null,
 	
 	
 		constructor: function(calendar, type, options, intervalDuration) {
@@ -8291,6 +8277,22 @@ return /******/ (function(modules) { // webpackBootstrap
 		},
 	
 	
+		// If the view has already been displayed, tears it down and displays it again.
+		// Will re-render the events if necessary, which display/clear DO NOT do.
+		// TODO: make behavior more consistent.
+		redisplay: function() {
+			if (this.isSkeletonRendered) {
+				var wasEventsRendered = this.isEventsRendered;
+				this.clearEvents(); // won't trigger handlers if events never rendered
+				this.clearView();
+				this.displayView();
+				if (wasEventsRendered) { // only render and trigger handlers if events previously rendered
+					this.displayEvents(this.calendar.getEventCache());
+				}
+			}
+		},
+	
+	
 		// Displays the view's non-event content, such as date-related content or anything required by events.
 		// Renders the view's non-content skeleton if necessary.
 		// Can be asynchronous and return a promise.
@@ -8308,7 +8310,10 @@ return /******/ (function(modules) { // webpackBootstrap
 			this.renderDates();
 			this.updateSize();
 			this.renderBusinessHours(); // might need coordinates, so should go after updateSize()
-			this.startNowIndicator();
+	
+			if (this.opt('nowIndicator')) {
+				this.startNowIndicator();
+			}
 		},
 	
 	
@@ -8410,42 +8415,34 @@ return /******/ (function(modules) { // webpackBootstrap
 		// TODO: somehow do this for the current whole day's background too
 		startNowIndicator: function() {
 			var _this = this;
-			var unit;
-			var update;
+			var unit = this.getNowIndicatorUnit();
+			var initialNow; // result first getNow call
+			var initialNowQueried; // ms time of then getNow was called
 			var delay; // ms wait value
 	
-			if (this.opt('nowIndicator')) {
-				unit = this.getNowIndicatorUnit();
-				if (unit) {
-					update = proxy(this, 'updateNowIndicator'); // bind to `this`
-	
-					this.initialNowDate = this.calendar.getNow();
-					this.initialNowQueriedMs = +new Date();
-					this.renderNowIndicator(this.initialNowDate);
-					this.isNowIndicatorRendered = true;
-	
-					// wait until the beginning of the next interval
-					delay = this.initialNowDate.clone().startOf(unit).add(1, unit) - this.initialNowDate;
-					this.nowIndicatorTimeoutID = setTimeout(function() {
-						_this.nowIndicatorTimeoutID = null;
-						update();
-						delay = +moment.duration(1, unit);
-						delay = Math.max(100, delay); // prevent too frequent
-						_this.nowIndicatorIntervalID = setInterval(update, delay); // update every interval
-					}, delay);
-				}
-			}
-		},
-	
-	
-		// rerenders the now indicator, computing the new current time from the amount of time that has passed
-		// since the initial getNow call.
-		updateNowIndicator: function() {
-			if (this.isNowIndicatorRendered) {
-				this.unrenderNowIndicator();
-				this.renderNowIndicator(
-					this.initialNowDate.clone().add(new Date() - this.initialNowQueriedMs) // add ms
+			// rerenders the now indicator, computing the new current time from the amount of time that has passed
+			// since the initial getNow call.
+			function update() {
+				_this.unrenderNowIndicator();
+				_this.renderNowIndicator(
+					initialNow.clone().add(new Date() - initialNowQueried) // add ms
 				);
+			}
+	
+			if (unit) {
+				initialNow = this.calendar.getNow();
+				initialNowQueried = +new Date();
+				this.renderNowIndicator(initialNow);
+	
+				// wait until the beginning of the next interval
+				delay = initialNow.clone().startOf(unit).add(1, unit) - initialNow;
+				this.nowIndicatorTimeoutID = setTimeout(function() {
+					this.nowIndicatorTimeoutID = null;
+					update();
+					delay = +moment.duration(1, unit);
+					delay = Math.max(100, delay); // prevent too frequent
+					this.nowIndicatorIntervalID = setInterval(update, delay); // update every interval
+				}, delay);
 			}
 		},
 	
@@ -8453,19 +8450,19 @@ return /******/ (function(modules) { // webpackBootstrap
 		// Immediately unrenders the view's current time indicator and stops any re-rendering timers.
 		// Won't cause side effects if indicator isn't rendered.
 		stopNowIndicator: function() {
-			if (this.isNowIndicatorRendered) {
+			var cleared = false;
 	
-				if (this.nowIndicatorTimeoutID) {
-					clearTimeout(this.nowIndicatorTimeoutID);
-					this.nowIndicatorTimeoutID = null;
-				}
-				if (this.nowIndicatorIntervalID) {
-					clearTimeout(this.nowIndicatorIntervalID);
-					this.nowIndicatorIntervalID = null;
-				}
+			if (this.nowIndicatorTimeoutID) {
+				clearTimeout(this.nowIndicatorTimeoutID);
+				cleared = true;
+			}
+			if (this.nowIndicatorIntervalID) {
+				clearTimeout(this.nowIndicatorIntervalID);
+				cleared = true;
+			}
 	
+			if (cleared) { // is the indicator currently display?
 				this.unrenderNowIndicator();
-				this.isNowIndicatorRendered = false;
 			}
 		},
 	
@@ -8503,7 +8500,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 			this.updateHeight(isResize);
 			this.updateWidth(isResize);
-			this.updateNowIndicator();
 	
 			if (isResize) {
 				this.setScroll(scrollState);
@@ -12593,7 +12589,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module) {//! moment.js
-	//! version : 2.11.2
+	//! version : 2.11.1
 	//! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 	//! license : MIT
 	//! momentjs.com
@@ -14410,7 +14406,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	
 	    // ASP.NET json date format regex
-	    var aspNetRegex = /^(\-)?(?:(\d*)[. ])?(\d+)\:(\d+)(?:\:(\d+)\.?(\d{3})?\d*)?$/;
+	    var aspNetRegex = /(\-)?(?:(\d*)[. ])?(\d+)\:(\d+)(?:\:(\d+)\.?(\d{3})?)?/;
 	
 	    // from http://docs.closure-library.googlecode.com/git/closure_goog_date_date.js.source.html
 	    // somewhat more in line with 4.4.3.2 2004 spec, but allows decimal anywhere
@@ -16165,7 +16161,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // Side effect imports
 	
 	
-	    utils_hooks__hooks.version = '2.11.2';
+	    utils_hooks__hooks.version = '2.11.1';
 	
 	    setHookCallback(local__createLocal);
 	
@@ -16335,9 +16331,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	   * @type {String}
 	   */
 	  var userEmail;
-	  var userToken;
+	  var userApiToken;
 	  var includes = [];
-	  var headers = {};
+	  var headers = [];
 	
 	  /**
 	   * Default config
@@ -16356,8 +16352,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	   * @return {String}
 	   */
 	
-	  var encodeAuthHeader = function(email, token) {
-	    return base64.encode(email + ':' + token);
+	  var encodeAuthHeader = function() {
+	    return base64.encode(userEmail + ':' + userApiToken);
 	  };
 	
 	  /**
@@ -16387,20 +16383,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    args.url = buildUrl(args.url);
 	
 	    // add http headers if applicable
-	    args.headers = args.headers || headers || {};
+	    args.headers = args.headers || headers[0] || {};
 	    args.headers['Timekit-App'] = config.app;
+	    if (userEmail && userApiToken) { args.headers.Authorization = 'Basic ' + encodeAuthHeader(); }
 	    if (config.inputTimestampFormat) { args.headers['Timekit-InputTimestampFormat'] = config.inputTimestampFormat; }
 	    if (config.outputTimestampFormat) { args.headers['Timekit-OutputTimestampFormat'] = config.outputTimestampFormat; }
 	    if (config.timezone) { args.headers['Timekit-Timezone'] = config.timezone; }
 	
-	    // add auth headers if not being overwritten by request/asUser
-	    if (!args.headers['Authorization'] && userEmail && userToken) {
-	      args.headers['Authorization'] = 'Basic ' + encodeAuthHeader(userEmail, userToken);
-	    }
-	
 	    // reset headers
-	    if (Object.keys(headers).length > 0) {
-	      headers = {};
+	    if (headers && headers.length > 0) {
+	      headers = [];
 	    }
 	
 	    // add dynamic includes if applicable
@@ -16455,21 +16447,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	
 	  /**
-	   * Set the active user manually (happens automatically on timekit.auth())
+	   * Set the active user manuallt (happens automatically on timekit.auth())
 	   * @type {Function}
 	   */
 	  TK.setUser = function(email, apiToken) {
 	    userEmail = email;
-	    userToken = apiToken;
-	  };
-	
-	  /**
-	   * Set the active user temporarily for the next request (fluent/chainable return)
-	   * @type {Function}
-	   */
-	  TK.asUser = function(email, apiToken) {
-	    headers['Authorization'] = 'Basic ' + encodeAuthHeader(email, apiToken);
-	    return this;
+	    userApiToken = apiToken;
 	  };
 	
 	  /**
@@ -16480,7 +16463,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  TK.getUser = function() {
 	    return {
 	      email: userEmail,
-	      apiToken: userToken
+	      apiToken: userApiToken
 	    };
 	  };
 	
@@ -16500,7 +16483,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	   * @return {Object}
 	   */
 	  TK.headers = function(data) {
-	    headers = data;
+	    headers.push(data);
 	    return this;
 	  };
 	
@@ -16554,12 +16537,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	   * @type {Function}
 	   * @return {Promise}
 	   */
-	  TK.accountSync = function(data) {
+	  TK.accountSync = function() {
 	
 	    return TK.makeRequest({
 	      url: '/accounts/sync',
-	      method: 'get',
-	      params: data
+	      method: 'get'
 	    });
 	
 	  };
@@ -17118,19 +17100,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  };
 	
-	  /**
-	   * Get specific booking
-	   * @type {Function}
-	   * @return {Promise}
-	   */
-	  TK.getBooking = function(data) {
-	
-	    return TK.makeRequest({
-	      url: '/bookings/' + data.id,
-	      method: 'get'
-	    });
-	
-	  };
 	
 	  /**
 	   * Create a new booking
@@ -19550,7 +19519,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;//! moment-timezone.js
-	//! version : 0.5.1
+	//! version : 0.5.0
 	//! author : Tim Wood
 	//! license : MIT
 	//! github.com/moment/moment-timezone
@@ -19575,7 +19544,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			return moment;
 		}
 	
-		var VERSION = "0.5.1",
+		var VERSION = "0.5.0",
 			zones = {},
 			links = {},
 			names = {},
@@ -19753,17 +19722,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 		function OffsetAt(at) {
 			var timeString = at.toTimeString();
-			var abbr = timeString.match(/\([a-z ]+\)/i);
+			var abbr = timeString.match(/\(.+\)/);
 			if (abbr && abbr[0]) {
 				// 17:56:31 GMT-0600 (CST)
 				// 17:56:31 GMT-0600 (Central Standard Time)
-				abbr = abbr[0].match(/[A-Z]/g);
-				abbr = abbr ? abbr.join('') : undefined;
+				abbr = abbr[0].match(/[A-Z]/g).join('');
 			} else {
 				// 17:56:31 CST
-				// 17:56:31 GMT+0800 (台北標準時間)
-				abbr = timeString.match(/[A-Z]{3,5}/g);
-				abbr = abbr ? abbr[0] : undefined;
+				abbr = timeString.match(/[A-Z]{3,5}/g)[0];
 			}
 	
 			if (abbr === 'GMT') {
@@ -19872,19 +19838,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 	
 		function rebuildGuess () {
-	
-			// use Intl API when available and returning valid time zone
-			try {
-				var intlName = Intl.DateTimeFormat().resolvedOptions().timeZone;
-				var name = names[normalizeName(intlName)];
-				if (name) {
-					return name;
-				}
-				logError("Moment Timezone found " + intlName + " from the Intl api, but did not have that data loaded.");
-			} catch (e) {
-				// Intl unavailable, fall back to manual guessing.
-			}
-	
 			var offsets = userOffsets(),
 				offsetsLength = offsets.length,
 				guesses = guessesForUserOffsets(offsets),
@@ -20145,7 +20098,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 	
 		loadData({
-			"version": "2016a",
+			"version": "2015g",
 			"zones": [
 				"Africa/Abidjan|GMT|0|0||48e5",
 				"Africa/Khartoum|EAT|-30|0||51e5",
@@ -20176,6 +20129,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				"America/Cancun|CST CDT EST|60 50 50|010101010102|1C1k0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0 Dd0|63e4",
 				"America/Caracas|VET|4u|0||29e5",
 				"America/Cayenne|GFT|30|0||58e3",
+				"America/Cayman|EST EDT|50 40|01010101010|1Qtj0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|58e3",
 				"America/Chicago|CST CDT|60 50|01010101010101010101010|1BQU0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|92e5",
 				"America/Chihuahua|MST MDT|70 60|01010101010101010101010|1C1l0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0 14p0 1lb0 14p0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0|81e4",
 				"America/Phoenix|MST|70|0||42e5",
@@ -20193,13 +20147,14 @@ return /******/ (function(modules) { // webpackBootstrap
 				"America/La_Paz|BOT|40|0||19e5",
 				"America/Lima|PET|50|0||11e6",
 				"America/Mexico_City|CST CDT|60 50|01010101010101010101010|1C1k0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0 14p0 1lb0 14p0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0|20e6",
-				"America/Metlakatla|PST AKST AKDT|80 90 80|012121212121|1PAa0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|14e2",
+				"America/Metlakatla|PST|80|0||14e2",
 				"America/Miquelon|PMST PMDT|30 20|01010101010101010101010|1BQR0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|61e2",
 				"America/Montevideo|UYST UYT|20 30|010101010101|1BQQ0 1ld0 14n0 1ld0 14n0 1o10 11z0 1o10 11z0 1o10 11z0|17e5",
 				"America/Noronha|FNT|20|0||30e2",
 				"America/North_Dakota/Beulah|MST MDT CST CDT|70 60 60 50|01232323232323232323232|1BQV0 1zb0 Oo0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0",
 				"America/Paramaribo|SRT|30|0||24e4",
 				"America/Port-au-Prince|EST EDT|50 40|0101010101010101010|1GI70 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|23e5",
+				"America/Santa_Isabel|PST PDT|80 70|01010101010101010101010|1C1m0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0 14p0 1lb0 14p0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0|23e3",
 				"America/Santiago|CLST CLT CLT|30 40 30|010101010102|1C1f0 1fB0 1nX0 G10 1EL0 Op0 1zb0 Rd0 1wn0 Rd0 1wn0|62e5",
 				"America/Sao_Paulo|BRST BRT|20 30|01010101010101010101010|1BIq0 1zd0 On0 1zd0 Rb0 1zd0 Lz0 1C10 Lz0 1C10 On0 1zd0 On0 1zd0 On0 1zd0 On0 1C10 Lz0 1C10 Lz0 1C10|20e6",
 				"America/Scoresbysund|EGT EGST|10 0|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|452",
@@ -20226,7 +20181,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				"Asia/Bishkek|KGT|-60|0||87e4",
 				"Asia/Brunei|BNT|-80|0||42e4",
 				"Asia/Kolkata|IST|-5u|0||15e6",
-				"Asia/Chita|YAKT YAKST YAKT IRKT|-90 -a0 -a0 -80|010230|1BWh0 1qM0 WM0 8Hz0 3re0|33e4",
+				"Asia/Chita|YAKT YAKST YAKT IRKT|-90 -a0 -a0 -80|01023|1BWh0 1qM0 WM0 8Hz0|33e4",
 				"Asia/Choibalsan|CHOT CHOST|-80 -90|0101010101010|1O8G0 1cJ0 1cP0 1cJ0 1cP0 1fx0 1cP0 1cJ0 1cP0 1cJ0 1cP0 1cJ0|38e3",
 				"Asia/Shanghai|CST|-80|0||23e6",
 				"Asia/Dhaka|BDT|-60|0||16e6",
@@ -20359,7 +20314,6 @@ return /******/ (function(modules) { // webpackBootstrap
 				"Pacific/Norfolk|NFT NFT|-bu -b0|01|1PoCu|25e4",
 				"Pacific/Noumea|NCT|-b0|0||98e3",
 				"Pacific/Palau|PWT|-90|0||21e3",
-				"Pacific/Pitcairn|PST|80|0||56",
 				"Pacific/Pohnpei|PONT|-b0|0||34e3",
 				"Pacific/Port_Moresby|PGT|-a0|0||25e4",
 				"Pacific/Rarotonga|CKT|a0|0||13e3",
@@ -20498,7 +20452,6 @@ return /******/ (function(modules) { // webpackBootstrap
 				"America/Havana|Cuba",
 				"America/Los_Angeles|America/Dawson",
 				"America/Los_Angeles|America/Ensenada",
-				"America/Los_Angeles|America/Santa_Isabel",
 				"America/Los_Angeles|America/Tijuana",
 				"America/Los_Angeles|America/Vancouver",
 				"America/Los_Angeles|America/Whitehorse",
@@ -20520,6 +20473,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				"America/Manaus|America/Boa_Vista",
 				"America/Manaus|America/Porto_Velho",
 				"America/Manaus|Brazil/West",
+				"America/Metlakatla|Pacific/Pitcairn",
 				"America/Mexico_City|America/Merida",
 				"America/Mexico_City|America/Monterrey",
 				"America/Mexico_City|Mexico/General",
@@ -20549,7 +20503,6 @@ return /******/ (function(modules) { // webpackBootstrap
 				"America/New_York|US/Michigan",
 				"America/Noronha|Brazil/DeNoronha",
 				"America/Panama|America/Atikokan",
-				"America/Panama|America/Cayman",
 				"America/Panama|America/Coral_Harbour",
 				"America/Panama|America/Jamaica",
 				"America/Panama|EST",
@@ -21251,7 +21204,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	
 	// module
-	exports.push([module.id, "/*!\n * FullCalendar v2.6.1 Stylesheet\n * Docs & License: http://fullcalendar.io/\n * (c) 2015 Adam Shaw\n */.fc{direction:ltr;text-align:left}.fc-rtl{text-align:right}body .fc{font-size:1em}.fc-unthemed .fc-divider,.fc-unthemed .fc-popover,.fc-unthemed .fc-row,.fc-unthemed tbody,.fc-unthemed td,.fc-unthemed th,.fc-unthemed thead{border-color:#ddd}.fc-unthemed .fc-popover{background-color:#fff}.fc-unthemed .fc-divider,.fc-unthemed .fc-popover .fc-header{background:#eee}.fc-unthemed .fc-popover .fc-header .fc-close{color:#666}.fc-unthemed .fc-today{background:#fcf8e3}.fc-highlight{background:#bce8f1}.fc-bgevent,.fc-highlight{opacity:.3;filter:alpha(opacity=30)}.fc-bgevent{background:#8fdf82}.fc-nonbusiness{background:#d7d7d7}.fc-icon{display:inline-block;width:1em;height:1em;line-height:1em;font-size:1em;text-align:center;overflow:hidden;font-family:Courier New,Courier,monospace;-webkit-touch-callout:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.fc-icon:after{position:relative;margin:0 -1em}.fc-icon-left-single-arrow:after{content:\"\\2039\";font-weight:700;font-size:200%;top:-7%;left:3%}.fc-icon-right-single-arrow:after{content:\"\\203A\";font-weight:700;font-size:200%;top:-7%;left:-3%}.fc-icon-left-double-arrow:after{content:\"\\AB\";font-size:160%;top:-7%}.fc-icon-right-double-arrow:after{content:\"\\BB\";font-size:160%;top:-7%}.fc-icon-left-triangle:after{content:\"\\25C4\";font-size:125%;top:3%;left:-2%}.fc-icon-right-triangle:after{content:\"\\25BA\";font-size:125%;top:3%;left:2%}.fc-icon-down-triangle:after{content:\"\\25BC\";font-size:125%;top:2%}.fc-icon-x:after{content:\"\\D7\";font-size:200%;top:6%}.fc button{box-sizing:border-box;margin:0;height:2.1em;padding:0 .6em;font-size:1em;white-space:nowrap;cursor:pointer}.fc button::-moz-focus-inner{margin:0;padding:0}.fc-state-default{border:1px solid}.fc-state-default.fc-corner-left{border-top-left-radius:4px;border-bottom-left-radius:4px}.fc-state-default.fc-corner-right{border-top-right-radius:4px;border-bottom-right-radius:4px}.fc button .fc-icon{position:relative;top:-.05em;margin:0 .2em;vertical-align:middle}.fc-state-default{background-color:#f5f5f5;background-image:-webkit-gradient(linear,0 0,0 100%,from(#fff),to(#e6e6e6));background-image:-webkit-linear-gradient(top,#fff,#e6e6e6);background-image:linear-gradient(180deg,#fff,#e6e6e6);background-repeat:repeat-x;border-color:#e6e6e6 #e6e6e6 #bfbfbf;border-color:rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25);color:#333;text-shadow:0 1px 1px hsla(0,0%,100%,.75);box-shadow:inset 0 1px 0 hsla(0,0%,100%,.2),0 1px 2px rgba(0,0,0,.05)}.fc-state-active,.fc-state-disabled,.fc-state-down,.fc-state-hover{color:#333;background-color:#e6e6e6}.fc-state-hover{color:#333;text-decoration:none;background-position:0 -15px;-webkit-transition:background-position .1s linear;transition:background-position .1s linear}.fc-state-active,.fc-state-down{background-color:#ccc;background-image:none;box-shadow:inset 0 2px 4px rgba(0,0,0,.15),0 1px 2px rgba(0,0,0,.05)}.fc-state-disabled{cursor:default;background-image:none;opacity:.65;filter:alpha(opacity=65);box-shadow:none}.fc-button-group{display:inline-block}.fc .fc-button-group>*{float:left;margin:0 0 0 -1px}.fc .fc-button-group>:first-child{margin-left:0}.fc-popover{position:absolute;box-shadow:0 2px 6px rgba(0,0,0,.15)}.fc-popover .fc-header{padding:2px 4px}.fc-popover .fc-header .fc-title{margin:0 2px}.fc-popover .fc-header .fc-close{cursor:pointer}.fc-ltr .fc-popover .fc-header .fc-title,.fc-rtl .fc-popover .fc-header .fc-close{float:left}.fc-ltr .fc-popover .fc-header .fc-close,.fc-rtl .fc-popover .fc-header .fc-title{float:right}.fc-unthemed .fc-popover{border-width:1px;border-style:solid}.fc-unthemed .fc-popover .fc-header .fc-close{font-size:.9em;margin-top:2px}.fc-popover>.ui-widget-header+.ui-widget-content{border-top:0}.fc-divider{border-style:solid;border-width:1px}hr.fc-divider{height:0;margin:0;padding:0 0 2px;border-width:1px 0}.fc-clear{clear:both}.fc-bg,.fc-bgevent-skeleton,.fc-helper-skeleton,.fc-highlight-skeleton{position:absolute;top:0;left:0;right:0}.fc-bg{bottom:0}.fc-bg table{height:100%}.fc table{width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;font-size:1em}.fc th{text-align:center}.fc td,.fc th{border-style:solid;border-width:1px;padding:0;vertical-align:top}.fc td.fc-today{border-style:double}.fc .fc-row{border-style:solid;border-width:0}.fc-row table{border-left:0 hidden transparent;border-right:0 hidden transparent;border-bottom:0 hidden transparent}.fc-row:first-child table{border-top:0 hidden transparent}.fc-row{position:relative}.fc-row .fc-bg{z-index:1}.fc-row .fc-bgevent-skeleton,.fc-row .fc-highlight-skeleton{bottom:0}.fc-row .fc-bgevent-skeleton table,.fc-row .fc-highlight-skeleton table{height:100%}.fc-row .fc-bgevent-skeleton td,.fc-row .fc-highlight-skeleton td{border-color:transparent}.fc-row .fc-bgevent-skeleton{z-index:2}.fc-row .fc-highlight-skeleton{z-index:3}.fc-row .fc-content-skeleton{position:relative;z-index:4;padding-bottom:2px}.fc-row .fc-helper-skeleton{z-index:5}.fc-row .fc-content-skeleton td,.fc-row .fc-helper-skeleton td{background:none;border-color:transparent;border-bottom:0}.fc-row .fc-content-skeleton tbody td,.fc-row .fc-helper-skeleton tbody td{border-top:0}.fc-scroller{overflow-y:scroll;overflow-x:hidden}.fc-scroller>*{position:relative;width:100%;overflow:hidden}.fc-event{position:relative;display:block;font-size:.85em;line-height:1.3;border-radius:3px;border:1px solid #3a87ad;background-color:#3a87ad;font-weight:400}.fc-event,.fc-event:hover,.ui-widget .fc-event{color:#fff;text-decoration:none}.fc-event.fc-draggable,.fc-event[href]{cursor:pointer}.fc-not-allowed,.fc-not-allowed .fc-event{cursor:not-allowed}.fc-event .fc-bg{z-index:1;background:#fff;opacity:.25;filter:alpha(opacity=25)}.fc-event .fc-content{position:relative;z-index:2}.fc-event .fc-resizer{position:absolute;z-index:3}.fc-ltr .fc-h-event.fc-not-start,.fc-rtl .fc-h-event.fc-not-end{margin-left:0;border-left-width:0;padding-left:1px;border-top-left-radius:0;border-bottom-left-radius:0}.fc-ltr .fc-h-event.fc-not-end,.fc-rtl .fc-h-event.fc-not-start{margin-right:0;border-right-width:0;padding-right:1px;border-top-right-radius:0;border-bottom-right-radius:0}.fc-h-event .fc-resizer{top:-1px;bottom:-1px;left:-1px;right:-1px;width:5px}.fc-ltr .fc-h-event .fc-start-resizer,.fc-ltr .fc-h-event .fc-start-resizer:after,.fc-ltr .fc-h-event .fc-start-resizer:before,.fc-rtl .fc-h-event .fc-end-resizer,.fc-rtl .fc-h-event .fc-end-resizer:after,.fc-rtl .fc-h-event .fc-end-resizer:before{right:auto;cursor:w-resize}.fc-ltr .fc-h-event .fc-end-resizer,.fc-ltr .fc-h-event .fc-end-resizer:after,.fc-ltr .fc-h-event .fc-end-resizer:before,.fc-rtl .fc-h-event .fc-start-resizer,.fc-rtl .fc-h-event .fc-start-resizer:after,.fc-rtl .fc-h-event .fc-start-resizer:before{left:auto;cursor:e-resize}.fc-day-grid-event{margin:1px 2px 0;padding:0 1px}.fc-day-grid-event .fc-content{white-space:nowrap;overflow:hidden}.fc-day-grid-event .fc-time{font-weight:700}.fc-day-grid-event .fc-resizer{left:-3px;right:-3px;width:7px}a.fc-more{margin:1px 3px;font-size:.85em;cursor:pointer;text-decoration:none}a.fc-more:hover{text-decoration:underline}.fc-limited{display:none}.fc-day-grid .fc-row{z-index:1}.fc-more-popover{z-index:2;width:220px}.fc-more-popover .fc-event-container{padding:10px}.fc-now-indicator{position:absolute;border:0 solid red}.fc-toolbar{text-align:center;margin-bottom:1em}.fc-toolbar .fc-left{float:left}.fc-toolbar .fc-right{float:right}.fc-toolbar .fc-center{display:inline-block}.fc .fc-toolbar>*>*{float:left;margin-left:.75em}.fc .fc-toolbar>*>:first-child{margin-left:0}.fc-toolbar h2{margin:0}.fc-toolbar button{position:relative}.fc-toolbar .fc-state-hover,.fc-toolbar .ui-state-hover{z-index:2}.fc-toolbar .fc-state-down{z-index:3}.fc-toolbar .fc-state-active,.fc-toolbar .ui-state-active{z-index:4}.fc-toolbar button:focus{z-index:5}.fc-view-container *,.fc-view-container :after,.fc-view-container :before{box-sizing:content-box}.fc-view,.fc-view>table{position:relative;z-index:1}.fc-basicDay-view .fc-content-skeleton,.fc-basicWeek-view .fc-content-skeleton{padding-top:1px;padding-bottom:1em}.fc-basic-view .fc-body .fc-row{min-height:4em}.fc-row.fc-rigid{overflow:hidden}.fc-row.fc-rigid .fc-content-skeleton{position:absolute;top:0;left:0;right:0}.fc-basic-view .fc-day-number,.fc-basic-view .fc-week-number{padding:0 2px}.fc-basic-view td.fc-day-number,.fc-basic-view td.fc-week-number span{padding-top:2px;padding-bottom:2px}.fc-basic-view .fc-week-number{text-align:center}.fc-basic-view .fc-week-number span{display:inline-block;min-width:1.25em}.fc-ltr .fc-basic-view .fc-day-number{text-align:right}.fc-rtl .fc-basic-view .fc-day-number{text-align:left}.fc-day-number.fc-other-month{opacity:.3;filter:alpha(opacity=30)}.fc-agenda-view .fc-day-grid{position:relative;z-index:2}.fc-agenda-view .fc-day-grid .fc-row{min-height:3em}.fc-agenda-view .fc-day-grid .fc-row .fc-content-skeleton{padding-top:1px;padding-bottom:1em}.fc .fc-axis{vertical-align:middle;padding:0 4px;white-space:nowrap}.fc-ltr .fc-axis{text-align:right}.fc-rtl .fc-axis{text-align:left}.ui-widget td.fc-axis{font-weight:400}.fc-time-grid,.fc-time-grid-container{position:relative;z-index:1}.fc-time-grid{min-height:100%}.fc-time-grid table{border:0 hidden transparent}.fc-time-grid>.fc-bg{z-index:1}.fc-time-grid .fc-slats,.fc-time-grid>hr{position:relative;z-index:2}.fc-time-grid .fc-content-col{position:relative}.fc-time-grid .fc-content-skeleton{position:absolute;z-index:3;top:0;left:0;right:0}.fc-time-grid .fc-business-container{position:relative;z-index:1}.fc-time-grid .fc-bgevent-container{position:relative;z-index:2}.fc-time-grid .fc-highlight-container{position:relative;z-index:3}.fc-time-grid .fc-event-container{position:relative;z-index:4}.fc-time-grid .fc-now-indicator-line{z-index:5}.fc-time-grid .fc-helper-container{position:relative;z-index:6}.fc-time-grid .fc-slats td{height:1.5em;border-bottom:0}.fc-time-grid .fc-slats .fc-minor td{border-top-style:dotted}.fc-time-grid .fc-slats .ui-widget-content{background:none}.fc-time-grid .fc-highlight-container{position:relative}.fc-time-grid .fc-highlight{position:absolute;left:0;right:0}.fc-ltr .fc-time-grid .fc-event-container{margin:0 2.5% 0 2px}.fc-rtl .fc-time-grid .fc-event-container{margin:0 2px 0 2.5%}.fc-time-grid .fc-bgevent,.fc-time-grid .fc-event{position:absolute;z-index:1}.fc-time-grid .fc-bgevent{left:0;right:0}.fc-v-event.fc-not-start{border-top-width:0;padding-top:1px;border-top-left-radius:0;border-top-right-radius:0}.fc-v-event.fc-not-end{border-bottom-width:0;padding-bottom:1px;border-bottom-left-radius:0;border-bottom-right-radius:0}.fc-time-grid-event{overflow:hidden}.fc-time-grid-event .fc-time,.fc-time-grid-event .fc-title{padding:0 1px}.fc-time-grid-event .fc-time{font-size:.85em;white-space:nowrap}.fc-time-grid-event.fc-short .fc-content{white-space:nowrap}.fc-time-grid-event.fc-short .fc-time,.fc-time-grid-event.fc-short .fc-title{display:inline-block;vertical-align:top}.fc-time-grid-event.fc-short .fc-time span{display:none}.fc-time-grid-event.fc-short .fc-time:before{content:attr(data-start)}.fc-time-grid-event.fc-short .fc-time:after{content:\"\\A0-\\A0\"}.fc-time-grid-event.fc-short .fc-title{font-size:.85em;padding:0}.fc-time-grid-event .fc-resizer{left:0;right:0;bottom:0;height:8px;overflow:hidden;line-height:8px;font-size:11px;font-family:monospace;text-align:center;cursor:s-resize}.fc-time-grid-event .fc-resizer:after{content:\"=\"}.fc-time-grid .fc-now-indicator-line{border-top-width:1px;left:0;right:0}.fc-time-grid .fc-now-indicator-arrow{margin-top:-5px}.fc-ltr .fc-time-grid .fc-now-indicator-arrow{left:0;border-width:5px 0 5px 6px;border-top-color:transparent;border-bottom-color:transparent}.fc-rtl .fc-time-grid .fc-now-indicator-arrow{right:0;border-width:5px 6px 5px 0;border-top-color:transparent;border-bottom-color:transparent}", ""]);
+	exports.push([module.id, "/*!\n * FullCalendar v2.6.0 Stylesheet\n * Docs & License: http://fullcalendar.io/\n * (c) 2015 Adam Shaw\n */.fc{direction:ltr;text-align:left}.fc-rtl{text-align:right}body .fc{font-size:1em}.fc-unthemed .fc-divider,.fc-unthemed .fc-popover,.fc-unthemed .fc-row,.fc-unthemed tbody,.fc-unthemed td,.fc-unthemed th,.fc-unthemed thead{border-color:#ddd}.fc-unthemed .fc-popover{background-color:#fff}.fc-unthemed .fc-divider,.fc-unthemed .fc-popover .fc-header{background:#eee}.fc-unthemed .fc-popover .fc-header .fc-close{color:#666}.fc-unthemed .fc-today{background:#fcf8e3}.fc-highlight{background:#bce8f1}.fc-bgevent,.fc-highlight{opacity:.3;filter:alpha(opacity=30)}.fc-bgevent{background:#8fdf82}.fc-nonbusiness{background:#d7d7d7}.fc-icon{display:inline-block;width:1em;height:1em;line-height:1em;font-size:1em;text-align:center;overflow:hidden;font-family:Courier New,Courier,monospace;-webkit-touch-callout:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.fc-icon:after{position:relative;margin:0 -1em}.fc-icon-left-single-arrow:after{content:\"\\2039\";font-weight:700;font-size:200%;top:-7%;left:3%}.fc-icon-right-single-arrow:after{content:\"\\203A\";font-weight:700;font-size:200%;top:-7%;left:-3%}.fc-icon-left-double-arrow:after{content:\"\\AB\";font-size:160%;top:-7%}.fc-icon-right-double-arrow:after{content:\"\\BB\";font-size:160%;top:-7%}.fc-icon-left-triangle:after{content:\"\\25C4\";font-size:125%;top:3%;left:-2%}.fc-icon-right-triangle:after{content:\"\\25BA\";font-size:125%;top:3%;left:2%}.fc-icon-down-triangle:after{content:\"\\25BC\";font-size:125%;top:2%}.fc-icon-x:after{content:\"\\D7\";font-size:200%;top:6%}.fc button{box-sizing:border-box;margin:0;height:2.1em;padding:0 .6em;font-size:1em;white-space:nowrap;cursor:pointer}.fc button::-moz-focus-inner{margin:0;padding:0}.fc-state-default{border:1px solid}.fc-state-default.fc-corner-left{border-top-left-radius:4px;border-bottom-left-radius:4px}.fc-state-default.fc-corner-right{border-top-right-radius:4px;border-bottom-right-radius:4px}.fc button .fc-icon{position:relative;top:-.05em;margin:0 .2em;vertical-align:middle}.fc-state-default{background-color:#f5f5f5;background-image:-webkit-gradient(linear,0 0,0 100%,from(#fff),to(#e6e6e6));background-image:-webkit-linear-gradient(top,#fff,#e6e6e6);background-image:linear-gradient(180deg,#fff,#e6e6e6);background-repeat:repeat-x;border-color:#e6e6e6 #e6e6e6 #bfbfbf;border-color:rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25);color:#333;text-shadow:0 1px 1px hsla(0,0%,100%,.75);box-shadow:inset 0 1px 0 hsla(0,0%,100%,.2),0 1px 2px rgba(0,0,0,.05)}.fc-state-active,.fc-state-disabled,.fc-state-down,.fc-state-hover{color:#333;background-color:#e6e6e6}.fc-state-hover{color:#333;text-decoration:none;background-position:0 -15px;-webkit-transition:background-position .1s linear;transition:background-position .1s linear}.fc-state-active,.fc-state-down{background-color:#ccc;background-image:none;box-shadow:inset 0 2px 4px rgba(0,0,0,.15),0 1px 2px rgba(0,0,0,.05)}.fc-state-disabled{cursor:default;background-image:none;opacity:.65;filter:alpha(opacity=65);box-shadow:none}.fc-button-group{display:inline-block}.fc .fc-button-group>*{float:left;margin:0 0 0 -1px}.fc .fc-button-group>:first-child{margin-left:0}.fc-popover{position:absolute;box-shadow:0 2px 6px rgba(0,0,0,.15)}.fc-popover .fc-header{padding:2px 4px}.fc-popover .fc-header .fc-title{margin:0 2px}.fc-popover .fc-header .fc-close{cursor:pointer}.fc-ltr .fc-popover .fc-header .fc-title,.fc-rtl .fc-popover .fc-header .fc-close{float:left}.fc-ltr .fc-popover .fc-header .fc-close,.fc-rtl .fc-popover .fc-header .fc-title{float:right}.fc-unthemed .fc-popover{border-width:1px;border-style:solid}.fc-unthemed .fc-popover .fc-header .fc-close{font-size:.9em;margin-top:2px}.fc-popover>.ui-widget-header+.ui-widget-content{border-top:0}.fc-divider{border-style:solid;border-width:1px}hr.fc-divider{height:0;margin:0;padding:0 0 2px;border-width:1px 0}.fc-clear{clear:both}.fc-bg,.fc-bgevent-skeleton,.fc-helper-skeleton,.fc-highlight-skeleton{position:absolute;top:0;left:0;right:0}.fc-bg{bottom:0}.fc-bg table{height:100%}.fc table{width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;font-size:1em}.fc th{text-align:center}.fc td,.fc th{border-style:solid;border-width:1px;padding:0;vertical-align:top}.fc td.fc-today{border-style:double}.fc .fc-row{border-style:solid;border-width:0}.fc-row table{border-left:0 hidden transparent;border-right:0 hidden transparent;border-bottom:0 hidden transparent}.fc-row:first-child table{border-top:0 hidden transparent}.fc-row{position:relative}.fc-row .fc-bg{z-index:1}.fc-row .fc-bgevent-skeleton,.fc-row .fc-highlight-skeleton{bottom:0}.fc-row .fc-bgevent-skeleton table,.fc-row .fc-highlight-skeleton table{height:100%}.fc-row .fc-bgevent-skeleton td,.fc-row .fc-highlight-skeleton td{border-color:transparent}.fc-row .fc-bgevent-skeleton{z-index:2}.fc-row .fc-highlight-skeleton{z-index:3}.fc-row .fc-content-skeleton{position:relative;z-index:4;padding-bottom:2px}.fc-row .fc-helper-skeleton{z-index:5}.fc-row .fc-content-skeleton td,.fc-row .fc-helper-skeleton td{background:none;border-color:transparent;border-bottom:0}.fc-row .fc-content-skeleton tbody td,.fc-row .fc-helper-skeleton tbody td{border-top:0}.fc-scroller{overflow-y:scroll;overflow-x:hidden}.fc-scroller>*{position:relative;width:100%;overflow:hidden}.fc-event{position:relative;display:block;font-size:.85em;line-height:1.3;border-radius:3px;border:1px solid #3a87ad;background-color:#3a87ad;font-weight:400}.fc-event,.fc-event:hover,.ui-widget .fc-event{color:#fff;text-decoration:none}.fc-event.fc-draggable,.fc-event[href]{cursor:pointer}.fc-not-allowed,.fc-not-allowed .fc-event{cursor:not-allowed}.fc-event .fc-bg{z-index:1;background:#fff;opacity:.25;filter:alpha(opacity=25)}.fc-event .fc-content{position:relative;z-index:2}.fc-event .fc-resizer{position:absolute;z-index:3}.fc-ltr .fc-h-event.fc-not-start,.fc-rtl .fc-h-event.fc-not-end{margin-left:0;border-left-width:0;padding-left:1px;border-top-left-radius:0;border-bottom-left-radius:0}.fc-ltr .fc-h-event.fc-not-end,.fc-rtl .fc-h-event.fc-not-start{margin-right:0;border-right-width:0;padding-right:1px;border-top-right-radius:0;border-bottom-right-radius:0}.fc-h-event .fc-resizer{top:-1px;bottom:-1px;left:-1px;right:-1px;width:5px}.fc-ltr .fc-h-event .fc-start-resizer,.fc-ltr .fc-h-event .fc-start-resizer:after,.fc-ltr .fc-h-event .fc-start-resizer:before,.fc-rtl .fc-h-event .fc-end-resizer,.fc-rtl .fc-h-event .fc-end-resizer:after,.fc-rtl .fc-h-event .fc-end-resizer:before{right:auto;cursor:w-resize}.fc-ltr .fc-h-event .fc-end-resizer,.fc-ltr .fc-h-event .fc-end-resizer:after,.fc-ltr .fc-h-event .fc-end-resizer:before,.fc-rtl .fc-h-event .fc-start-resizer,.fc-rtl .fc-h-event .fc-start-resizer:after,.fc-rtl .fc-h-event .fc-start-resizer:before{left:auto;cursor:e-resize}.fc-day-grid-event{margin:1px 2px 0;padding:0 1px}.fc-day-grid-event .fc-content{white-space:nowrap;overflow:hidden}.fc-day-grid-event .fc-time{font-weight:700}.fc-day-grid-event .fc-resizer{left:-3px;right:-3px;width:7px}a.fc-more{margin:1px 3px;font-size:.85em;cursor:pointer;text-decoration:none}a.fc-more:hover{text-decoration:underline}.fc-limited{display:none}.fc-day-grid .fc-row{z-index:1}.fc-more-popover{z-index:2;width:220px}.fc-more-popover .fc-event-container{padding:10px}.fc-now-indicator{position:absolute;border:0 solid red}.fc-toolbar{text-align:center;margin-bottom:1em}.fc-toolbar .fc-left{float:left}.fc-toolbar .fc-right{float:right}.fc-toolbar .fc-center{display:inline-block}.fc .fc-toolbar>*>*{float:left;margin-left:.75em}.fc .fc-toolbar>*>:first-child{margin-left:0}.fc-toolbar h2{margin:0}.fc-toolbar button{position:relative}.fc-toolbar .fc-state-hover,.fc-toolbar .ui-state-hover{z-index:2}.fc-toolbar .fc-state-down{z-index:3}.fc-toolbar .fc-state-active,.fc-toolbar .ui-state-active{z-index:4}.fc-toolbar button:focus{z-index:5}.fc-view-container *,.fc-view-container :after,.fc-view-container :before{box-sizing:content-box}.fc-view,.fc-view>table{position:relative;z-index:1}.fc-basicDay-view .fc-content-skeleton,.fc-basicWeek-view .fc-content-skeleton{padding-top:1px;padding-bottom:1em}.fc-basic-view .fc-body .fc-row{min-height:4em}.fc-row.fc-rigid{overflow:hidden}.fc-row.fc-rigid .fc-content-skeleton{position:absolute;top:0;left:0;right:0}.fc-basic-view .fc-day-number,.fc-basic-view .fc-week-number{padding:0 2px}.fc-basic-view td.fc-day-number,.fc-basic-view td.fc-week-number span{padding-top:2px;padding-bottom:2px}.fc-basic-view .fc-week-number{text-align:center}.fc-basic-view .fc-week-number span{display:inline-block;min-width:1.25em}.fc-ltr .fc-basic-view .fc-day-number{text-align:right}.fc-rtl .fc-basic-view .fc-day-number{text-align:left}.fc-day-number.fc-other-month{opacity:.3;filter:alpha(opacity=30)}.fc-agenda-view .fc-day-grid{position:relative;z-index:2}.fc-agenda-view .fc-day-grid .fc-row{min-height:3em}.fc-agenda-view .fc-day-grid .fc-row .fc-content-skeleton{padding-top:1px;padding-bottom:1em}.fc .fc-axis{vertical-align:middle;padding:0 4px;white-space:nowrap}.fc-ltr .fc-axis{text-align:right}.fc-rtl .fc-axis{text-align:left}.ui-widget td.fc-axis{font-weight:400}.fc-time-grid,.fc-time-grid-container{position:relative;z-index:1}.fc-time-grid{min-height:100%}.fc-time-grid table{border:0 hidden transparent}.fc-time-grid>.fc-bg{z-index:1}.fc-time-grid .fc-slats,.fc-time-grid>hr{position:relative;z-index:2}.fc-time-grid .fc-content-col{position:relative}.fc-time-grid .fc-content-skeleton{position:absolute;z-index:3;top:0;left:0;right:0}.fc-time-grid .fc-business-container{position:relative;z-index:1}.fc-time-grid .fc-bgevent-container{position:relative;z-index:2}.fc-time-grid .fc-highlight-container{position:relative;z-index:3}.fc-time-grid .fc-event-container{position:relative;z-index:4}.fc-time-grid .fc-now-indicator-line{z-index:5}.fc-time-grid .fc-helper-container{position:relative;z-index:6}.fc-time-grid .fc-slats td{height:1.5em;border-bottom:0}.fc-time-grid .fc-slats .fc-minor td{border-top-style:dotted}.fc-time-grid .fc-slats .ui-widget-content{background:none}.fc-time-grid .fc-highlight-container{position:relative}.fc-time-grid .fc-highlight{position:absolute;left:0;right:0}.fc-ltr .fc-time-grid .fc-event-container{margin:0 2.5% 0 2px}.fc-rtl .fc-time-grid .fc-event-container{margin:0 2px 0 2.5%}.fc-time-grid .fc-bgevent,.fc-time-grid .fc-event{position:absolute;z-index:1}.fc-time-grid .fc-bgevent{left:0;right:0}.fc-v-event.fc-not-start{border-top-width:0;padding-top:1px;border-top-left-radius:0;border-top-right-radius:0}.fc-v-event.fc-not-end{border-bottom-width:0;padding-bottom:1px;border-bottom-left-radius:0;border-bottom-right-radius:0}.fc-time-grid-event{overflow:hidden}.fc-time-grid-event .fc-time,.fc-time-grid-event .fc-title{padding:0 1px}.fc-time-grid-event .fc-time{font-size:.85em;white-space:nowrap}.fc-time-grid-event.fc-short .fc-content{white-space:nowrap}.fc-time-grid-event.fc-short .fc-time,.fc-time-grid-event.fc-short .fc-title{display:inline-block;vertical-align:top}.fc-time-grid-event.fc-short .fc-time span{display:none}.fc-time-grid-event.fc-short .fc-time:before{content:attr(data-start)}.fc-time-grid-event.fc-short .fc-time:after{content:\"\\A0-\\A0\"}.fc-time-grid-event.fc-short .fc-title{font-size:.85em;padding:0}.fc-time-grid-event .fc-resizer{left:0;right:0;bottom:0;height:8px;overflow:hidden;line-height:8px;font-size:11px;font-family:monospace;text-align:center;cursor:s-resize}.fc-time-grid-event .fc-resizer:after{content:\"=\"}.fc-time-grid .fc-now-indicator-line{border-top-width:1px;left:0;right:0}.fc-time-grid .fc-now-indicator-arrow{margin-top:-5px}.fc-ltr .fc-time-grid .fc-now-indicator-arrow{left:0;border-width:5px 0 5px 6px;border-top-color:transparent;border-bottom-color:transparent}.fc-rtl .fc-time-grid .fc-now-indicator-arrow{right:0;border-width:5px 6px 5px 0;border-top-color:transparent;border-bottom-color:transparent}", ""]);
 	
 	// exports
 
@@ -21681,7 +21634,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,600);", ""]);
 	
 	// module
-	exports.push([module.id, "/*!\n * Booking.js\n * http://booking.timekit.io\n * (c) 2015 Timekit Inc.\n */.bookingjs{position:relative;font-family:Open Sans,Helvetica,Tahoma,Arial,sans-serif;font-size:13px;border-radius:4px;background-color:#fff;box-shadow:0 2px 4px 0 rgba(0,0,0,.2);margin:60px auto 20px;z-index:10;opacity:0;color:#333}.bookingjs.show{-webkit-transition:opacity .3s ease;transition:opacity .3s ease;opacity:1}.is-small.has-avatar.has-displayname .bookingjs-calendar .fc-toolbar{padding-bottom:24px}.is-small .bookingjs-calendar .fc-toolbar>.fc-right>button.fc-today-button{position:absolute;left:15px}.bookingjs-timezonehelper{color:#aeaeae;text-align:center;padding:7px 10px;background-color:#fbfbfb;border-top:1px solid #ececec;min-height:15px;z-index:20;border-radius:0 0 4px 4px}.bookingjs-timezoneicon{width:10px;margin-right:5px}.bookingjs-avatar{position:absolute;top:-50px;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%);border-radius:150px;border:3px solid #fff;box-shadow:0 1px 3px 0 rgba(0,0,0,.13);overflow:hidden;z-index:40;background-color:#fff}.is-small .bookingjs-avatar{top:-40px}.bookingjs-avatar img{max-width:100%;vertical-align:middle;display:inline-block;width:80px;height:80px}.is-small .bookingjs-avatar img{width:70px;height:70px}.bookingjs-displayname{position:absolute;top:0;left:0;padding:15px 20px;color:#333;font-weight:600}.is-small .bookingjs-displayname{text-align:center;width:100%;box-sizing:border-box}.is-small.has-avatar .bookingjs-displayname{top:44px;padding:0 20px}.bookingjs-bookpage{position:absolute;height:100%;width:100%;top:0;left:0;background-color:#fbfbfb;z-index:30;opacity:0;-webkit-transition:opacity .2s ease;transition:opacity .2s ease;border-radius:4px}.bookingjs-bookpage.show{opacity:1}.bookingjs-bookpage-close{position:absolute;top:0;right:0;padding:18px;-webkit-transition:opacity .2s ease;transition:opacity .2s ease;opacity:.3}.bookingjs-bookpage-close:hover{opacity:1}.bookingjs-bookpage-date,.bookingjs-bookpage h2{text-align:center;font-size:34px;font-weight:400;margin-top:70px;margin-bottom:10px}.is-small .bookingjs-bookpage-date,.is-small .bookingjs-bookpage h2{font-size:27px;margin-top:60px}.bookingjs-bookpage-time,.bookingjs-bookpage h3{text-align:center;font-size:17px;font-weight:400;margin-bottom:50px;margin-top:10px}.is-small .bookingjs-bookpage-time,.is-small .bookingjs-bookpage h3{font-size:15px;margin-bottom:35px}.bookingjs-closeicon{width:15px}.bookingjs-form{width:350px;position:relative;margin:0 auto;text-align:center}.is-small .bookingjs-form{width:90%}.bookingjs-form-box{position:relative;box-shadow:0 1px 3px 0 rgba(0,0,0,.1);overflow:hidden;background-color:#fff;line-height:0}.bookingjs-form-success-message{position:absolute;top:-999px;left:0;right:0;padding:30px;background-color:#fff;opacity:0;-webkit-transition:opacity .3s ease;transition:opacity .3s ease;line-height:normal}.is-small .bookingjs-form-success-message{padding:22px 10px}.bookingjs-form-success-message .title{font-size:20px;display:block;margin-bottom:25px}.bookingjs-form-success-message .body{display:block}.bookingjs-form-success-message .body .booked-email{color:#aeaeae}.bookingjs-form.success .bookingjs-form-success-message{opacity:1;top:0;bottom:0}.bookingjs-form-input,.bookingjs-form input,.bookingjs-form input:invalid textarea,.bookingjs-form textarea:invalid{-webkit-transition:box-shadow .2s ease;transition:box-shadow .2s ease;width:100%;padding:15px 25px;margin:0;border:0 solid #ececec;font-size:1em;box-shadow:inset 0 0 1px 1px hsla(0,0%,100%,0);text-align:left;box-sizing:border-box;line-height:normal;font-family:Open Sans,Helvetica,Tahoma,Arial,sans-serif;color:#333}.bookingjs-form-input:focus,.bookingjs-form input:focus,.bookingjs-form input:invalid textarea:focus,.bookingjs-form textarea:invalid:focus{outline:0;box-shadow:inset 0 0 1px 1px #689ad8}.bookingjs-form-input.hidden,.bookingjs-form input.hidden,.bookingjs-form input:invalid textarea.hidden,.bookingjs-form textarea:invalid.hidden{display:none}.bookingjs-form-input:-moz-read-only,.bookingjs-form input:-moz-read-only,.bookingjs-form input:invalid textarea:-moz-read-only,.bookingjs-form textarea:invalid:-moz-read-only{cursor:not-allowed;font-style:italic}.bookingjs-form-input:read-only,.bookingjs-form input:invalid textarea:read-only,.bookingjs-form input:read-only,.bookingjs-form textarea:invalid:read-only{cursor:not-allowed;font-style:italic}.bookingjs-form-input:-moz-read-only:focus,.bookingjs-form input:-moz-read-only:focus,.bookingjs-form input:invalid textarea:-moz-read-only:focus,.bookingjs-form textarea:invalid:-moz-read-only:focus{box-shadow:inset 0 0 1px 1px #d8d8d8}.bookingjs-form-input:read-only:focus,.bookingjs-form input:invalid textarea:read-only:focus,.bookingjs-form input:read-only:focus,.bookingjs-form textarea:invalid:read-only:focus{box-shadow:inset 0 0 1px 1px #d8d8d8}.bookingjs-form-button{position:relative;-webkit-transition:background-color .2s,max-width .3s;transition:background-color .2s,max-width .3s;display:inline-block;padding:13px 25px;background-color:#689ad8;text-transform:uppercase;box-shadow:0 1px 3px 0 rgba(0,0,0,.15);color:#fff;border:0;border-radius:3px;font-size:1.1em;font-weight:600;margin-top:30px;cursor:pointer;height:44px;outline:0;text-align:center;max-width:200px}.bookingjs-form-button .error-text,.bookingjs-form-button .loading-text,.bookingjs-form-button .success-text{-webkit-transition:opacity .3s ease;transition:opacity .3s ease;position:absolute;top:13px;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%);opacity:0}.bookingjs-form-button .inactive-text{white-space:nowrap;opacity:1}.bookingjs-form-button .loading-text svg{height:19px;width:19px;-webkit-animation:spin .6s infinite linear;animation:spin .6s infinite linear}.bookingjs-form-button .error-text svg{height:15px;width:15px;margin-top:2px}.bookingjs-form-button .success-text svg{height:15px;margin-top:2px;-webkit-transform:scale(0);transform:scale(0);-webkit-transition:-webkit-transform .6s ease;transition:-webkit-transform .6s ease;transition:transform .6s ease;transition:transform .6s ease,-webkit-transform .6s ease}.bookingjs-form-button:focus,.bookingjs-form-button:hover{background-color:#3f7fce}.bookingjs-form-button.button-shake{-webkit-animation:shake .5s 1 ease;animation:shake .5s 1 ease}.bookingjs-form.loading .bookingjs-form-button,.bookingjs-form.loading .bookingjs-form-button:hover{max-width:80px;background-color:#b1b1b1;cursor:not-allowed}.bookingjs-form.loading .bookingjs-form-button .inactive-text,.bookingjs-form.loading .bookingjs-form-button:hover .inactive-text{opacity:0}.bookingjs-form.loading .bookingjs-form-button .loading-text,.bookingjs-form.loading .bookingjs-form-button:hover .loading-text{opacity:1}.bookingjs-form.error .bookingjs-form-button,.bookingjs-form.error .bookingjs-form-button:hover{max-width:80px;background-color:#d83b46;cursor:not-allowed}.bookingjs-form.error .bookingjs-form-button .inactive-text,.bookingjs-form.error .bookingjs-form-button:hover .inactive-text{opacity:0}.bookingjs-form.error .bookingjs-form-button .error-text,.bookingjs-form.error .bookingjs-form-button:hover .error-text{opacity:1}.bookingjs-form.success .bookingjs-form-button,.bookingjs-form.success .bookingjs-form-button:hover{max-width:80px;background-color:#5baf56;cursor:not-allowed}.bookingjs-form.success .bookingjs-form-button .inactive-text,.bookingjs-form.success .bookingjs-form-button:hover .inactive-text{opacity:0}.bookingjs-form.success .bookingjs-form-button .success-text,.bookingjs-form.success .bookingjs-form-button:hover .success-text{opacity:1}.bookingjs-form.success .bookingjs-form-button .success-text svg,.bookingjs-form.success .bookingjs-form-button:hover .success-text svg{-webkit-transform:scale(1);transform:scale(1)}.bookingjs-poweredby{position:absolute;bottom:0;left:0;right:0;text-align:center;padding:7px 10px}.bookingjs-poweredby a{-webkit-transition:color .2s ease;transition:color .2s ease;color:#aeaeae;text-decoration:none}.bookingjs-poweredby a svg path{-webkit-transition:fill .2s ease;transition:fill .2s ease;fill:#aeaeae}.bookingjs-poweredby a:hover{color:#333}.bookingjs-poweredby a:hover svg path{fill:#333}.bookingjs-timekiticon{width:13px;margin-right:5px;vertical-align:sub}", ""]);
+	exports.push([module.id, "/*!\n * Booking.js\n * http://booking.timekit.io\n * (c) 2015 Timekit Inc.\n */.bookingjs{position:relative;font-family:Open Sans,Helvetica,Tahoma,Arial,sans-serif;font-size:13px;border-radius:4px;background-color:#fff;box-shadow:rgba(0,0,0,.2) 0 2px 4px 0;margin:60px auto 20px;z-index:10;opacity:0;color:#333}.bookingjs.show{-webkit-transition:opacity .3s ease;transition:opacity .3s ease;opacity:1}.is-small.has-avatar.has-displayname .bookingjs-calendar .fc-toolbar{padding-bottom:24px}.is-small .bookingjs-calendar .fc-toolbar>.fc-right>button.fc-today-button{position:absolute;left:15px}.bookingjs-timezonehelper{color:#aeaeae;text-align:center;padding:7px 10px;background-color:#fbfbfb;border-top:1px solid #ececec;min-height:15px;z-index:20;border-radius:0 0 4px 4px}.bookingjs-timezoneicon{width:10px;margin-right:5px}.bookingjs-avatar{position:absolute;top:-50px;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%);border-radius:150px;border:3px solid #fff;box-shadow:0 1px 3px 0 rgba(0,0,0,.13);overflow:hidden;z-index:40;background-color:#fff}.is-small .bookingjs-avatar{top:-40px}.bookingjs-avatar img{max-width:100%;vertical-align:middle;display:inline-block;width:80px;height:80px}.is-small .bookingjs-avatar img{width:70px;height:70px}.bookingjs-displayname{position:absolute;top:0;left:0;padding:15px 20px;color:#333;font-weight:600}.is-small .bookingjs-displayname{text-align:center;width:100%;box-sizing:border-box}.is-small.has-avatar .bookingjs-displayname{top:44px;padding:0 20px}.bookingjs-bookpage{position:absolute;height:100%;width:100%;top:0;left:0;background-color:#fbfbfb;z-index:30;opacity:0;-webkit-transition:opacity .2s ease;transition:opacity .2s ease;border-radius:4px}.bookingjs-bookpage.show{opacity:1}.bookingjs-bookpage-close{position:absolute;top:0;right:0;padding:18px;-webkit-transition:opacity .2s ease;transition:opacity .2s ease;opacity:.3}.bookingjs-bookpage-close:hover{opacity:1}.bookingjs-bookpage-date,.bookingjs-bookpage h2{text-align:center;font-size:34px;font-weight:400;margin-top:70px;margin-bottom:10px}.is-small .bookingjs-bookpage-date,.is-small .bookingjs-bookpage h2{font-size:27px;margin-top:60px}.bookingjs-bookpage-time,.bookingjs-bookpage h3{text-align:center;font-size:17px;font-weight:400;margin-bottom:50px;margin-top:10px}.is-small .bookingjs-bookpage-time,.is-small .bookingjs-bookpage h3{font-size:15px;margin-bottom:35px}.bookingjs-closeicon{width:15px}.bookingjs-form{width:350px;position:relative;margin:0 auto;text-align:center}.is-small .bookingjs-form{width:90%}.bookingjs-form-box{position:relative;box-shadow:0 1px 3px 0 rgba(0,0,0,.1);overflow:hidden;background-color:#fff;line-height:0}.bookingjs-form-success-message{position:absolute;top:-999px;left:0;right:0;padding:30px;background-color:#fff;opacity:0;-webkit-transition:opacity .3s ease;transition:opacity .3s ease;line-height:normal}.is-small .bookingjs-form-success-message{padding:22px 10px}.bookingjs-form-success-message .title{font-size:20px;display:block;margin-bottom:25px}.bookingjs-form-success-message .body{display:block}.bookingjs-form-success-message .body .booked-email{color:#aeaeae}.bookingjs-form.success .bookingjs-form-success-message{opacity:1;top:0;bottom:0}.bookingjs-form-input,.bookingjs-form input,.bookingjs-form input:invalid textarea,.bookingjs-form textarea:invalid{-webkit-transition:box-shadow .2s ease;transition:box-shadow .2s ease;width:100%;padding:15px 25px;margin:0;border:0 solid #ececec;font-size:1em;box-shadow:inset 0 0 1px 1px hsla(0,0%,100%,0);text-align:left;box-sizing:border-box;line-height:normal;font-family:Open Sans,Helvetica,Tahoma,Arial,sans-serif;color:#333}.bookingjs-form-input:focus,.bookingjs-form input:focus,.bookingjs-form input:invalid textarea:focus,.bookingjs-form textarea:invalid:focus{outline:0;box-shadow:inset 0 0 1px 1px #689ad8}.bookingjs-form-input.hidden,.bookingjs-form input.hidden,.bookingjs-form input:invalid textarea.hidden,.bookingjs-form textarea:invalid.hidden{display:none}.bookingjs-form-input:-moz-read-only,.bookingjs-form input:-moz-read-only,.bookingjs-form input:invalid textarea:-moz-read-only,.bookingjs-form textarea:invalid:-moz-read-only{cursor:not-allowed;font-style:italic}.bookingjs-form-input:read-only,.bookingjs-form input:invalid textarea:read-only,.bookingjs-form input:read-only,.bookingjs-form textarea:invalid:read-only{cursor:not-allowed;font-style:italic}.bookingjs-form-input:-moz-read-only:focus,.bookingjs-form input:-moz-read-only:focus,.bookingjs-form input:invalid textarea:-moz-read-only:focus,.bookingjs-form textarea:invalid:-moz-read-only:focus{box-shadow:inset 0 0 1px 1px #d8d8d8}.bookingjs-form-input:read-only:focus,.bookingjs-form input:invalid textarea:read-only:focus,.bookingjs-form input:read-only:focus,.bookingjs-form textarea:invalid:read-only:focus{box-shadow:inset 0 0 1px 1px #d8d8d8}.bookingjs-form-button{position:relative;-webkit-transition:background-color .2s,max-width .3s;transition:background-color .2s,max-width .3s;display:inline-block;padding:13px 25px;background-color:#689ad8;text-transform:uppercase;box-shadow:0 1px 3px 0 rgba(0,0,0,.15);color:#fff;border:0;border-radius:3px;font-size:1.1em;font-weight:600;margin-top:30px;cursor:pointer;height:44px;outline:0;text-align:center;max-width:200px}.bookingjs-form-button .error-text,.bookingjs-form-button .loading-text,.bookingjs-form-button .success-text{-webkit-transition:opacity .3s ease;transition:opacity .3s ease;position:absolute;top:13px;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%);opacity:0}.bookingjs-form-button .inactive-text{white-space:nowrap;opacity:1}.bookingjs-form-button .loading-text svg{height:19px;width:19px;-webkit-animation:spin .6s infinite linear;animation:spin .6s infinite linear}.bookingjs-form-button .error-text svg{height:15px;width:15px;margin-top:2px}.bookingjs-form-button .success-text svg{height:15px;margin-top:2px;-webkit-transform:scale(0);transform:scale(0);-webkit-transition:-webkit-transform .6s ease;transition:-webkit-transform .6s ease;transition:transform .6s ease;transition:transform .6s ease,-webkit-transform .6s ease}.bookingjs-form-button:focus,.bookingjs-form-button:hover{background-color:#3f7fce}.bookingjs-form-button.button-shake{-webkit-animation:shake .5s 1 ease;animation:shake .5s 1 ease}.bookingjs-form.loading .bookingjs-form-button,.bookingjs-form.loading .bookingjs-form-button:hover{max-width:80px;background-color:#b1b1b1;cursor:not-allowed}.bookingjs-form.loading .bookingjs-form-button .inactive-text,.bookingjs-form.loading .bookingjs-form-button:hover .inactive-text{opacity:0}.bookingjs-form.loading .bookingjs-form-button .loading-text,.bookingjs-form.loading .bookingjs-form-button:hover .loading-text{opacity:1}.bookingjs-form.error .bookingjs-form-button,.bookingjs-form.error .bookingjs-form-button:hover{max-width:80px;background-color:#d83b46;cursor:not-allowed}.bookingjs-form.error .bookingjs-form-button .inactive-text,.bookingjs-form.error .bookingjs-form-button:hover .inactive-text{opacity:0}.bookingjs-form.error .bookingjs-form-button .error-text,.bookingjs-form.error .bookingjs-form-button:hover .error-text{opacity:1}.bookingjs-form.success .bookingjs-form-button,.bookingjs-form.success .bookingjs-form-button:hover{max-width:80px;background-color:#5baf56;cursor:not-allowed}.bookingjs-form.success .bookingjs-form-button .inactive-text,.bookingjs-form.success .bookingjs-form-button:hover .inactive-text{opacity:0}.bookingjs-form.success .bookingjs-form-button .success-text,.bookingjs-form.success .bookingjs-form-button:hover .success-text{opacity:1}.bookingjs-form.success .bookingjs-form-button .success-text svg,.bookingjs-form.success .bookingjs-form-button:hover .success-text svg{-webkit-transform:scale(1);transform:scale(1)}.bookingjs-poweredby{position:absolute;bottom:0;left:0;right:0;text-align:center;padding:7px 10px}.bookingjs-poweredby a{-webkit-transition:color .2s ease;transition:color .2s ease;color:#aeaeae;text-decoration:none}.bookingjs-poweredby a svg path{-webkit-transition:fill .2s ease;transition:fill .2s ease;fill:#aeaeae}.bookingjs-poweredby a:hover{color:#333}.bookingjs-poweredby a:hover svg path{fill:#333}.bookingjs-timekiticon{width:13px;margin-right:5px;vertical-align:sub}", ""]);
 	
 	// exports
 
