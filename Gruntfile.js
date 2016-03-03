@@ -4,15 +4,21 @@ module.exports = function (grunt) {
     //Runs booking.js building routine.
     'build-bookingjs': {
       task: {
-        src: '/lib/modified-booking-js',
+        src: 'lib/modified-booking-js',
       },
     },
 
-    //Pulls from github and install
-    'pull-and-install': {
+    //Clones from github
+    gitClone: {
       task: {
         repo: 'https://github.com/timekit-io/booking-js.git',
         dest: 'lib',
+      },
+    },
+
+    npmInstall: {
+      task: {
+        dir: 'lib/modified-booking-js',
       },
     },
 
@@ -29,7 +35,7 @@ module.exports = function (grunt) {
         separator: ';',
       },
       dist: {
-        src: ['src/FLScheduler.js', 'dist/modified-booking.js', 'src/scheduler_controller.js'],
+        src: ['lib/modified-booking-js/dist/booking.min.js', 'src/scheduler_controller.js'],
         dest: 'dist/fl-booking.js',
       },
     },
@@ -47,6 +53,7 @@ module.exports = function (grunt) {
   grunt.loadTasks('./tasks');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.registerTask('default', ['build-bookingjs']);
-  grunt.registerTask('build', ['copy-folder', 'prepare-bookingjs', 'build-bookingjs', 'concat']);
-  grunt.registerTask('postinstall', ['pull-and-install']);
+  grunt.registerTask('build', ['prepare-bookingjs', 'build-bookingjs', 'concat']);
+  grunt.registerTask('postinstall', ['gitClone', 'copy-folder', 'npmInstall']);
+  grunt.registerTask('postinstall-test', ['gitClone', 'copy-folder', 'npmInstall']);
 };

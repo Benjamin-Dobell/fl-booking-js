@@ -16,6 +16,7 @@ module.exports = function (grunt) {
       var done = this.async();
       var rootDir = process.cwd();
       var bookingJsDir = this.data.src;
+
       try {
         process.chdir(bookingJsDir);
       } catch (e) {

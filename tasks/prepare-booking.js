@@ -37,7 +37,7 @@ module.exports = function (grunt) {
 
       var fs = require('fs');
 
-      grunt.verbose.writeln('Copying ' + schedulerAPI + ' to ' + srcFolder + schedulerFileName);
+      grunt.log.writeln('Copying ' + schedulerAPI + ' to ' + srcFolder + schedulerFileName);
 
       //Copy schedulerAPI file to src folder;
       var schedulerFileContent = fs.readFileSync(schedulerAPI, 'utf8');
@@ -51,7 +51,7 @@ module.exports = function (grunt) {
       var modifiedBookingjsFileContent = bookingjsFileContent.replace(/var\s+timekit\s+=[\s\w\_\(\)]+;/,
         'var timekit = require("./' + schedulerFileName + '");\n');
 
-      grunt.verbose.writeln('Writing to ' + src);
+      grunt.log.writeln('Modifying ' + src);
 
       fs.writeFileSync(src, modifiedBookingjsFileContent, 'utf8');
     });
