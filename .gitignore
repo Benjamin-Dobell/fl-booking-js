@@ -1,3 +1,2 @@
 node_modules
-/lib/booking-js/node_modules/
-/lib/booking-js-master/node_modules/
+/lib/*
