@@ -32,6 +32,7 @@ module.exports = function (grunt) {
       spawn('npm', ['install'], { capture: ['stdout', 'stderr'] })
         .then(function (result) {
           grunt.log.writeln('[npmInstall] stdout: ', result.stdout.toString());
+          grunt.log.writeln('Dependencies installed');
         })
         .fail(function (err) {
           grunt.log.error('[npmInstall] Error: ', err.stderr);

@@ -55,5 +55,4 @@ module.exports = function (grunt) {
   grunt.registerTask('default', ['build-bookingjs']);
   grunt.registerTask('build', ['prepare-bookingjs', 'build-bookingjs', 'concat']);
   grunt.registerTask('postinstall', ['gitClone', 'copy-folder', 'npmInstall']);
-  grunt.registerTask('postinstall-test', ['gitClone', 'copy-folder', 'npmInstall']);
 };
