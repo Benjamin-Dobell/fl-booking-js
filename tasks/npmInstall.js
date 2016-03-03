@@ -9,25 +9,25 @@ module.exports = function (grunt) {
     function () {
       var dir = this.data.dir;
 
-      if (!folder) {
+      if (!dir) {
         throw Error('npmInstall: No "dir" variable in config.');
       }
 
       var rootDir = process.cwd();
+      grunt.verbose.writeln('Current working directory is: ' + process.cwd());
 
       try {
-        process.chdir(dir);
+        process.chdir('./' + dir);
+        grunt.verbose.writeln('Changed directory to: ' + dir);
       } catch (e) {
         throw new Error('npmInstall: Error moving into "' + dir + '""');
       }
-
-      grunt.verbose.writeln('Changed directory to: ' + dir);
 
       //Tell grunt this is an async task.
       var done = this.async();
 
       grunt.verbose.writeln('Running "npm install"');
-      grunt.log.writeln('Installing dependencies...');
+      grunt.log.writeln('Installing dependencies... (This may take a little while)');
       var spawn = require('child-process-promise').spawn;
       spawn('npm', ['install'], { capture: ['stdout', 'stderr'] })
         .then(function (result) {

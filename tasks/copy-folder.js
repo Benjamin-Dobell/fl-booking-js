@@ -8,6 +8,8 @@ module.exports = function (grunt) {
     function () {
       'use strict';
 
+      grunt.verbose.writeln('Current working directory is: ' + process.cwd());
+
       var src = this.data.src;
       var dest = this.data.dest;
 
