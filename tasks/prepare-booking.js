@@ -48,8 +48,8 @@ module.exports = function (grunt) {
       //Replate timekit api in src file
       var bookingjsFileContent = fs.readFileSync(src, 'utf8');
 
-      var modifiedBookingjsFileContent = bookingjsFileContent.replace(/var\s+timekit\s+=[\s\w\_\(\)]+;/,
-        'var timekit = require("./' + schedulerFileName + '");\n');
+      var modifiedBookingjsFileContent = bookingjsFileContent.replace(/var\s+timekit\s+=[^;]+/,
+        'var timekit = require("./' + schedulerFileName + '")');
 
       grunt.log.writeln('Modifying ' + src);
 

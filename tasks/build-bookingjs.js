@@ -32,6 +32,7 @@ module.exports = function (grunt) {
         })
         .fail(function (err) {
           grunt.log.error('[spawn] stderr: ', err.stderr);
+          grunt.fail.warn('build-bookiingjs: Error running webpack.js');
           throw err;
         })
         .finally(function () {

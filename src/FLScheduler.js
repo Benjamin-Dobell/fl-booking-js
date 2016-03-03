@@ -3,12 +3,17 @@ var FLScheduler = function FLScheduler(apiUrl) {
   if (!apiUrl) { throw new Error('FLScheduler(): no apiUrl parameter provided.'); }
 
   if (!(this instanceof FLScheduler)) {
-    return new FLScheduler(apiUrl);
+    return new FLScheduler();
   }
 
   var _this = this;
-  var baseUrl = apiUrl;
   function request(method, url, data) {
+    baseUrl = data.api;
+
+    if (!baseUrl) {
+      throw Error('Fatal: No "api" property in bookingjs config object.');
+    }
+
     var config = {
       method: method,
     };

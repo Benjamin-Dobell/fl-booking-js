@@ -53,6 +53,6 @@ module.exports = function (grunt) {
   grunt.loadTasks('./tasks');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.registerTask('default', ['build-bookingjs']);
-  grunt.registerTask('build', ['prepare-bookingjs', 'build-bookingjs', 'concat']);
+  grunt.registerTask('build', ['copy-folder', 'npmInstall', 'prepare-bookingjs', 'build-bookingjs', 'concat']);
   grunt.registerTask('postinstall', ['gitClone', 'copy-folder', 'npmInstall']);
 };
