@@ -12,13 +12,14 @@
     "bookingjs"
   ],
   "moduleType": [],
-  "homepage": "",
+  "homepage": "https://github.com/fourlabsldn/fl-booking-js",
   "ignore": [
     "**/.*",
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "tests",
+    "lib/*"
   ],
   "devDependencies": {
     "x-div": "~1.0.2"
