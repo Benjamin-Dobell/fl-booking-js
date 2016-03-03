@@ -35,7 +35,7 @@ module.exports = function (grunt) {
         separator: ';',
       },
       dist: {
-        src: ['lib/modified-booking-js/dist/booking.min.js', 'src/scheduler_controller.js'],
+        src: ['lib/modified-booking-js/dist/booking.js', 'src/scheduler_controller.js'],
         dest: 'dist/fl-booking.js',
       },
     },

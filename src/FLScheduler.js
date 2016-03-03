@@ -1,6 +1,5 @@
-var FLScheduler = function FLScheduler(apiUrl) {
+var FLScheduler = function FLScheduler() {
   'use strict';
-  if (!apiUrl) { throw new Error('FLScheduler(): no apiUrl parameter provided.'); }
 
   if (!(this instanceof FLScheduler)) {
     return new FLScheduler();

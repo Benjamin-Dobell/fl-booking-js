@@ -1,4 +1,62 @@
-!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t(require("jQuery")):"function"==typeof define&&define.amd?define(["jQuery"],t):"object"==typeof exports?exports.TimekitBooking=t(require("jQuery")):e.TimekitBooking=t(e.jQuery)}(this,function(e){return function(e){function t(i){if(n[i])return n[i].exports;var r=n[i]={exports:{},id:i,loaded:!1};return e[i].call(r.exports,r,r.exports,t),r.loaded=!0,r.exports}var n={};return t.m=e,t.c=n,t.p="",t(0)}([function(e,t,n){"use strict";function i(){var e,t,i,u={},d=function(){n(44),n(45),n(47),n(46)},f=function(){e=r(u.targetEl),0===e.length&&l.logError("No target DOM element was found ("+u.targetEl+")"),e.addClass("bookingjs"),e.children(":not(script)").remove()},h=function(){a.configure(u.timekitConfig),a.setUser(u.email,u.apiToken)},p=function(){var e={emails:[u.email]};r.extend(e,u.timekitFindTime),l.doCallback("findTimeStarted",u,e),a.findTime(e).then(function(e){if(l.doCallback("findTimeSuccessful",u,e),u.goToFirstEvent&&e.data.length>0){var t=e.data[0].start,n=o(t).format("H");m(t),g(n)}w(e.data)})["catch"](function(e){l.doCallback("findTimeFailed",u,e),l.logError("An error with Timekit FindTime occured, context: "+e)})},m=function(e){t.fullCalendar("gotoDate",e)},g=function(e){if("agendaWeek"===t.fullCalendar("getView").name){var n=t.find(".fc-slats .fc-minor"),i=2*r(n[0]).height(),a=0;if(u.fullCalendar.minTime){var s=o(u.fullCalendar.minTime,"HH:mm:ss").format("H");a=i*s}var l=i*e-a,c=t.find(".fc-scroller"),d=c.height(),f=c.scrollTop(),h=c.find(".fc-time-grid").height();l>f&&f+d>l||(l>h-d&&(l=h-d),c.animate({scrollTop:l}))}},b=function(){var t=o().utcOffset()/60,i=n(53),c=n(12),d=r(c.render({timezoneIcon:i,loadingText:u.localization.strings.timezoneHelperLoading,loading:!0}));e.addClass("has-timezonehelper"),e.append(d);var f={email:u.email};l.doCallback("getUserTimezoneStarted",u,f),a.getUserTimezone(f).then(function(e){l.doCallback("getUserTimezoneSuccessful",u,e);var o=e.data.utc_offset,a=Math.abs(t-o),c=a>0?"ahead":"behind",f=n(12),h=r(f.render({timezoneIcon:i,timezoneDifference:0===a?!1:!0,timezoneDifferent:s.sprintf(u.localization.strings.timezoneHelperDifferent,a,c,u.name),timezoneSame:s.sprintf(u.localization.strings.timezoneHelperSame,u.name)}));d.replaceWith(h)})["catch"](function(e){l.doCallback("getUserTimezoneFailed",u,e),l.logError("An error with Timekit getUserTimezone occured, context: "+e)})},v=function(){var n=y(),i={defaultView:n.view,height:n.height,eventClick:k,windowResize:function(){var e=y();t.fullCalendar("changeView",e.view),t.fullCalendar("option","height",e.height)}};r.extend(!0,i,u.fullCalendar),t=r('<div class="bookingjs-calendar empty-calendar">'),e.append(t),t.fullCalendar(i),e.addClass("show"),l.doCallback("fullCalendarInitialized",u)},y=function(){var t="agendaWeek",n=420,i=e.width();return 480>i?(t="basicDay",n=335,e.addClass("is-small")):e.removeClass("is-small"),u.bookingFields.comment.enabled&&(n+=84),u.bookingFields.phone.enabled&&(n+=48),u.bookingFields.voip.enabled&&(n+=48),u.bookingFields.location.enabled&&(n+=48),{height:n,view:t}},w=function(e){t.fullCalendar("addEventSource",{events:e}),t.removeClass("empty-calendar")},A=function(){var t=n(41),i=r(t.render({image:u.avatar}));e.addClass("has-avatar"),e.append(i)},S=function(){var t=n(42),i=r(t.render({name:u.name}));e.addClass("has-displayname"),e.append(i)},k=function(t){l.doCallback("showBookingPage",u,t);var a=n(38),c=n(39),d=u.localization.bookingDateFormat||o.localeData().longDateFormat("LL"),f=u.localization.bookingTimeFormat||o.localeData().longDateFormat("LT");i=r(c.render({chosenDate:o(t.start).format(d),chosenTime:o(t.start).format(f)+" - "+o(t.end).format(f),start:o(t.start).format(),end:o(t.end).format(),closeIcon:n(49),checkmarkIcon:n(48),loadingIcon:n(51),errorIcon:n(50),submitText:u.localization.strings.submitText,successMessageTitle:u.localization.strings.successMessageTitle,successMessageBody:s.sprintf(u.localization.strings.successMessageBody,'<span class="booked-email"></span>'),fields:u.bookingFields},{formFields:a})),i.children(".bookingjs-bookpage-close").click(function(e){e.preventDefault(),T()});var h=i.children(".bookingjs-form");h.submit(function(e){x(this,e)}),u.showCredits&&M(i),r(document).on("keyup",function(e){27===e.keyCode&&T()}),e.append(i),setTimeout(function(){i.addClass("show")},100)},T=function(){l.doCallback("closeBookingPage",u),i.removeClass("show"),setTimeout(function(){i.remove()},200),r(document).off("keyup")},x=function(e,t){t.preventDefault();var n=r(e);if(n.hasClass("loading")||n.hasClass("success")||n.hasClass("error")||!t.target.checkValidity()){var i=n.find(".bookingjs-form-button");return i.addClass("button-shake"),void setTimeout(function(){i.removeClass("button-shake")},500)}var o={};r.each(n.serializeArray(),function(e,t){o[t.name]=t.value}),n.addClass("loading"),l.doCallback("submitBookingForm",u,o),E(o).then(function(e){l.doCallback("createBookingSuccessful",u,e);var t=e;t.data=e.data.attributes.event_info,l.doCallback("createEventSuccessful",u,t,!0),n.find(".booked-email").html(o.email),n.removeClass("loading").addClass("success")})["catch"](function(e){l.doCallback("createBookingFailed",u,e),l.doCallback("createEventFailed",u,e,!0);var t=n.find(".bookingjs-form-button");t.addClass("button-shake"),setTimeout(function(){t.removeClass("button-shake")},500),n.removeClass("loading").addClass("error"),setTimeout(function(){n.removeClass("error")},2e3),l.logError("An error with Timekit createBooking occured, context: "+e)})},E=function(e){var t={event:{start:e.start,end:e.end,what:u.name+" x "+e.name,where:"TBD",description:"",calendar_id:u.calendar,participants:[u.email,e.email]},customer:{name:e.name,email:e.email,timezone:o.tz.guess()}};u.bookingFields.location.enabled&&(t.event.where=e.location),u.bookingFields.comment.enabled&&(t.event.description+=u.bookingFields.comment.placeholder+": "+e.comment+"\n"),u.bookingFields.phone.enabled&&(t.customer.phone=e.phone,t.event.description+=u.bookingFields.phone.placeholder+": "+e.phone+"\n"),u.bookingFields.voip.enabled&&(t.customer.voip=e.voip,t.event.description+=u.bookingFields.voip.placeholder+": "+e.voip+"\n"),r.extend(!0,t,u.timekitCreateBooking),u.timekitCreateEvent&&(r.extend(!0,t.event,u.timekitCreateEvent),l.logDeprecated('config key "timekitCreateEvent" has been replaced, use "timekitCreateBooking" and see docs')),l.doCallback("createBookingStarted",u,t),l.doCallback("createEventStarted",u,t,!0);var n={"Timekit-OutputTimestampFormat":"Y-m-d "+u.localization.emailTimeFormat+" (P e)"};return a.headers(n).createBooking(t)},M=function(e){var t=n(40),i=n(52),o=r(t.render({timekitIcon:i}));e.append(o)},_=function(e){(void 0===e||"object"!=typeof e||r.isEmptyObject(e))&&(void 0!==window.timekitBookingConfig?e=window.timekitBookingConfig:l.logError("No configuration was supplied or found. Please supply a config object upon library initialization"));var t=r.extend(!0,{},c.primary,e),n={};"24h-dmy-mon"===t.localization.timeDateFormat?n=c.presets.timeDateFormat24hdmymon:"12h-mdy-sun"===t.localization.timeDateFormat&&(n=c.presets.timeDateFormat12hmdysun);var i=r.extend(!0,{},n,t);return n={},"instant"===t.bookingGraph?n=c.presets.bookingInstant:"confirm_decline"===t.bookingGraph&&(n=c.presets.bookingConfirmDecline),i=r.extend(!0,{},n,i),i.email&&i.apiToken&&i.calendar||l.logError('A required config setting was missing ("email", "apiToken" or "calendar")'),u=i},C=function(){return u},D=function(){return f(),h(),v(),p(),u.localization.showTimezoneHelper&&b(),u.avatar&&A(),u.name&&S(),l.doCallback("renderCompleted",u),this},z=function(e){return _(e),u.includeStyles&&d(),D()},H=function(){return f(),u={},this},L=function(){return void 0!==t.fullCalendar?t.fullCalendar.apply(t,arguments):void 0};return{setConfig:_,getConfig:C,render:D,init:z,destroy:H,fullCalendar:L}}/*!
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory(require("jQuery"));
+	else if(typeof define === 'function' && define.amd)
+		define(["jQuery"], factory);
+	else if(typeof exports === 'object')
+		exports["TimekitBooking"] = factory(require("jQuery"));
+	else
+		root["TimekitBooking"] = factory(root["jQuery"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_1__) {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+/******/
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	/*!
 	 * Booking.js
 	 * Version: 1.7.0
 	 * http://booking.timekit.io
@@ -7,39 +65,19350 @@
 	 * Timekit Booking.js is freely distributable under the MIT license.
 	 *
 	 */
-var r=n(13);window.fullcalendar=n(32);var o=window.moment=n(4),a=n(54);n(36);var s=n(43),l=n(57),c=n(56);window&&window.timekitBookingConfig&&window.timekitBookingConfig.autoload!==!1?r(window).load(function(){var t=new i;t.init(window.timekitBookingConfig),e.exports=t}):e.exports=i},function(e,t){"use strict";function n(e){return"[object Array]"===g.call(e)}function i(e){return"[object ArrayBuffer]"===g.call(e)}function r(e){return"[object FormData]"===g.call(e)}function o(e){return"undefined"!=typeof ArrayBuffer&&ArrayBuffer.isView?ArrayBuffer.isView(e):e&&e.buffer&&e.buffer instanceof ArrayBuffer}function a(e){return"string"==typeof e}function s(e){return"number"==typeof e}function l(e){return"undefined"==typeof e}function c(e){return null!==e&&"object"==typeof e}function u(e){return"[object Date]"===g.call(e)}function d(e){return"[object File]"===g.call(e)}function f(e){return"[object Blob]"===g.call(e)}function h(e){return e.replace(/^\s*/,"").replace(/\s*$/,"")}function p(e,t){if(null!==e&&"undefined"!=typeof e){var i=n(e)||"object"==typeof e&&!isNaN(e.length);if("object"==typeof e||i||(e=[e]),i)for(var r=0,o=e.length;o>r;r++)t.call(null,e[r],r,e);else for(var a in e)e.hasOwnProperty(a)&&t.call(null,e[a],a,e)}}function m(){var e={};return p(arguments,function(t){p(t,function(t,n){e[n]=t})}),e}var g=Object.prototype.toString;e.exports={isArray:n,isArrayBuffer:i,isFormData:r,isArrayBufferView:o,isString:a,isNumber:s,isObject:c,isUndefined:l,isDate:u,isFile:d,isBlob:f,forEach:p,merge:m,trim:h}},function(e,t,n){var i=n(33);i.Template=n(34).Template,i.template=i.Template,e.exports=i},function(e,t){e.exports=function(){var e=[];return e.toString=function(){for(var e=[],t=0;t<this.length;t++){var n=this[t];n[2]?e.push("@media "+n[2]+"{"+n[1]+"}"):e.push(n[1])}return e.join("")},e.i=function(t,n){"string"==typeof t&&(t=[[null,t,""]]);for(var i={},r=0;r<this.length;r++){var o=this[r][0];"number"==typeof o&&(i[o]=!0)}for(r=0;r<t.length;r++){var a=t[r];"number"==typeof a[0]&&i[a[0]]||(n&&!a[2]?a[2]=n:n&&(a[2]="("+a[2]+") and ("+n+")"),e.push(a))}},e}},function(e,t,n){(function(e){!function(t,n){e.exports=n()}(this,function(){"use strict";function t(){return Kn.apply(null,arguments)}function i(e){Kn=e}function r(e){return"[object Array]"===Object.prototype.toString.call(e)}function o(e){return e instanceof Date||"[object Date]"===Object.prototype.toString.call(e)}function a(e,t){var n,i=[];for(n=0;n<e.length;++n)i.push(t(e[n],n));return i}function s(e,t){return Object.prototype.hasOwnProperty.call(e,t)}function l(e,t){for(var n in t)s(t,n)&&(e[n]=t[n]);return s(t,"toString")&&(e.toString=t.toString),s(t,"valueOf")&&(e.valueOf=t.valueOf),e}function c(e,t,n,i){return ze(e,t,n,i,!0).utc()}function u(){return{empty:!1,unusedTokens:[],unusedInput:[],overflow:-2,charsLeftOver:0,nullInput:!1,invalidMonth:null,invalidFormat:!1,userInvalidated:!1,iso:!1}}function d(e){return null==e._pf&&(e._pf=u()),e._pf}function f(e){if(null==e._isValid){var t=d(e);e._isValid=!(isNaN(e._d.getTime())||!(t.overflow<0)||t.empty||t.invalidMonth||t.invalidWeekday||t.nullInput||t.invalidFormat||t.userInvalidated),e._strict&&(e._isValid=e._isValid&&0===t.charsLeftOver&&0===t.unusedTokens.length&&void 0===t.bigHour)}return e._isValid}function h(e){var t=c(NaN);return null!=e?l(d(t),e):d(t).userInvalidated=!0,t}function p(e){return void 0===e}function m(e,t){var n,i,r;if(p(t._isAMomentObject)||(e._isAMomentObject=t._isAMomentObject),p(t._i)||(e._i=t._i),p(t._f)||(e._f=t._f),p(t._l)||(e._l=t._l),p(t._strict)||(e._strict=t._strict),p(t._tzm)||(e._tzm=t._tzm),p(t._isUTC)||(e._isUTC=t._isUTC),p(t._offset)||(e._offset=t._offset),p(t._pf)||(e._pf=d(t)),p(t._locale)||(e._locale=t._locale),Jn.length>0)for(n in Jn)i=Jn[n],r=t[i],p(r)||(e[i]=r);return e}function g(e){m(this,e),this._d=new Date(null!=e._d?e._d.getTime():NaN),$n===!1&&($n=!0,t.updateOffset(this),$n=!1)}function b(e){return e instanceof g||null!=e&&null!=e._isAMomentObject}function v(e){return 0>e?Math.ceil(e):Math.floor(e)}function y(e){var t=+e,n=0;return 0!==t&&isFinite(t)&&(n=v(t)),n}function w(e,t,n){var i,r=Math.min(e.length,t.length),o=Math.abs(e.length-t.length),a=0;for(i=0;r>i;i++)(n&&e[i]!==t[i]||!n&&y(e[i])!==y(t[i]))&&a++;return a+o}function A(){}function S(e){return e?e.toLowerCase().replace("_","-"):e}function k(e){for(var t,n,i,r,o=0;o<e.length;){for(r=S(e[o]).split("-"),t=r.length,n=S(e[o+1]),n=n?n.split("-"):null;t>0;){if(i=T(r.slice(0,t).join("-")))return i;if(n&&n.length>=t&&w(r,n,!0)>=t-1)break;t--}o++}return null}function T(t){var i=null;if(!Qn[t]&&"undefined"!=typeof e&&e&&e.exports)try{i=Zn._abbr,n(37)("./"+t),x(i)}catch(r){}return Qn[t]}function x(e,t){var n;return e&&(n=p(t)?M(e):E(e,t),n&&(Zn=n)),Zn._abbr}function E(e,t){return null!==t?(t.abbr=e,Qn[e]=Qn[e]||new A,Qn[e].set(t),x(e),Qn[e]):(delete Qn[e],null)}function M(e){var t;if(e&&e._locale&&e._locale._abbr&&(e=e._locale._abbr),!e)return Zn;if(!r(e)){if(t=T(e))return t;e=[e]}return k(e)}function _(e,t){var n=e.toLowerCase();ei[n]=ei[n+"s"]=ei[t]=e}function C(e){return"string"==typeof e?ei[e]||ei[e.toLowerCase()]:void 0}function D(e){var t,n,i={};for(n in e)s(e,n)&&(t=C(n),t&&(i[t]=e[n]));return i}function z(e){return e instanceof Function||"[object Function]"===Object.prototype.toString.call(e)}function H(e,n){return function(i){return null!=i?(R(this,e,i),t.updateOffset(this,n),this):L(this,e)}}function L(e,t){return e.isValid()?e._d["get"+(e._isUTC?"UTC":"")+t]():NaN}function R(e,t,n){e.isValid()&&e._d["set"+(e._isUTC?"UTC":"")+t](n)}function O(e,t){var n;if("object"==typeof e)for(n in e)this.set(n,e[n]);else if(e=C(e),z(this[e]))return this[e](t);return this}function P(e,t,n){var i=""+Math.abs(e),r=t-i.length,o=e>=0;return(o?n?"+":"":"-")+Math.pow(10,Math.max(0,r)).toString().substr(1)+i}function B(e,t,n,i){var r=i;"string"==typeof i&&(r=function(){return this[i]()}),e&&(ri[e]=r),t&&(ri[t[0]]=function(){return P(r.apply(this,arguments),t[1],t[2])}),n&&(ri[n]=function(){return this.localeData().ordinal(r.apply(this,arguments),e)})}function j(e){return e.match(/\[[\s\S]/)?e.replace(/^\[|\]$/g,""):e.replace(/\\/g,"")}function Y(e){var t,n,i=e.match(ti);for(t=0,n=i.length;n>t;t++)ri[i[t]]?i[t]=ri[i[t]]:i[t]=j(i[t]);return function(r){var o="";for(t=0;n>t;t++)o+=i[t]instanceof Function?i[t].call(r,e):i[t];return o}}function F(e,t){return e.isValid()?(t=G(t,e.localeData()),ii[t]=ii[t]||Y(t),ii[t](e)):e.localeData().invalidDate()}function G(e,t){function n(e){return t.longDateFormat(e)||e}var i=5;for(ni.lastIndex=0;i>=0&&ni.test(e);)e=e.replace(ni,n),ni.lastIndex=0,i-=1;return e}function I(e,t,n){Si[e]=z(t)?t:function(e,i){return e&&n?n:t}}function W(e,t){return s(Si,e)?Si[e](t._strict,t._locale):new RegExp(N(e))}function N(e){return q(e.replace("\\","").replace(/\\(\[)|\\(\])|\[([^\]\[]*)\]|\\(.)/g,function(e,t,n,i,r){return t||n||i||r}))}function q(e){return e.replace(/[-\/\\^$*+?.()|[\]{}]/g,"\\$&")}function V(e,t){var n,i=t;for("string"==typeof e&&(e=[e]),"number"==typeof t&&(i=function(e,n){n[t]=y(e)}),n=0;n<e.length;n++)ki[e[n]]=i}function U(e,t){V(e,function(e,n,i,r){i._w=i._w||{},t(e,i._w,i,r)})}function X(e,t,n){null!=t&&s(ki,e)&&ki[e](t,n._a,n,e)}function K(e,t){return new Date(Date.UTC(e,t+1,0)).getUTCDate()}function Z(e,t){return r(this._months)?this._months[e.month()]:this._months[Li.test(t)?"format":"standalone"][e.month()]}function J(e,t){return r(this._monthsShort)?this._monthsShort[e.month()]:this._monthsShort[Li.test(t)?"format":"standalone"][e.month()]}function $(e,t,n){var i,r,o;for(this._monthsParse||(this._monthsParse=[],this._longMonthsParse=[],this._shortMonthsParse=[]),i=0;12>i;i++){if(r=c([2e3,i]),n&&!this._longMonthsParse[i]&&(this._longMonthsParse[i]=new RegExp("^"+this.months(r,"").replace(".","")+"$","i"),this._shortMonthsParse[i]=new RegExp("^"+this.monthsShort(r,"").replace(".","")+"$","i")),n||this._monthsParse[i]||(o="^"+this.months(r,"")+"|^"+this.monthsShort(r,""),this._monthsParse[i]=new RegExp(o.replace(".",""),"i")),n&&"MMMM"===t&&this._longMonthsParse[i].test(e))return i;if(n&&"MMM"===t&&this._shortMonthsParse[i].test(e))return i;if(!n&&this._monthsParse[i].test(e))return i}}function Q(e,t){var n;return e.isValid()?"string"==typeof t&&(t=e.localeData().monthsParse(t),"number"!=typeof t)?e:(n=Math.min(e.date(),K(e.year(),t)),e._d["set"+(e._isUTC?"UTC":"")+"Month"](t,n),e):e}function ee(e){return null!=e?(Q(this,e),t.updateOffset(this,!0),this):L(this,"Month")}function te(){return K(this.year(),this.month())}function ne(e){return this._monthsParseExact?(s(this,"_monthsRegex")||re.call(this),e?this._monthsShortStrictRegex:this._monthsShortRegex):this._monthsShortStrictRegex&&e?this._monthsShortStrictRegex:this._monthsShortRegex}function ie(e){return this._monthsParseExact?(s(this,"_monthsRegex")||re.call(this),e?this._monthsStrictRegex:this._monthsRegex):this._monthsStrictRegex&&e?this._monthsStrictRegex:this._monthsRegex}function re(){function e(e,t){return t.length-e.length}var t,n,i=[],r=[],o=[];for(t=0;12>t;t++)n=c([2e3,t]),i.push(this.monthsShort(n,"")),r.push(this.months(n,"")),o.push(this.months(n,"")),o.push(this.monthsShort(n,""));for(i.sort(e),r.sort(e),o.sort(e),t=0;12>t;t++)i[t]=q(i[t]),r[t]=q(r[t]),o[t]=q(o[t]);this._monthsRegex=new RegExp("^("+o.join("|")+")","i"),this._monthsShortRegex=this._monthsRegex,this._monthsStrictRegex=new RegExp("^("+r.join("|")+")$","i"),this._monthsShortStrictRegex=new RegExp("^("+i.join("|")+")$","i")}function oe(e){var t,n=e._a;return n&&-2===d(e).overflow&&(t=n[xi]<0||n[xi]>11?xi:n[Ei]<1||n[Ei]>K(n[Ti],n[xi])?Ei:n[Mi]<0||n[Mi]>24||24===n[Mi]&&(0!==n[_i]||0!==n[Ci]||0!==n[Di])?Mi:n[_i]<0||n[_i]>59?_i:n[Ci]<0||n[Ci]>59?Ci:n[Di]<0||n[Di]>999?Di:-1,d(e)._overflowDayOfYear&&(Ti>t||t>Ei)&&(t=Ei),d(e)._overflowWeeks&&-1===t&&(t=zi),d(e)._overflowWeekday&&-1===t&&(t=Hi),d(e).overflow=t),e}function ae(e){t.suppressDeprecationWarnings===!1&&"undefined"!=typeof console&&console.warn&&console.warn("Deprecation warning: "+e)}function se(e,t){var n=!0;return l(function(){return n&&(ae(e+"\nArguments: "+Array.prototype.slice.call(arguments).join(", ")+"\n"+(new Error).stack),n=!1),t.apply(this,arguments)},t)}function le(e,t){ji[e]||(ae(t),ji[e]=!0)}function ce(e){var t,n,i,r,o,a,s=e._i,l=Yi.exec(s)||Fi.exec(s);if(l){for(d(e).iso=!0,t=0,n=Ii.length;n>t;t++)if(Ii[t][1].exec(l[1])){r=Ii[t][0],i=Ii[t][2]!==!1;break}if(null==r)return void(e._isValid=!1);if(l[3]){for(t=0,n=Wi.length;n>t;t++)if(Wi[t][1].exec(l[3])){o=(l[2]||" ")+Wi[t][0];break}if(null==o)return void(e._isValid=!1)}if(!i&&null!=o)return void(e._isValid=!1);if(l[4]){if(!Gi.exec(l[4]))return void(e._isValid=!1);a="Z"}e._f=r+(o||"")+(a||""),Te(e)}else e._isValid=!1}function ue(e){var n=Ni.exec(e._i);return null!==n?void(e._d=new Date(+n[1])):(ce(e),void(e._isValid===!1&&(delete e._isValid,t.createFromInputFallback(e))))}function de(e,t,n,i,r,o,a){var s=new Date(e,t,n,i,r,o,a);return 100>e&&e>=0&&isFinite(s.getFullYear())&&s.setFullYear(e),s}function fe(e){var t=new Date(Date.UTC.apply(null,arguments));return 100>e&&e>=0&&isFinite(t.getUTCFullYear())&&t.setUTCFullYear(e),t}function he(e){return pe(e)?366:365}function pe(e){return e%4===0&&e%100!==0||e%400===0}function me(){return pe(this.year())}function ge(e,t,n){var i=7+t-n,r=(7+fe(e,0,i).getUTCDay()-t)%7;return-r+i-1}function be(e,t,n,i,r){var o,a,s=(7+n-i)%7,l=ge(e,i,r),c=1+7*(t-1)+s+l;return 0>=c?(o=e-1,a=he(o)+c):c>he(e)?(o=e+1,a=c-he(e)):(o=e,a=c),{year:o,dayOfYear:a}}function ve(e,t,n){var i,r,o=ge(e.year(),t,n),a=Math.floor((e.dayOfYear()-o-1)/7)+1;return 1>a?(r=e.year()-1,i=a+ye(r,t,n)):a>ye(e.year(),t,n)?(i=a-ye(e.year(),t,n),r=e.year()+1):(r=e.year(),i=a),{week:i,year:r}}function ye(e,t,n){var i=ge(e,t,n),r=ge(e+1,t,n);return(he(e)-i+r)/7}function we(e,t,n){return null!=e?e:null!=t?t:n}function Ae(e){var n=new Date(t.now());return e._useUTC?[n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate()]:[n.getFullYear(),n.getMonth(),n.getDate()]}function Se(e){var t,n,i,r,o=[];if(!e._d){for(i=Ae(e),e._w&&null==e._a[Ei]&&null==e._a[xi]&&ke(e),e._dayOfYear&&(r=we(e._a[Ti],i[Ti]),e._dayOfYear>he(r)&&(d(e)._overflowDayOfYear=!0),n=fe(r,0,e._dayOfYear),e._a[xi]=n.getUTCMonth(),e._a[Ei]=n.getUTCDate()),t=0;3>t&&null==e._a[t];++t)e._a[t]=o[t]=i[t];for(;7>t;t++)e._a[t]=o[t]=null==e._a[t]?2===t?1:0:e._a[t];24===e._a[Mi]&&0===e._a[_i]&&0===e._a[Ci]&&0===e._a[Di]&&(e._nextDay=!0,e._a[Mi]=0),e._d=(e._useUTC?fe:de).apply(null,o),null!=e._tzm&&e._d.setUTCMinutes(e._d.getUTCMinutes()-e._tzm),e._nextDay&&(e._a[Mi]=24)}}function ke(e){var t,n,i,r,o,a,s,l;t=e._w,null!=t.GG||null!=t.W||null!=t.E?(o=1,a=4,n=we(t.GG,e._a[Ti],ve(He(),1,4).year),i=we(t.W,1),r=we(t.E,1),(1>r||r>7)&&(l=!0)):(o=e._locale._week.dow,a=e._locale._week.doy,n=we(t.gg,e._a[Ti],ve(He(),o,a).year),i=we(t.w,1),null!=t.d?(r=t.d,(0>r||r>6)&&(l=!0)):null!=t.e?(r=t.e+o,(t.e<0||t.e>6)&&(l=!0)):r=o),1>i||i>ye(n,o,a)?d(e)._overflowWeeks=!0:null!=l?d(e)._overflowWeekday=!0:(s=be(n,i,r,o,a),e._a[Ti]=s.year,e._dayOfYear=s.dayOfYear)}function Te(e){if(e._f===t.ISO_8601)return void ce(e);e._a=[],d(e).empty=!0;var n,i,r,o,a,s=""+e._i,l=s.length,c=0;for(r=G(e._f,e._locale).match(ti)||[],n=0;n<r.length;n++)o=r[n],i=(s.match(W(o,e))||[])[0],i&&(a=s.substr(0,s.indexOf(i)),a.length>0&&d(e).unusedInput.push(a),s=s.slice(s.indexOf(i)+i.length),c+=i.length),ri[o]?(i?d(e).empty=!1:d(e).unusedTokens.push(o),X(o,i,e)):e._strict&&!i&&d(e).unusedTokens.push(o);d(e).charsLeftOver=l-c,s.length>0&&d(e).unusedInput.push(s),d(e).bigHour===!0&&e._a[Mi]<=12&&e._a[Mi]>0&&(d(e).bigHour=void 0),e._a[Mi]=xe(e._locale,e._a[Mi],e._meridiem),Se(e),oe(e)}function xe(e,t,n){var i;return null==n?t:null!=e.meridiemHour?e.meridiemHour(t,n):null!=e.isPM?(i=e.isPM(n),i&&12>t&&(t+=12),i||12!==t||(t=0),t):t}function Ee(e){var t,n,i,r,o;if(0===e._f.length)return d(e).invalidFormat=!0,void(e._d=new Date(NaN));for(r=0;r<e._f.length;r++)o=0,t=m({},e),null!=e._useUTC&&(t._useUTC=e._useUTC),t._f=e._f[r],Te(t),f(t)&&(o+=d(t).charsLeftOver,o+=10*d(t).unusedTokens.length,d(t).score=o,(null==i||i>o)&&(i=o,n=t));l(e,n||t)}function Me(e){if(!e._d){var t=D(e._i);e._a=a([t.year,t.month,t.day||t.date,t.hour,t.minute,t.second,t.millisecond],function(e){return e&&parseInt(e,10)}),Se(e)}}function _e(e){var t=new g(oe(Ce(e)));return t._nextDay&&(t.add(1,"d"),t._nextDay=void 0),t}function Ce(e){var t=e._i,n=e._f;return e._locale=e._locale||M(e._l),null===t||void 0===n&&""===t?h({nullInput:!0}):("string"==typeof t&&(e._i=t=e._locale.preparse(t)),b(t)?new g(oe(t)):(r(n)?Ee(e):n?Te(e):o(t)?e._d=t:De(e),f(e)||(e._d=null),e))}function De(e){var n=e._i;void 0===n?e._d=new Date(t.now()):o(n)?e._d=new Date(+n):"string"==typeof n?ue(e):r(n)?(e._a=a(n.slice(0),function(e){return parseInt(e,10)}),Se(e)):"object"==typeof n?Me(e):"number"==typeof n?e._d=new Date(n):t.createFromInputFallback(e)}function ze(e,t,n,i,r){var o={};return"boolean"==typeof n&&(i=n,n=void 0),o._isAMomentObject=!0,o._useUTC=o._isUTC=r,o._l=n,o._i=e,o._f=t,o._strict=i,_e(o)}function He(e,t,n,i){return ze(e,t,n,i,!1)}function Le(e,t){var n,i;if(1===t.length&&r(t[0])&&(t=t[0]),!t.length)return He();for(n=t[0],i=1;i<t.length;++i)(!t[i].isValid()||t[i][e](n))&&(n=t[i]);return n}function Re(){var e=[].slice.call(arguments,0);return Le("isBefore",e)}function Oe(){var e=[].slice.call(arguments,0);return Le("isAfter",e)}function Pe(e){var t=D(e),n=t.year||0,i=t.quarter||0,r=t.month||0,o=t.week||0,a=t.day||0,s=t.hour||0,l=t.minute||0,c=t.second||0,u=t.millisecond||0;this._milliseconds=+u+1e3*c+6e4*l+36e5*s,this._days=+a+7*o,this._months=+r+3*i+12*n,this._data={},this._locale=M(),this._bubble()}function Be(e){return e instanceof Pe}function je(e,t){B(e,0,0,function(){var e=this.utcOffset(),n="+";return 0>e&&(e=-e,n="-"),n+P(~~(e/60),2)+t+P(~~e%60,2)})}function Ye(e,t){var n=(t||"").match(e)||[],i=n[n.length-1]||[],r=(i+"").match(Ki)||["-",0,0],o=+(60*r[1])+y(r[2]);return"+"===r[0]?o:-o}function Fe(e,n){var i,r;return n._isUTC?(i=n.clone(),r=(b(e)||o(e)?+e:+He(e))-+i,i._d.setTime(+i._d+r),t.updateOffset(i,!1),i):He(e).local()}function Ge(e){return 15*-Math.round(e._d.getTimezoneOffset()/15)}function Ie(e,n){var i,r=this._offset||0;return this.isValid()?null!=e?("string"==typeof e?e=Ye(yi,e):Math.abs(e)<16&&(e=60*e),!this._isUTC&&n&&(i=Ge(this)),this._offset=e,this._isUTC=!0,null!=i&&this.add(i,"m"),r!==e&&(!n||this._changeInProgress?rt(this,Qe(e-r,"m"),1,!1):this._changeInProgress||(this._changeInProgress=!0,t.updateOffset(this,!0),this._changeInProgress=null)),this):this._isUTC?r:Ge(this):null!=e?this:NaN}function We(e,t){return null!=e?("string"!=typeof e&&(e=-e),this.utcOffset(e,t),this):-this.utcOffset()}function Ne(e){return this.utcOffset(0,e)}function qe(e){return this._isUTC&&(this.utcOffset(0,e),this._isUTC=!1,e&&this.subtract(Ge(this),"m")),this}function Ve(){return this._tzm?this.utcOffset(this._tzm):"string"==typeof this._i&&this.utcOffset(Ye(vi,this._i)),this}function Ue(e){return this.isValid()?(e=e?He(e).utcOffset():0,(this.utcOffset()-e)%60===0):!1}function Xe(){return this.utcOffset()>this.clone().month(0).utcOffset()||this.utcOffset()>this.clone().month(5).utcOffset()}function Ke(){if(!p(this._isDSTShifted))return this._isDSTShifted;var e={};if(m(e,this),e=Ce(e),e._a){var t=e._isUTC?c(e._a):He(e._a);this._isDSTShifted=this.isValid()&&w(e._a,t.toArray())>0}else this._isDSTShifted=!1;return this._isDSTShifted}function Ze(){return this.isValid()?!this._isUTC:!1}function Je(){return this.isValid()?this._isUTC:!1}function $e(){return this.isValid()?this._isUTC&&0===this._offset:!1}function Qe(e,t){var n,i,r,o=e,a=null;return Be(e)?o={ms:e._milliseconds,d:e._days,M:e._months}:"number"==typeof e?(o={},t?o[t]=e:o.milliseconds=e):(a=Zi.exec(e))?(n="-"===a[1]?-1:1,o={y:0,d:y(a[Ei])*n,h:y(a[Mi])*n,m:y(a[_i])*n,s:y(a[Ci])*n,ms:y(a[Di])*n}):(a=Ji.exec(e))?(n="-"===a[1]?-1:1,o={y:et(a[2],n),M:et(a[3],n),d:et(a[4],n),h:et(a[5],n),m:et(a[6],n),s:et(a[7],n),w:et(a[8],n)}):null==o?o={}:"object"==typeof o&&("from"in o||"to"in o)&&(r=nt(He(o.from),He(o.to)),o={},o.ms=r.milliseconds,o.M=r.months),i=new Pe(o),Be(e)&&s(e,"_locale")&&(i._locale=e._locale),i}function et(e,t){var n=e&&parseFloat(e.replace(",","."));return(isNaN(n)?0:n)*t}function tt(e,t){var n={milliseconds:0,months:0};return n.months=t.month()-e.month()+12*(t.year()-e.year()),e.clone().add(n.months,"M").isAfter(t)&&--n.months,n.milliseconds=+t-+e.clone().add(n.months,"M"),n}function nt(e,t){var n;return e.isValid()&&t.isValid()?(t=Fe(t,e),e.isBefore(t)?n=tt(e,t):(n=tt(t,e),n.milliseconds=-n.milliseconds,n.months=-n.months),n):{milliseconds:0,months:0}}function it(e,t){return function(n,i){var r,o;return null===i||isNaN(+i)||(le(t,"moment()."+t+"(period, number) is deprecated. Please use moment()."+t+"(number, period)."),o=n,n=i,i=o),n="string"==typeof n?+n:n,r=Qe(n,i),rt(this,r,e),this}}function rt(e,n,i,r){var o=n._milliseconds,a=n._days,s=n._months;e.isValid()&&(r=null==r?!0:r,o&&e._d.setTime(+e._d+o*i),a&&R(e,"Date",L(e,"Date")+a*i),s&&Q(e,L(e,"Month")+s*i),r&&t.updateOffset(e,a||s))}function ot(e,t){var n=e||He(),i=Fe(n,this).startOf("day"),r=this.diff(i,"days",!0),o=-6>r?"sameElse":-1>r?"lastWeek":0>r?"lastDay":1>r?"sameDay":2>r?"nextDay":7>r?"nextWeek":"sameElse",a=t&&(z(t[o])?t[o]():t[o]);return this.format(a||this.localeData().calendar(o,this,He(n)))}function at(){return new g(this)}function st(e,t){var n=b(e)?e:He(e);return this.isValid()&&n.isValid()?(t=C(p(t)?"millisecond":t),"millisecond"===t?+this>+n:+n<+this.clone().startOf(t)):!1}function lt(e,t){var n=b(e)?e:He(e);return this.isValid()&&n.isValid()?(t=C(p(t)?"millisecond":t),"millisecond"===t?+n>+this:+this.clone().endOf(t)<+n):!1}function ct(e,t,n){return this.isAfter(e,n)&&this.isBefore(t,n)}function ut(e,t){var n,i=b(e)?e:He(e);return this.isValid()&&i.isValid()?(t=C(t||"millisecond"),"millisecond"===t?+this===+i:(n=+i,+this.clone().startOf(t)<=n&&n<=+this.clone().endOf(t))):!1}function dt(e,t){return this.isSame(e,t)||this.isAfter(e,t)}function ft(e,t){return this.isSame(e,t)||this.isBefore(e,t)}function ht(e,t,n){var i,r,o,a;return this.isValid()?(i=Fe(e,this),i.isValid()?(r=6e4*(i.utcOffset()-this.utcOffset()),t=C(t),"year"===t||"month"===t||"quarter"===t?(a=pt(this,i),"quarter"===t?a/=3:"year"===t&&(a/=12)):(o=this-i,a="second"===t?o/1e3:"minute"===t?o/6e4:"hour"===t?o/36e5:"day"===t?(o-r)/864e5:"week"===t?(o-r)/6048e5:o),n?a:v(a)):NaN):NaN}function pt(e,t){var n,i,r=12*(t.year()-e.year())+(t.month()-e.month()),o=e.clone().add(r,"months");return 0>t-o?(n=e.clone().add(r-1,"months"),i=(t-o)/(o-n)):(n=e.clone().add(r+1,"months"),i=(t-o)/(n-o)),-(r+i)}function mt(){return this.clone().locale("en").format("ddd MMM DD YYYY HH:mm:ss [GMT]ZZ")}function gt(){var e=this.clone().utc();return 0<e.year()&&e.year()<=9999?z(Date.prototype.toISOString)?this.toDate().toISOString():F(e,"YYYY-MM-DD[T]HH:mm:ss.SSS[Z]"):F(e,"YYYYYY-MM-DD[T]HH:mm:ss.SSS[Z]")}function bt(e){var n=F(this,e||t.defaultFormat);return this.localeData().postformat(n)}function vt(e,t){return this.isValid()&&(b(e)&&e.isValid()||He(e).isValid())?Qe({to:this,from:e}).locale(this.locale()).humanize(!t):this.localeData().invalidDate()}function yt(e){return this.from(He(),e)}function wt(e,t){return this.isValid()&&(b(e)&&e.isValid()||He(e).isValid())?Qe({from:this,to:e}).locale(this.locale()).humanize(!t):this.localeData().invalidDate()}function At(e){return this.to(He(),e)}function St(e){var t;return void 0===e?this._locale._abbr:(t=M(e),null!=t&&(this._locale=t),this)}function kt(){return this._locale}function Tt(e){switch(e=C(e)){case"year":this.month(0);case"quarter":case"month":this.date(1);case"week":case"isoWeek":case"day":this.hours(0);case"hour":this.minutes(0);case"minute":this.seconds(0);case"second":this.milliseconds(0)}return"week"===e&&this.weekday(0),"isoWeek"===e&&this.isoWeekday(1),"quarter"===e&&this.month(3*Math.floor(this.month()/3)),this}function xt(e){return e=C(e),void 0===e||"millisecond"===e?this:this.startOf(e).add(1,"isoWeek"===e?"week":e).subtract(1,"ms")}function Et(){return+this._d-6e4*(this._offset||0)}function Mt(){return Math.floor(+this/1e3)}function _t(){return this._offset?new Date(+this):this._d}function Ct(){var e=this;return[e.year(),e.month(),e.date(),e.hour(),e.minute(),e.second(),e.millisecond()]}function Dt(){var e=this;return{years:e.year(),months:e.month(),date:e.date(),hours:e.hours(),minutes:e.minutes(),seconds:e.seconds(),milliseconds:e.milliseconds()}}function zt(){return this.isValid()?this.toISOString():"null"}function Ht(){return f(this)}function Lt(){return l({},d(this))}function Rt(){return d(this).overflow}function Ot(){return{input:this._i,format:this._f,locale:this._locale,isUTC:this._isUTC,strict:this._strict}}function Pt(e,t){B(0,[e,e.length],0,t)}function Bt(e){return Gt.call(this,e,this.week(),this.weekday(),this.localeData()._week.dow,this.localeData()._week.doy)}function jt(e){return Gt.call(this,e,this.isoWeek(),this.isoWeekday(),1,4)}function Yt(){return ye(this.year(),1,4)}function Ft(){var e=this.localeData()._week;return ye(this.year(),e.dow,e.doy)}function Gt(e,t,n,i,r){var o;return null==e?ve(this,i,r).year:(o=ye(e,i,r),t>o&&(t=o),It.call(this,e,t,n,i,r))}function It(e,t,n,i,r){var o=be(e,t,n,i,r),a=fe(o.year,0,o.dayOfYear);return this.year(a.getUTCFullYear()),this.month(a.getUTCMonth()),this.date(a.getUTCDate()),this}function Wt(e){return null==e?Math.ceil((this.month()+1)/3):this.month(3*(e-1)+this.month()%3)}function Nt(e){return ve(e,this._week.dow,this._week.doy).week}function qt(){return this._week.dow}function Vt(){return this._week.doy}function Ut(e){var t=this.localeData().week(this);return null==e?t:this.add(7*(e-t),"d")}function Xt(e){var t=ve(this,1,4).week;return null==e?t:this.add(7*(e-t),"d")}function Kt(e,t){return"string"!=typeof e?e:isNaN(e)?(e=t.weekdaysParse(e),"number"==typeof e?e:null):parseInt(e,10)}function Zt(e,t){return r(this._weekdays)?this._weekdays[e.day()]:this._weekdays[this._weekdays.isFormat.test(t)?"format":"standalone"][e.day()]}function Jt(e){return this._weekdaysShort[e.day()]}function $t(e){return this._weekdaysMin[e.day()]}function Qt(e,t,n){var i,r,o;for(this._weekdaysParse||(this._weekdaysParse=[],this._minWeekdaysParse=[],this._shortWeekdaysParse=[],this._fullWeekdaysParse=[]),i=0;7>i;i++){if(r=He([2e3,1]).day(i),n&&!this._fullWeekdaysParse[i]&&(this._fullWeekdaysParse[i]=new RegExp("^"+this.weekdays(r,"").replace(".",".?")+"$","i"),this._shortWeekdaysParse[i]=new RegExp("^"+this.weekdaysShort(r,"").replace(".",".?")+"$","i"),this._minWeekdaysParse[i]=new RegExp("^"+this.weekdaysMin(r,"").replace(".",".?")+"$","i")),this._weekdaysParse[i]||(o="^"+this.weekdays(r,"")+"|^"+this.weekdaysShort(r,"")+"|^"+this.weekdaysMin(r,""),this._weekdaysParse[i]=new RegExp(o.replace(".",""),"i")),n&&"dddd"===t&&this._fullWeekdaysParse[i].test(e))return i;if(n&&"ddd"===t&&this._shortWeekdaysParse[i].test(e))return i;if(n&&"dd"===t&&this._minWeekdaysParse[i].test(e))return i;if(!n&&this._weekdaysParse[i].test(e))return i}}function en(e){if(!this.isValid())return null!=e?this:NaN;var t=this._isUTC?this._d.getUTCDay():this._d.getDay();return null!=e?(e=Kt(e,this.localeData()),this.add(e-t,"d")):t}function tn(e){if(!this.isValid())return null!=e?this:NaN;var t=(this.day()+7-this.localeData()._week.dow)%7;return null==e?t:this.add(e-t,"d")}function nn(e){return this.isValid()?null==e?this.day()||7:this.day(this.day()%7?e:e-7):null!=e?this:NaN}function rn(e){var t=Math.round((this.clone().startOf("day")-this.clone().startOf("year"))/864e5)+1;return null==e?t:this.add(e-t,"d")}function on(){return this.hours()%12||12}function an(e,t){B(e,0,0,function(){return this.localeData().meridiem(this.hours(),this.minutes(),t)})}function sn(e,t){return t._meridiemParse}function ln(e){return"p"===(e+"").toLowerCase().charAt(0)}function cn(e,t,n){return e>11?n?"pm":"PM":n?"am":"AM"}function un(e,t){t[Di]=y(1e3*("0."+e))}function dn(){return this._isUTC?"UTC":""}function fn(){return this._isUTC?"Coordinated Universal Time":""}function hn(e){return He(1e3*e)}function pn(){return He.apply(null,arguments).parseZone()}function mn(e,t,n){var i=this._calendar[e];return z(i)?i.call(t,n):i}function gn(e){var t=this._longDateFormat[e],n=this._longDateFormat[e.toUpperCase()];return t||!n?t:(this._longDateFormat[e]=n.replace(/MMMM|MM|DD|dddd/g,function(e){return e.slice(1)}),this._longDateFormat[e])}function bn(){return this._invalidDate}function vn(e){return this._ordinal.replace("%d",e)}function yn(e){return e}function wn(e,t,n,i){var r=this._relativeTime[n];return z(r)?r(e,t,n,i):r.replace(/%d/i,e)}function An(e,t){var n=this._relativeTime[e>0?"future":"past"];return z(n)?n(t):n.replace(/%s/i,t)}function Sn(e){var t,n;for(n in e)t=e[n],z(t)?this[n]=t:this["_"+n]=t;this._ordinalParseLenient=new RegExp(this._ordinalParse.source+"|"+/\d{1,2}/.source)}function kn(e,t,n,i){var r=M(),o=c().set(i,t);return r[n](o,e)}function Tn(e,t,n,i,r){if("number"==typeof e&&(t=e,e=void 0),e=e||"",null!=t)return kn(e,t,n,r);var o,a=[];for(o=0;i>o;o++)a[o]=kn(e,o,n,r);return a}function xn(e,t){return Tn(e,t,"months",12,"month")}function En(e,t){return Tn(e,t,"monthsShort",12,"month")}function Mn(e,t){return Tn(e,t,"weekdays",7,"day")}function _n(e,t){return Tn(e,t,"weekdaysShort",7,"day")}function Cn(e,t){return Tn(e,t,"weekdaysMin",7,"day")}function Dn(){var e=this._data;return this._milliseconds=Ar(this._milliseconds),this._days=Ar(this._days),this._months=Ar(this._months),e.milliseconds=Ar(e.milliseconds),e.seconds=Ar(e.seconds),e.minutes=Ar(e.minutes),e.hours=Ar(e.hours),e.months=Ar(e.months),e.years=Ar(e.years),this}function zn(e,t,n,i){var r=Qe(t,n);return e._milliseconds+=i*r._milliseconds,e._days+=i*r._days,e._months+=i*r._months,e._bubble()}function Hn(e,t){return zn(this,e,t,1)}function Ln(e,t){return zn(this,e,t,-1)}function Rn(e){return 0>e?Math.floor(e):Math.ceil(e)}function On(){var e,t,n,i,r,o=this._milliseconds,a=this._days,s=this._months,l=this._data;return o>=0&&a>=0&&s>=0||0>=o&&0>=a&&0>=s||(o+=864e5*Rn(Bn(s)+a),a=0,s=0),l.milliseconds=o%1e3,e=v(o/1e3),l.seconds=e%60,t=v(e/60),l.minutes=t%60,n=v(t/60),l.hours=n%24,a+=v(n/24),r=v(Pn(a)),s+=r,a-=Rn(Bn(r)),i=v(s/12),s%=12,l.days=a,l.months=s,l.years=i,this}function Pn(e){return 4800*e/146097}function Bn(e){return 146097*e/4800}function jn(e){var t,n,i=this._milliseconds;if(e=C(e),"month"===e||"year"===e)return t=this._days+i/864e5,n=this._months+Pn(t),"month"===e?n:n/12;switch(t=this._days+Math.round(Bn(this._months)),e){case"week":return t/7+i/6048e5;case"day":return t+i/864e5;case"hour":return 24*t+i/36e5;case"minute":return 1440*t+i/6e4;case"second":return 86400*t+i/1e3;case"millisecond":return Math.floor(864e5*t)+i;default:throw new Error("Unknown unit "+e)}}function Yn(){return this._milliseconds+864e5*this._days+this._months%12*2592e6+31536e6*y(this._months/12)}function Fn(e){return function(){return this.as(e)}}function Gn(e){return e=C(e),this[e+"s"]()}function In(e){return function(){return this._data[e]}}function Wn(){return v(this.days()/7)}function Nn(e,t,n,i,r){return r.relativeTime(t||1,!!n,e,i)}function qn(e,t,n){var i=Qe(e).abs(),r=Br(i.as("s")),o=Br(i.as("m")),a=Br(i.as("h")),s=Br(i.as("d")),l=Br(i.as("M")),c=Br(i.as("y")),u=r<jr.s&&["s",r]||1>=o&&["m"]||o<jr.m&&["mm",o]||1>=a&&["h"]||a<jr.h&&["hh",a]||1>=s&&["d"]||s<jr.d&&["dd",s]||1>=l&&["M"]||l<jr.M&&["MM",l]||1>=c&&["y"]||["yy",c];return u[2]=t,u[3]=+e>0,u[4]=n,Nn.apply(null,u)}function Vn(e,t){return void 0===jr[e]?!1:void 0===t?jr[e]:(jr[e]=t,!0)}function Un(e){var t=this.localeData(),n=qn(this,!e,t);return e&&(n=t.pastFuture(+this,n)),t.postformat(n)}function Xn(){var e,t,n,i=Yr(this._milliseconds)/1e3,r=Yr(this._days),o=Yr(this._months);e=v(i/60),t=v(e/60),i%=60,e%=60,n=v(o/12),o%=12;var a=n,s=o,l=r,c=t,u=e,d=i,f=this.asSeconds();return f?(0>f?"-":"")+"P"+(a?a+"Y":"")+(s?s+"M":"")+(l?l+"D":"")+(c||u||d?"T":"")+(c?c+"H":"")+(u?u+"M":"")+(d?d+"S":""):"P0D"}var Kn,Zn,Jn=t.momentProperties=[],$n=!1,Qn={},ei={},ti=/(\[[^\[]*\])|(\\)?([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|YYYYYY|YYYYY|YYYY|YY|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|.)/g,ni=/(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g,ii={},ri={},oi=/\d/,ai=/\d\d/,si=/\d{3}/,li=/\d{4}/,ci=/[+-]?\d{6}/,ui=/\d\d?/,di=/\d\d\d\d?/,fi=/\d\d\d\d\d\d?/,hi=/\d{1,3}/,pi=/\d{1,4}/,mi=/[+-]?\d{1,6}/,gi=/\d+/,bi=/[+-]?\d+/,vi=/Z|[+-]\d\d:?\d\d/gi,yi=/Z|[+-]\d\d(?::?\d\d)?/gi,wi=/[+-]?\d+(\.\d{1,3})?/,Ai=/[0-9]*['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2}/i,Si={},ki={},Ti=0,xi=1,Ei=2,Mi=3,_i=4,Ci=5,Di=6,zi=7,Hi=8;B("M",["MM",2],"Mo",function(){return this.month()+1}),B("MMM",0,0,function(e){return this.localeData().monthsShort(this,e)}),B("MMMM",0,0,function(e){return this.localeData().months(this,e)}),_("month","M"),I("M",ui),I("MM",ui,ai),I("MMM",function(e,t){return t.monthsShortRegex(e)}),I("MMMM",function(e,t){return t.monthsRegex(e)}),V(["M","MM"],function(e,t){t[xi]=y(e)-1}),V(["MMM","MMMM"],function(e,t,n,i){var r=n._locale.monthsParse(e,i,n._strict);null!=r?t[xi]=r:d(n).invalidMonth=e});var Li=/D[oD]?(\[[^\[\]]*\]|\s+)+MMMM?/,Ri="January_February_March_April_May_June_July_August_September_October_November_December".split("_"),Oi="Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec".split("_"),Pi=Ai,Bi=Ai,ji={};t.suppressDeprecationWarnings=!1;var Yi=/^\s*((?:[+-]\d{6}|\d{4})-(?:\d\d-\d\d|W\d\d-\d|W\d\d|\d\d\d|\d\d))(?:(T| )(\d\d(?::\d\d(?::\d\d(?:[.,]\d+)?)?)?)([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?/,Fi=/^\s*((?:[+-]\d{6}|\d{4})(?:\d\d\d\d|W\d\d\d|W\d\d|\d\d\d|\d\d))(?:(T| )(\d\d(?:\d\d(?:\d\d(?:[.,]\d+)?)?)?)([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?/,Gi=/Z|[+-]\d\d(?::?\d\d)?/,Ii=[["YYYYYY-MM-DD",/[+-]\d{6}-\d\d-\d\d/],["YYYY-MM-DD",/\d{4}-\d\d-\d\d/],["GGGG-[W]WW-E",/\d{4}-W\d\d-\d/],["GGGG-[W]WW",/\d{4}-W\d\d/,!1],["YYYY-DDD",/\d{4}-\d{3}/],["YYYY-MM",/\d{4}-\d\d/,!1],["YYYYYYMMDD",/[+-]\d{10}/],["YYYYMMDD",/\d{8}/],["GGGG[W]WWE",/\d{4}W\d{3}/],["GGGG[W]WW",/\d{4}W\d{2}/,!1],["YYYYDDD",/\d{7}/]],Wi=[["HH:mm:ss.SSSS",/\d\d:\d\d:\d\d\.\d+/],["HH:mm:ss,SSSS",/\d\d:\d\d:\d\d,\d+/],["HH:mm:ss",/\d\d:\d\d:\d\d/],["HH:mm",/\d\d:\d\d/],["HHmmss.SSSS",/\d\d\d\d\d\d\.\d+/],["HHmmss,SSSS",/\d\d\d\d\d\d,\d+/],["HHmmss",/\d\d\d\d\d\d/],["HHmm",/\d\d\d\d/],["HH",/\d\d/]],Ni=/^\/?Date\((\-?\d+)/i;
-t.createFromInputFallback=se("moment construction falls back to js Date. This is discouraged and will be removed in upcoming major release. Please refer to https://github.com/moment/moment/issues/1407 for more info.",function(e){e._d=new Date(e._i+(e._useUTC?" UTC":""))}),B("Y",0,0,function(){var e=this.year();return 9999>=e?""+e:"+"+e}),B(0,["YY",2],0,function(){return this.year()%100}),B(0,["YYYY",4],0,"year"),B(0,["YYYYY",5],0,"year"),B(0,["YYYYYY",6,!0],0,"year"),_("year","y"),I("Y",bi),I("YY",ui,ai),I("YYYY",pi,li),I("YYYYY",mi,ci),I("YYYYYY",mi,ci),V(["YYYYY","YYYYYY"],Ti),V("YYYY",function(e,n){n[Ti]=2===e.length?t.parseTwoDigitYear(e):y(e)}),V("YY",function(e,n){n[Ti]=t.parseTwoDigitYear(e)}),V("Y",function(e,t){t[Ti]=parseInt(e,10)}),t.parseTwoDigitYear=function(e){return y(e)+(y(e)>68?1900:2e3)};var qi=H("FullYear",!1);t.ISO_8601=function(){};var Vi=se("moment().min is deprecated, use moment.min instead. https://github.com/moment/moment/issues/1548",function(){var e=He.apply(null,arguments);return this.isValid()&&e.isValid()?this>e?this:e:h()}),Ui=se("moment().max is deprecated, use moment.max instead. https://github.com/moment/moment/issues/1548",function(){var e=He.apply(null,arguments);return this.isValid()&&e.isValid()?e>this?this:e:h()}),Xi=function(){return Date.now?Date.now():+new Date};je("Z",":"),je("ZZ",""),I("Z",yi),I("ZZ",yi),V(["Z","ZZ"],function(e,t,n){n._useUTC=!0,n._tzm=Ye(yi,e)});var Ki=/([\+\-]|\d\d)/gi;t.updateOffset=function(){};var Zi=/(\-)?(?:(\d*)[. ])?(\d+)\:(\d+)(?:\:(\d+)\.?(\d{3})?)?/,Ji=/^(-)?P(?:(?:([0-9,.]*)Y)?(?:([0-9,.]*)M)?(?:([0-9,.]*)D)?(?:T(?:([0-9,.]*)H)?(?:([0-9,.]*)M)?(?:([0-9,.]*)S)?)?|([0-9,.]*)W)$/;Qe.fn=Pe.prototype;var $i=it(1,"add"),Qi=it(-1,"subtract");t.defaultFormat="YYYY-MM-DDTHH:mm:ssZ";var er=se("moment().lang() is deprecated. Instead, use moment().localeData() to get the language configuration. Use moment().locale() to change languages.",function(e){return void 0===e?this.localeData():this.locale(e)});B(0,["gg",2],0,function(){return this.weekYear()%100}),B(0,["GG",2],0,function(){return this.isoWeekYear()%100}),Pt("gggg","weekYear"),Pt("ggggg","weekYear"),Pt("GGGG","isoWeekYear"),Pt("GGGGG","isoWeekYear"),_("weekYear","gg"),_("isoWeekYear","GG"),I("G",bi),I("g",bi),I("GG",ui,ai),I("gg",ui,ai),I("GGGG",pi,li),I("gggg",pi,li),I("GGGGG",mi,ci),I("ggggg",mi,ci),U(["gggg","ggggg","GGGG","GGGGG"],function(e,t,n,i){t[i.substr(0,2)]=y(e)}),U(["gg","GG"],function(e,n,i,r){n[r]=t.parseTwoDigitYear(e)}),B("Q",0,"Qo","quarter"),_("quarter","Q"),I("Q",oi),V("Q",function(e,t){t[xi]=3*(y(e)-1)}),B("w",["ww",2],"wo","week"),B("W",["WW",2],"Wo","isoWeek"),_("week","w"),_("isoWeek","W"),I("w",ui),I("ww",ui,ai),I("W",ui),I("WW",ui,ai),U(["w","ww","W","WW"],function(e,t,n,i){t[i.substr(0,1)]=y(e)});var tr={dow:0,doy:6};B("D",["DD",2],"Do","date"),_("date","D"),I("D",ui),I("DD",ui,ai),I("Do",function(e,t){return e?t._ordinalParse:t._ordinalParseLenient}),V(["D","DD"],Ei),V("Do",function(e,t){t[Ei]=y(e.match(ui)[0],10)});var nr=H("Date",!0);B("d",0,"do","day"),B("dd",0,0,function(e){return this.localeData().weekdaysMin(this,e)}),B("ddd",0,0,function(e){return this.localeData().weekdaysShort(this,e)}),B("dddd",0,0,function(e){return this.localeData().weekdays(this,e)}),B("e",0,0,"weekday"),B("E",0,0,"isoWeekday"),_("day","d"),_("weekday","e"),_("isoWeekday","E"),I("d",ui),I("e",ui),I("E",ui),I("dd",Ai),I("ddd",Ai),I("dddd",Ai),U(["dd","ddd","dddd"],function(e,t,n,i){var r=n._locale.weekdaysParse(e,i,n._strict);null!=r?t.d=r:d(n).invalidWeekday=e}),U(["d","e","E"],function(e,t,n,i){t[i]=y(e)});var ir="Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),rr="Sun_Mon_Tue_Wed_Thu_Fri_Sat".split("_"),or="Su_Mo_Tu_We_Th_Fr_Sa".split("_");B("DDD",["DDDD",3],"DDDo","dayOfYear"),_("dayOfYear","DDD"),I("DDD",hi),I("DDDD",si),V(["DDD","DDDD"],function(e,t,n){n._dayOfYear=y(e)}),B("H",["HH",2],0,"hour"),B("h",["hh",2],0,on),B("hmm",0,0,function(){return""+on.apply(this)+P(this.minutes(),2)}),B("hmmss",0,0,function(){return""+on.apply(this)+P(this.minutes(),2)+P(this.seconds(),2)}),B("Hmm",0,0,function(){return""+this.hours()+P(this.minutes(),2)}),B("Hmmss",0,0,function(){return""+this.hours()+P(this.minutes(),2)+P(this.seconds(),2)}),an("a",!0),an("A",!1),_("hour","h"),I("a",sn),I("A",sn),I("H",ui),I("h",ui),I("HH",ui,ai),I("hh",ui,ai),I("hmm",di),I("hmmss",fi),I("Hmm",di),I("Hmmss",fi),V(["H","HH"],Mi),V(["a","A"],function(e,t,n){n._isPm=n._locale.isPM(e),n._meridiem=e}),V(["h","hh"],function(e,t,n){t[Mi]=y(e),d(n).bigHour=!0}),V("hmm",function(e,t,n){var i=e.length-2;t[Mi]=y(e.substr(0,i)),t[_i]=y(e.substr(i)),d(n).bigHour=!0}),V("hmmss",function(e,t,n){var i=e.length-4,r=e.length-2;t[Mi]=y(e.substr(0,i)),t[_i]=y(e.substr(i,2)),t[Ci]=y(e.substr(r)),d(n).bigHour=!0}),V("Hmm",function(e,t,n){var i=e.length-2;t[Mi]=y(e.substr(0,i)),t[_i]=y(e.substr(i))}),V("Hmmss",function(e,t,n){var i=e.length-4,r=e.length-2;t[Mi]=y(e.substr(0,i)),t[_i]=y(e.substr(i,2)),t[Ci]=y(e.substr(r))});var ar=/[ap]\.?m?\.?/i,sr=H("Hours",!0);B("m",["mm",2],0,"minute"),_("minute","m"),I("m",ui),I("mm",ui,ai),V(["m","mm"],_i);var lr=H("Minutes",!1);B("s",["ss",2],0,"second"),_("second","s"),I("s",ui),I("ss",ui,ai),V(["s","ss"],Ci);var cr=H("Seconds",!1);B("S",0,0,function(){return~~(this.millisecond()/100)}),B(0,["SS",2],0,function(){return~~(this.millisecond()/10)}),B(0,["SSS",3],0,"millisecond"),B(0,["SSSS",4],0,function(){return 10*this.millisecond()}),B(0,["SSSSS",5],0,function(){return 100*this.millisecond()}),B(0,["SSSSSS",6],0,function(){return 1e3*this.millisecond()}),B(0,["SSSSSSS",7],0,function(){return 1e4*this.millisecond()}),B(0,["SSSSSSSS",8],0,function(){return 1e5*this.millisecond()}),B(0,["SSSSSSSSS",9],0,function(){return 1e6*this.millisecond()}),_("millisecond","ms"),I("S",hi,oi),I("SS",hi,ai),I("SSS",hi,si);var ur;for(ur="SSSS";ur.length<=9;ur+="S")I(ur,gi);for(ur="S";ur.length<=9;ur+="S")V(ur,un);var dr=H("Milliseconds",!1);B("z",0,0,"zoneAbbr"),B("zz",0,0,"zoneName");var fr=g.prototype;fr.add=$i,fr.calendar=ot,fr.clone=at,fr.diff=ht,fr.endOf=xt,fr.format=bt,fr.from=vt,fr.fromNow=yt,fr.to=wt,fr.toNow=At,fr.get=O,fr.invalidAt=Rt,fr.isAfter=st,fr.isBefore=lt,fr.isBetween=ct,fr.isSame=ut,fr.isSameOrAfter=dt,fr.isSameOrBefore=ft,fr.isValid=Ht,fr.lang=er,fr.locale=St,fr.localeData=kt,fr.max=Ui,fr.min=Vi,fr.parsingFlags=Lt,fr.set=O,fr.startOf=Tt,fr.subtract=Qi,fr.toArray=Ct,fr.toObject=Dt,fr.toDate=_t,fr.toISOString=gt,fr.toJSON=zt,fr.toString=mt,fr.unix=Mt,fr.valueOf=Et,fr.creationData=Ot,fr.year=qi,fr.isLeapYear=me,fr.weekYear=Bt,fr.isoWeekYear=jt,fr.quarter=fr.quarters=Wt,fr.month=ee,fr.daysInMonth=te,fr.week=fr.weeks=Ut,fr.isoWeek=fr.isoWeeks=Xt,fr.weeksInYear=Ft,fr.isoWeeksInYear=Yt,fr.date=nr,fr.day=fr.days=en,fr.weekday=tn,fr.isoWeekday=nn,fr.dayOfYear=rn,fr.hour=fr.hours=sr,fr.minute=fr.minutes=lr,fr.second=fr.seconds=cr,fr.millisecond=fr.milliseconds=dr,fr.utcOffset=Ie,fr.utc=Ne,fr.local=qe,fr.parseZone=Ve,fr.hasAlignedHourOffset=Ue,fr.isDST=Xe,fr.isDSTShifted=Ke,fr.isLocal=Ze,fr.isUtcOffset=Je,fr.isUtc=$e,fr.isUTC=$e,fr.zoneAbbr=dn,fr.zoneName=fn,fr.dates=se("dates accessor is deprecated. Use date instead.",nr),fr.months=se("months accessor is deprecated. Use month instead",ee),fr.years=se("years accessor is deprecated. Use year instead",qi),fr.zone=se("moment().zone is deprecated, use moment().utcOffset instead. https://github.com/moment/moment/issues/1779",We);var hr=fr,pr={sameDay:"[Today at] LT",nextDay:"[Tomorrow at] LT",nextWeek:"dddd [at] LT",lastDay:"[Yesterday at] LT",lastWeek:"[Last] dddd [at] LT",sameElse:"L"},mr={LTS:"h:mm:ss A",LT:"h:mm A",L:"MM/DD/YYYY",LL:"MMMM D, YYYY",LLL:"MMMM D, YYYY h:mm A",LLLL:"dddd, MMMM D, YYYY h:mm A"},gr="Invalid date",br="%d",vr=/\d{1,2}/,yr={future:"in %s",past:"%s ago",s:"a few seconds",m:"a minute",mm:"%d minutes",h:"an hour",hh:"%d hours",d:"a day",dd:"%d days",M:"a month",MM:"%d months",y:"a year",yy:"%d years"},wr=A.prototype;wr._calendar=pr,wr.calendar=mn,wr._longDateFormat=mr,wr.longDateFormat=gn,wr._invalidDate=gr,wr.invalidDate=bn,wr._ordinal=br,wr.ordinal=vn,wr._ordinalParse=vr,wr.preparse=yn,wr.postformat=yn,wr._relativeTime=yr,wr.relativeTime=wn,wr.pastFuture=An,wr.set=Sn,wr.months=Z,wr._months=Ri,wr.monthsShort=J,wr._monthsShort=Oi,wr.monthsParse=$,wr._monthsRegex=Bi,wr.monthsRegex=ie,wr._monthsShortRegex=Pi,wr.monthsShortRegex=ne,wr.week=Nt,wr._week=tr,wr.firstDayOfYear=Vt,wr.firstDayOfWeek=qt,wr.weekdays=Zt,wr._weekdays=ir,wr.weekdaysMin=$t,wr._weekdaysMin=or,wr.weekdaysShort=Jt,wr._weekdaysShort=rr,wr.weekdaysParse=Qt,wr.isPM=ln,wr._meridiemParse=ar,wr.meridiem=cn,x("en",{ordinalParse:/\d{1,2}(th|st|nd|rd)/,ordinal:function(e){var t=e%10,n=1===y(e%100/10)?"th":1===t?"st":2===t?"nd":3===t?"rd":"th";return e+n}}),t.lang=se("moment.lang is deprecated. Use moment.locale instead.",x),t.langData=se("moment.langData is deprecated. Use moment.localeData instead.",M);var Ar=Math.abs,Sr=Fn("ms"),kr=Fn("s"),Tr=Fn("m"),xr=Fn("h"),Er=Fn("d"),Mr=Fn("w"),_r=Fn("M"),Cr=Fn("y"),Dr=In("milliseconds"),zr=In("seconds"),Hr=In("minutes"),Lr=In("hours"),Rr=In("days"),Or=In("months"),Pr=In("years"),Br=Math.round,jr={s:45,m:45,h:22,d:26,M:11},Yr=Math.abs,Fr=Pe.prototype;Fr.abs=Dn,Fr.add=Hn,Fr.subtract=Ln,Fr.as=jn,Fr.asMilliseconds=Sr,Fr.asSeconds=kr,Fr.asMinutes=Tr,Fr.asHours=xr,Fr.asDays=Er,Fr.asWeeks=Mr,Fr.asMonths=_r,Fr.asYears=Cr,Fr.valueOf=Yn,Fr._bubble=On,Fr.get=Gn,Fr.milliseconds=Dr,Fr.seconds=zr,Fr.minutes=Hr,Fr.hours=Lr,Fr.days=Rr,Fr.weeks=Wn,Fr.months=Or,Fr.years=Pr,Fr.humanize=Un,Fr.toISOString=Xn,Fr.toString=Xn,Fr.toJSON=Xn,Fr.locale=St,Fr.localeData=kt,Fr.toIsoString=se("toIsoString() is deprecated. Please use toISOString() instead (notice the capitals)",Xn),Fr.lang=er,B("X",0,0,"unix"),B("x",0,0,"valueOf"),I("x",bi),I("X",wi),V("X",function(e,t,n){n._d=new Date(1e3*parseFloat(e,10))}),V("x",function(e,t,n){n._d=new Date(y(e))}),t.version="2.11.1",i(He),t.fn=hr,t.min=Re,t.max=Oe,t.now=Xi,t.utc=c,t.unix=hn,t.months=xn,t.isDate=o,t.locale=x,t.invalid=h,t.duration=Qe,t.isMoment=b,t.weekdays=Mn,t.parseZone=pn,t.localeData=M,t.isDuration=Be,t.monthsShort=En,t.weekdaysMin=Cn,t.defineLocale=E,t.weekdaysShort=_n,t.normalizeUnits=C,t.relativeTimeThreshold=Vn,t.prototype=hr;var Gr=t;return Gr})}).call(t,n(8)(e))},function(e,t,n){function i(e,t){for(var n=0;n<e.length;n++){var i=e[n],r=h[i.id];if(r){r.refs++;for(var o=0;o<r.parts.length;o++)r.parts[o](i.parts[o]);for(;o<i.parts.length;o++)r.parts.push(c(i.parts[o],t))}else{for(var a=[],o=0;o<i.parts.length;o++)a.push(c(i.parts[o],t));h[i.id]={id:i.id,refs:1,parts:a}}}}function r(e){for(var t=[],n={},i=0;i<e.length;i++){var r=e[i],o=r[0],a=r[1],s=r[2],l=r[3],c={css:a,media:s,sourceMap:l};n[o]?n[o].parts.push(c):t.push(n[o]={id:o,parts:[c]})}return t}function o(e,t){var n=g(),i=y[y.length-1];if("top"===e.insertAt)i?i.nextSibling?n.insertBefore(t,i.nextSibling):n.appendChild(t):n.insertBefore(t,n.firstChild),y.push(t);else{if("bottom"!==e.insertAt)throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");n.appendChild(t)}}function a(e){e.parentNode.removeChild(e);var t=y.indexOf(e);t>=0&&y.splice(t,1)}function s(e){var t=document.createElement("style");return t.type="text/css",o(e,t),t}function l(e){var t=document.createElement("link");return t.rel="stylesheet",o(e,t),t}function c(e,t){var n,i,r;if(t.singleton){var o=v++;n=b||(b=s(t)),i=u.bind(null,n,o,!1),r=u.bind(null,n,o,!0)}else e.sourceMap&&"function"==typeof URL&&"function"==typeof URL.createObjectURL&&"function"==typeof URL.revokeObjectURL&&"function"==typeof Blob&&"function"==typeof btoa?(n=l(t),i=f.bind(null,n),r=function(){a(n),n.href&&URL.revokeObjectURL(n.href)}):(n=s(t),i=d.bind(null,n),r=function(){a(n)});return i(e),function(t){if(t){if(t.css===e.css&&t.media===e.media&&t.sourceMap===e.sourceMap)return;i(e=t)}else r()}}function u(e,t,n,i){var r=n?"":i.css;if(e.styleSheet)e.styleSheet.cssText=w(t,r);else{var o=document.createTextNode(r),a=e.childNodes;a[t]&&e.removeChild(a[t]),a.length?e.insertBefore(o,a[t]):e.appendChild(o)}}function d(e,t){var n=t.css,i=t.media;t.sourceMap;if(i&&e.setAttribute("media",i),e.styleSheet)e.styleSheet.cssText=n;else{for(;e.firstChild;)e.removeChild(e.firstChild);e.appendChild(document.createTextNode(n))}}function f(e,t){var n=t.css,i=(t.media,t.sourceMap);i&&(n+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(i))))+" */");var r=new Blob([n],{type:"text/css"}),o=e.href;e.href=URL.createObjectURL(r),o&&URL.revokeObjectURL(o)}var h={},p=function(e){var t;return function(){return"undefined"==typeof t&&(t=e.apply(this,arguments)),t}},m=p(function(){return/msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase())}),g=p(function(){return document.head||document.getElementsByTagName("head")[0]}),b=null,v=0,y=[];e.exports=function(e,t){t=t||{},"undefined"==typeof t.singleton&&(t.singleton=m()),"undefined"==typeof t.insertAt&&(t.insertAt="bottom");var n=r(e);return i(n,t),function(e){for(var o=[],a=0;a<n.length;a++){var s=n[a],l=h[s.id];l.refs--,o.push(l)}if(e){var c=r(e);i(c,t)}for(var a=0;a<o.length;a++){var l=o[a];if(0===l.refs){for(var u=0;u<l.parts.length;u++)l.parts[u]();delete h[l.id]}}}};var w=function(){var e=[];return function(t,n){return e[t]=n,e.filter(Boolean).join("\n")}}()},function(e,t){function n(){c=!1,a.length?l=a.concat(l):u=-1,l.length&&i()}function i(){if(!c){var e=setTimeout(n);c=!0;for(var t=l.length;t;){for(a=l,l=[];++u<t;)a&&a[u].run();u=-1,t=l.length}a=null,c=!1,clearTimeout(e)}}function r(e,t){this.fun=e,this.array=t}function o(){}var a,s=e.exports={},l=[],c=!1,u=-1;s.nextTick=function(e){var t=new Array(arguments.length-1);if(arguments.length>1)for(var n=1;n<arguments.length;n++)t[n-1]=arguments[n];l.push(new r(e,t)),1!==l.length||c||setTimeout(i,0)},r.prototype.run=function(){this.fun.apply(null,this.array)},s.title="browser",s.browser=!0,s.env={},s.argv=[],s.version="",s.versions={},s.on=o,s.addListener=o,s.once=o,s.off=o,s.removeListener=o,s.removeAllListeners=o,s.emit=o,s.binding=function(e){throw new Error("process.binding is not supported")},s.cwd=function(){return"/"},s.chdir=function(e){throw new Error("process.chdir is not supported")},s.umask=function(){return 0}},function(e,t,n){(function(e,i){function r(e,t){this._id=e,this._clearFn=t}var o=n(6).nextTick,a=Function.prototype.apply,s=Array.prototype.slice,l={},c=0;t.setTimeout=function(){return new r(a.call(setTimeout,window,arguments),clearTimeout)},t.setInterval=function(){return new r(a.call(setInterval,window,arguments),clearInterval)},t.clearTimeout=t.clearInterval=function(e){e.close()},r.prototype.unref=r.prototype.ref=function(){},r.prototype.close=function(){this._clearFn.call(window,this._id)},t.enroll=function(e,t){clearTimeout(e._idleTimeoutId),e._idleTimeout=t},t.unenroll=function(e){clearTimeout(e._idleTimeoutId),e._idleTimeout=-1},t._unrefActive=t.active=function(e){clearTimeout(e._idleTimeoutId);var t=e._idleTimeout;t>=0&&(e._idleTimeoutId=setTimeout(function(){e._onTimeout&&e._onTimeout()},t))},t.setImmediate="function"==typeof e?e:function(e){var n=c++,i=arguments.length<2?!1:s.call(arguments,1);return l[n]=!0,o(function(){l[n]&&(i?e.apply(null,i):e.call(null),t.clearImmediate(n))}),n},t.clearImmediate="function"==typeof i?i:function(e){delete l[e]}}).call(t,n(7).setImmediate,n(7).clearImmediate)},function(e,t){e.exports=function(e){return e.webpackPolyfill||(e.deprecate=function(){},e.paths=[],e.children=[],e.webpackPolyfill=1),e}},function(e,t,n){"use strict";var i=n(10),r=n(1),o=n(18),a=n(19),s=n(21),l=n(23),c=n(24);e.exports=function(e,t,n){var u=l(n.data,n.headers,n.transformRequest),d=r.merge(i.headers.common,i.headers[n.method]||{},n.headers||{});r.isFormData(u)&&delete d["Content-Type"];var f=new(XMLHttpRequest||ActiveXObject)("Microsoft.XMLHTTP");f.open(n.method.toUpperCase(),o(n.url,n.params),!0),f.onreadystatechange=function(){if(f&&4===f.readyState){var i=s(f.getAllResponseHeaders()),r=-1!==["text",""].indexOf(n.responseType||"")?f.responseText:f.response,o={data:l(r,i,n.transformResponse),status:f.status,statusText:f.statusText,headers:i,config:n};(f.status>=200&&f.status<300?e:t)(o),f=null}};var h=c(n.url)?a.read(n.xsrfCookieName||i.xsrfCookieName):void 0;if(h&&(d[n.xsrfHeaderName||i.xsrfHeaderName]=h),r.forEach(d,function(e,t){u||"content-type"!==t.toLowerCase()?f.setRequestHeader(t,e):delete d[t]}),n.withCredentials&&(f.withCredentials=!0),n.responseType)try{f.responseType=n.responseType}catch(p){if("json"!==f.responseType)throw p}r.isArrayBuffer(u)&&(u=new DataView(u)),f.send(u)}},function(e,t,n){"use strict";var i=n(1),r=/^\)\]\}',?\n/,o={"Content-Type":"application/x-www-form-urlencoded"};e.exports={transformRequest:[function(e,t){return i.isFormData(e)?e:i.isArrayBuffer(e)?e:i.isArrayBufferView(e)?e.buffer:!i.isObject(e)||i.isFile(e)||i.isBlob(e)?e:(!i.isUndefined(t)&&i.isUndefined(t["Content-Type"])&&(t["Content-Type"]="application/json;charset=utf-8"),JSON.stringify(e))}],transformResponse:[function(e){if("string"==typeof e){e=e.replace(r,"");try{e=JSON.parse(e)}catch(t){}}return e}],headers:{common:{Accept:"application/json, text/plain, */*"},patch:i.merge(o),post:i.merge(o),put:i.merge(o)},xsrfCookieName:"XSRF-TOKEN",xsrfHeaderName:"X-XSRF-TOKEN"}},function(e,t,n){!function(e,t){t(n(4))}(this,function(e){"use strict";var t=e.defineLocale("en-gb",{months:"January_February_March_April_May_June_July_August_September_October_November_December".split("_"),monthsShort:"Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec".split("_"),weekdays:"Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),weekdaysShort:"Sun_Mon_Tue_Wed_Thu_Fri_Sat".split("_"),weekdaysMin:"Su_Mo_Tu_We_Th_Fr_Sa".split("_"),longDateFormat:{LT:"HH:mm",LTS:"HH:mm:ss",L:"DD/MM/YYYY",LL:"D MMMM YYYY",LLL:"D MMMM YYYY HH:mm",LLLL:"dddd, D MMMM YYYY HH:mm"},calendar:{sameDay:"[Today at] LT",nextDay:"[Tomorrow at] LT",nextWeek:"dddd [at] LT",lastDay:"[Yesterday at] LT",lastWeek:"[Last] dddd [at] LT",sameElse:"L"},relativeTime:{future:"in %s",past:"%s ago",s:"a few seconds",m:"a minute",mm:"%d minutes",h:"an hour",hh:"%d hours",d:"a day",dd:"%d days",M:"a month",MM:"%d months",y:"a year",yy:"%d years"},ordinalParse:/\d{1,2}(st|nd|rd|th)/,ordinal:function(e){var t=e%10,n=1===~~(e%100/10)?"th":1===t?"st":2===t?"nd":3===t?"rd":"th";return e+n},week:{dow:1,doy:4}});return t})},function(e,t,n){var i=n(2);e.exports=function(){var e=new i.Template({code:function(e,t,n){var i=this;return i.b(n=n||""),i.b('<div class="bookingjs-timezonehelper">'),i.b("\n"),i.b("\n"+n),i.b("  "),i.b(i.t(i.f("timezoneIcon",e,t,0))),i.b("\n"),i.b("\n"+n),i.s(i.f("loading",e,t,1),e,t,0,79,117,"{{ }}")&&(i.rs(e,t,function(e,t,i){i.b("    <span>"),i.b(i.v(i.f("loadingText",e,t,0))),i.b("</span>"),i.b("\n"+n)}),e.pop()),i.b("\n"+n),i.s(i.f("loading",e,t,1),e,t,1,0,0,"")||(i.s(i.f("timezoneDifference",e,t,1),e,t,0,179,227,"{{ }}")&&(i.rs(e,t,function(e,t,i){i.b("      <span>"),i.b(i.v(i.f("timezoneDifferent",e,t,0))),i.b("</span>"),i.b("\n"+n)}),e.pop()),i.b("\n"+n),i.s(i.f("timezoneDifference",e,t,1),e,t,1,0,0,"")||(i.b("      <span>"),i.b(i.v(i.f("timezoneSame",e,t,0))),i.b("</span>"),i.b("\n"+n))),i.b("\n"+n),i.b("</div>"),i.b("\n"),i.fl()},partials:{},subs:{}},'<div class="bookingjs-timezonehelper">\n\n  {{& timezoneIcon }}\n\n  {{# loading }}\n    <span>{{ loadingText }}</span>\n  {{/ loading }}\n\n  {{^ loading }}\n    {{# timezoneDifference }}\n      <span>{{ timezoneDifferent }}</span>\n    {{/ timezoneDifference }}\n\n    {{^ timezoneDifference }}\n      <span>{{ timezoneSame }}</span>\n    {{/ timezoneDifference }}\n  {{/ loading }}\n\n</div>\n',i);return e}()},function(t,n){t.exports=e},function(e,t,n){e.exports=n(15)},function(e,t,n){"use strict";var i=n(10),r=n(1),o=n(20),a=n(17),s=n(16);!function(){var e=n(31);e&&"function"==typeof e.polyfill&&e.polyfill()}();var l=e.exports=function c(e){e=r.merge({method:"get",headers:{},transformRequest:i.transformRequest,transformResponse:i.transformResponse},e),e.withCredentials=e.withCredentials||i.withCredentials;var t=[a,void 0],n=Promise.resolve(e);for(c.interceptors.request.forEach(function(e){t.unshift(e.fulfilled,e.rejected)}),c.interceptors.response.forEach(function(e){t.push(e.fulfilled,e.rejected)});t.length;)n=n.then(t.shift(),t.shift());return n.success=function(e){return o("success","then","https://github.com/mzabriskie/axios/blob/master/README.md#response-api"),n.then(function(t){e(t.data,t.status,t.headers,t.config)}),n},n.error=function(e){return o("error","catch","https://github.com/mzabriskie/axios/blob/master/README.md#response-api"),n.then(null,function(t){e(t.data,t.status,t.headers,t.config)}),n},n};l.defaults=i,l.all=function(e){return Promise.all(e)},l.spread=n(22),l.interceptors={request:new s,response:new s},function(){function e(){r.forEach(arguments,function(e){l[e]=function(t,n){return l(r.merge(n||{},{method:e,url:t}))}})}function t(){r.forEach(arguments,function(e){l[e]=function(t,n,i){return l(r.merge(i||{},{method:e,url:t,data:n}))}})}e("delete","get","head"),t("post","put","patch")}()},function(e,t,n){"use strict";function i(){this.handlers=[]}var r=n(1);i.prototype.use=function(e,t){return this.handlers.push({fulfilled:e,rejected:t}),this.handlers.length-1},i.prototype.eject=function(e){this.handlers[e]&&(this.handlers[e]=null)},i.prototype.forEach=function(e){r.forEach(this.handlers,function(t){null!==t&&e(t)})},e.exports=i},function(e,t,n){(function(t){"use strict";e.exports=function(e){return new Promise(function(i,r){try{"undefined"!=typeof window?n(9)(i,r,e):"undefined"!=typeof t&&n(9)(i,r,e)}catch(o){r(o)}})}}).call(t,n(6))},function(e,t,n){"use strict";function i(e){return encodeURIComponent(e).replace(/%40/gi,"@").replace(/%3A/gi,":").replace(/%24/g,"$").replace(/%2C/gi,",").replace(/%20/g,"+")}var r=n(1);e.exports=function(e,t){if(!t)return e;var n=[];return r.forEach(t,function(e,t){null!==e&&"undefined"!=typeof e&&(r.isArray(e)||(e=[e]),r.forEach(e,function(e){r.isDate(e)?e=e.toISOString():r.isObject(e)&&(e=JSON.stringify(e)),n.push(i(t)+"="+i(e))}))}),n.length>0&&(e+=(-1===e.indexOf("?")?"?":"&")+n.join("&")),e}},function(e,t,n){"use strict";var i=n(1);e.exports={write:function(e,t,n,r,o,a){var s=[];s.push(e+"="+encodeURIComponent(t)),i.isNumber(n)&&s.push("expires="+new Date(n).toGMTString()),i.isString(r)&&s.push("path="+r),i.isString(o)&&s.push("domain="+o),a===!0&&s.push("secure"),document.cookie=s.join("; ")},read:function(e){var t=document.cookie.match(new RegExp("(^|;\\s*)("+e+")=([^;]*)"));return t?decodeURIComponent(t[3]):null},remove:function(e){this.write(e,"",Date.now()-864e5)}}},function(e,t){"use strict";e.exports=function(e,t,n){try{console.warn("DEPRECATED method `"+e+"`."+(t?" Use `"+t+"` instead.":"")+" This method will be removed in a future release."),n&&console.warn("For more information about usage see "+n)}catch(i){}}},function(e,t,n){"use strict";var i=n(1);e.exports=function(e){var t,n,r,o={};return e?(i.forEach(e.split("\n"),function(e){r=e.indexOf(":"),t=i.trim(e.substr(0,r)).toLowerCase(),n=i.trim(e.substr(r+1)),t&&(o[t]=o[t]?o[t]+", "+n:n)}),o):o}},function(e,t){"use strict";e.exports=function(e){return function(t){e.apply(null,t)}}},function(e,t,n){"use strict";var i=n(1);e.exports=function(e,t,n){return i.forEach(n,function(n){e=n(e,t)}),e}},function(e,t,n){"use strict";function i(e){var t=e;return a&&(s.setAttribute("href",t),t=s.href),s.setAttribute("href",t),{href:s.href,protocol:s.protocol?s.protocol.replace(/:$/,""):"",host:s.host,search:s.search?s.search.replace(/^\?/,""):"",hash:s.hash?s.hash.replace(/^#/,""):"",hostname:s.hostname,port:s.port,pathname:"/"===s.pathname.charAt(0)?s.pathname:"/"+s.pathname}}var r,o=n(1),a=/(msie|trident)/i.test(navigator.userAgent),s=document.createElement("a");r=i(window.location.href),e.exports=function(e){var t=o.isString(e)?i(e):e;return t.protocol===r.protocol&&t.host===r.host}},function(e,t,n){var i;(function(e,r){!function(o){var a="object"==typeof t&&t,s=("object"==typeof e&&e&&e.exports==a&&e,"object"==typeof r&&r);(s.global===s||s.window===s)&&(o=s);var l=function(e){this.message=e};l.prototype=new Error,l.prototype.name="InvalidCharacterError";var c=function(e){throw new l(e)},u="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",d=/[\t\n\f\r ]/g,f=function(e){e=String(e).replace(d,"");var t=e.length;t%4==0&&(e=e.replace(/==?$/,""),t=e.length),(t%4==1||/[^+a-zA-Z0-9\/]/.test(e))&&c("Invalid character: the string to be decoded is not correctly encoded.");for(var n,i,r=0,o="",a=-1;++a<t;)i=u.indexOf(e.charAt(a)),n=r%4?64*n+i:i,r++%4&&(o+=String.fromCharCode(255&n>>(-2*r&6)));return o},h=function(e){e=String(e),/[^\0-\xFF]/.test(e)&&c("The string to be encoded contains characters outside of the Latin1 range.");for(var t,n,i,r,o=e.length%3,a="",s=-1,l=e.length-o;++s<l;)t=e.charCodeAt(s)<<16,n=e.charCodeAt(++s)<<8,i=e.charCodeAt(++s),r=t+n+i,a+=u.charAt(r>>18&63)+u.charAt(r>>12&63)+u.charAt(r>>6&63)+u.charAt(63&r);return 2==o?(t=e.charCodeAt(s)<<8,n=e.charCodeAt(++s),r=t+n,a+=u.charAt(r>>10)+u.charAt(r>>4&63)+u.charAt(r<<2&63)+"="):1==o&&(r=e.charCodeAt(s),a+=u.charAt(r>>2)+u.charAt(r<<4&63)+"=="),a},p={encode:h,decode:f,version:"0.1.0"};i=function(){return p}.call(t,n,t,e),!(void 0!==i&&(e.exports=i))}(this)}).call(t,n(8)(e),function(){return this}())},function(e,t){!function(e){"use strict";e.console=e.console||{};for(var t,n,i=e.console,r={},o=function(){},a="memory".split(","),s="assert,clear,count,debug,dir,dirxml,error,exception,group,groupCollapsed,groupEnd,info,log,markTimeline,profile,profiles,profileEnd,show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn".split(",");t=a.pop();)i[t]||(i[t]=r);for(;n=s.pop();)i[n]||(i[n]=o)}("undefined"==typeof window?this:window)},function(e,t,n){t=e.exports=n(3)(),t.push([e.id,'/*!\n * FullCalendar v2.6.0 Stylesheet\n * Docs & License: http://fullcalendar.io/\n * (c) 2015 Adam Shaw\n */.fc{direction:ltr;text-align:left}.fc-rtl{text-align:right}body .fc{font-size:1em}.fc-unthemed .fc-divider,.fc-unthemed .fc-popover,.fc-unthemed .fc-row,.fc-unthemed tbody,.fc-unthemed td,.fc-unthemed th,.fc-unthemed thead{border-color:#ddd}.fc-unthemed .fc-popover{background-color:#fff}.fc-unthemed .fc-divider,.fc-unthemed .fc-popover .fc-header{background:#eee}.fc-unthemed .fc-popover .fc-header .fc-close{color:#666}.fc-unthemed .fc-today{background:#fcf8e3}.fc-highlight{background:#bce8f1}.fc-bgevent,.fc-highlight{opacity:.3;filter:alpha(opacity=30)}.fc-bgevent{background:#8fdf82}.fc-nonbusiness{background:#d7d7d7}.fc-icon{display:inline-block;width:1em;height:1em;line-height:1em;font-size:1em;text-align:center;overflow:hidden;font-family:Courier New,Courier,monospace;-webkit-touch-callout:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.fc-icon:after{position:relative;margin:0 -1em}.fc-icon-left-single-arrow:after{content:"\\2039";font-weight:700;font-size:200%;top:-7%;left:3%}.fc-icon-right-single-arrow:after{content:"\\203A";font-weight:700;font-size:200%;top:-7%;left:-3%}.fc-icon-left-double-arrow:after{content:"\\AB";font-size:160%;top:-7%}.fc-icon-right-double-arrow:after{content:"\\BB";font-size:160%;top:-7%}.fc-icon-left-triangle:after{content:"\\25C4";font-size:125%;top:3%;left:-2%}.fc-icon-right-triangle:after{content:"\\25BA";font-size:125%;top:3%;left:2%}.fc-icon-down-triangle:after{content:"\\25BC";font-size:125%;top:2%}.fc-icon-x:after{content:"\\D7";font-size:200%;top:6%}.fc button{box-sizing:border-box;margin:0;height:2.1em;padding:0 .6em;font-size:1em;white-space:nowrap;cursor:pointer}.fc button::-moz-focus-inner{margin:0;padding:0}.fc-state-default{border:1px solid}.fc-state-default.fc-corner-left{border-top-left-radius:4px;border-bottom-left-radius:4px}.fc-state-default.fc-corner-right{border-top-right-radius:4px;border-bottom-right-radius:4px}.fc button .fc-icon{position:relative;top:-.05em;margin:0 .2em;vertical-align:middle}.fc-state-default{background-color:#f5f5f5;background-image:-webkit-gradient(linear,0 0,0 100%,from(#fff),to(#e6e6e6));background-image:-webkit-linear-gradient(top,#fff,#e6e6e6);background-image:linear-gradient(180deg,#fff,#e6e6e6);background-repeat:repeat-x;border-color:#e6e6e6 #e6e6e6 #bfbfbf;border-color:rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25);color:#333;text-shadow:0 1px 1px hsla(0,0%,100%,.75);box-shadow:inset 0 1px 0 hsla(0,0%,100%,.2),0 1px 2px rgba(0,0,0,.05)}.fc-state-active,.fc-state-disabled,.fc-state-down,.fc-state-hover{color:#333;background-color:#e6e6e6}.fc-state-hover{color:#333;text-decoration:none;background-position:0 -15px;-webkit-transition:background-position .1s linear;transition:background-position .1s linear}.fc-state-active,.fc-state-down{background-color:#ccc;background-image:none;box-shadow:inset 0 2px 4px rgba(0,0,0,.15),0 1px 2px rgba(0,0,0,.05)}.fc-state-disabled{cursor:default;background-image:none;opacity:.65;filter:alpha(opacity=65);box-shadow:none}.fc-button-group{display:inline-block}.fc .fc-button-group>*{float:left;margin:0 0 0 -1px}.fc .fc-button-group>:first-child{margin-left:0}.fc-popover{position:absolute;box-shadow:0 2px 6px rgba(0,0,0,.15)}.fc-popover .fc-header{padding:2px 4px}.fc-popover .fc-header .fc-title{margin:0 2px}.fc-popover .fc-header .fc-close{cursor:pointer}.fc-ltr .fc-popover .fc-header .fc-title,.fc-rtl .fc-popover .fc-header .fc-close{float:left}.fc-ltr .fc-popover .fc-header .fc-close,.fc-rtl .fc-popover .fc-header .fc-title{float:right}.fc-unthemed .fc-popover{border-width:1px;border-style:solid}.fc-unthemed .fc-popover .fc-header .fc-close{font-size:.9em;margin-top:2px}.fc-popover>.ui-widget-header+.ui-widget-content{border-top:0}.fc-divider{border-style:solid;border-width:1px}hr.fc-divider{height:0;margin:0;padding:0 0 2px;border-width:1px 0}.fc-clear{clear:both}.fc-bg,.fc-bgevent-skeleton,.fc-helper-skeleton,.fc-highlight-skeleton{position:absolute;top:0;left:0;right:0}.fc-bg{bottom:0}.fc-bg table{height:100%}.fc table{width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;font-size:1em}.fc th{text-align:center}.fc td,.fc th{border-style:solid;border-width:1px;padding:0;vertical-align:top}.fc td.fc-today{border-style:double}.fc .fc-row{border-style:solid;border-width:0}.fc-row table{border-left:0 hidden transparent;border-right:0 hidden transparent;border-bottom:0 hidden transparent}.fc-row:first-child table{border-top:0 hidden transparent}.fc-row{position:relative}.fc-row .fc-bg{z-index:1}.fc-row .fc-bgevent-skeleton,.fc-row .fc-highlight-skeleton{bottom:0}.fc-row .fc-bgevent-skeleton table,.fc-row .fc-highlight-skeleton table{height:100%}.fc-row .fc-bgevent-skeleton td,.fc-row .fc-highlight-skeleton td{border-color:transparent}.fc-row .fc-bgevent-skeleton{z-index:2}.fc-row .fc-highlight-skeleton{z-index:3}.fc-row .fc-content-skeleton{position:relative;z-index:4;padding-bottom:2px}.fc-row .fc-helper-skeleton{z-index:5}.fc-row .fc-content-skeleton td,.fc-row .fc-helper-skeleton td{background:none;border-color:transparent;border-bottom:0}.fc-row .fc-content-skeleton tbody td,.fc-row .fc-helper-skeleton tbody td{border-top:0}.fc-scroller{overflow-y:scroll;overflow-x:hidden}.fc-scroller>*{position:relative;width:100%;overflow:hidden}.fc-event{position:relative;display:block;font-size:.85em;line-height:1.3;border-radius:3px;border:1px solid #3a87ad;background-color:#3a87ad;font-weight:400}.fc-event,.fc-event:hover,.ui-widget .fc-event{color:#fff;text-decoration:none}.fc-event.fc-draggable,.fc-event[href]{cursor:pointer}.fc-not-allowed,.fc-not-allowed .fc-event{cursor:not-allowed}.fc-event .fc-bg{z-index:1;background:#fff;opacity:.25;filter:alpha(opacity=25)}.fc-event .fc-content{position:relative;z-index:2}.fc-event .fc-resizer{position:absolute;z-index:3}.fc-ltr .fc-h-event.fc-not-start,.fc-rtl .fc-h-event.fc-not-end{margin-left:0;border-left-width:0;padding-left:1px;border-top-left-radius:0;border-bottom-left-radius:0}.fc-ltr .fc-h-event.fc-not-end,.fc-rtl .fc-h-event.fc-not-start{margin-right:0;border-right-width:0;padding-right:1px;border-top-right-radius:0;border-bottom-right-radius:0}.fc-h-event .fc-resizer{top:-1px;bottom:-1px;left:-1px;right:-1px;width:5px}.fc-ltr .fc-h-event .fc-start-resizer,.fc-ltr .fc-h-event .fc-start-resizer:after,.fc-ltr .fc-h-event .fc-start-resizer:before,.fc-rtl .fc-h-event .fc-end-resizer,.fc-rtl .fc-h-event .fc-end-resizer:after,.fc-rtl .fc-h-event .fc-end-resizer:before{right:auto;cursor:w-resize}.fc-ltr .fc-h-event .fc-end-resizer,.fc-ltr .fc-h-event .fc-end-resizer:after,.fc-ltr .fc-h-event .fc-end-resizer:before,.fc-rtl .fc-h-event .fc-start-resizer,.fc-rtl .fc-h-event .fc-start-resizer:after,.fc-rtl .fc-h-event .fc-start-resizer:before{left:auto;cursor:e-resize}.fc-day-grid-event{margin:1px 2px 0;padding:0 1px}.fc-day-grid-event .fc-content{white-space:nowrap;overflow:hidden}.fc-day-grid-event .fc-time{font-weight:700}.fc-day-grid-event .fc-resizer{left:-3px;right:-3px;width:7px}a.fc-more{margin:1px 3px;font-size:.85em;cursor:pointer;text-decoration:none}a.fc-more:hover{text-decoration:underline}.fc-limited{display:none}.fc-day-grid .fc-row{z-index:1}.fc-more-popover{z-index:2;width:220px}.fc-more-popover .fc-event-container{padding:10px}.fc-now-indicator{position:absolute;border:0 solid red}.fc-toolbar{text-align:center;margin-bottom:1em}.fc-toolbar .fc-left{float:left}.fc-toolbar .fc-right{float:right}.fc-toolbar .fc-center{display:inline-block}.fc .fc-toolbar>*>*{float:left;margin-left:.75em}.fc .fc-toolbar>*>:first-child{margin-left:0}.fc-toolbar h2{margin:0}.fc-toolbar button{position:relative}.fc-toolbar .fc-state-hover,.fc-toolbar .ui-state-hover{z-index:2}.fc-toolbar .fc-state-down{z-index:3}.fc-toolbar .fc-state-active,.fc-toolbar .ui-state-active{z-index:4}.fc-toolbar button:focus{z-index:5}.fc-view-container *,.fc-view-container :after,.fc-view-container :before{box-sizing:content-box}.fc-view,.fc-view>table{position:relative;z-index:1}.fc-basicDay-view .fc-content-skeleton,.fc-basicWeek-view .fc-content-skeleton{padding-top:1px;padding-bottom:1em}.fc-basic-view .fc-body .fc-row{min-height:4em}.fc-row.fc-rigid{overflow:hidden}.fc-row.fc-rigid .fc-content-skeleton{position:absolute;top:0;left:0;right:0}.fc-basic-view .fc-day-number,.fc-basic-view .fc-week-number{padding:0 2px}.fc-basic-view td.fc-day-number,.fc-basic-view td.fc-week-number span{padding-top:2px;padding-bottom:2px}.fc-basic-view .fc-week-number{text-align:center}.fc-basic-view .fc-week-number span{display:inline-block;min-width:1.25em}.fc-ltr .fc-basic-view .fc-day-number{text-align:right}.fc-rtl .fc-basic-view .fc-day-number{text-align:left}.fc-day-number.fc-other-month{opacity:.3;filter:alpha(opacity=30)}.fc-agenda-view .fc-day-grid{position:relative;z-index:2}.fc-agenda-view .fc-day-grid .fc-row{min-height:3em}.fc-agenda-view .fc-day-grid .fc-row .fc-content-skeleton{padding-top:1px;padding-bottom:1em}.fc .fc-axis{vertical-align:middle;padding:0 4px;white-space:nowrap}.fc-ltr .fc-axis{text-align:right}.fc-rtl .fc-axis{text-align:left}.ui-widget td.fc-axis{font-weight:400}.fc-time-grid,.fc-time-grid-container{position:relative;z-index:1}.fc-time-grid{min-height:100%}.fc-time-grid table{border:0 hidden transparent}.fc-time-grid>.fc-bg{z-index:1}.fc-time-grid .fc-slats,.fc-time-grid>hr{position:relative;z-index:2}.fc-time-grid .fc-content-col{position:relative}.fc-time-grid .fc-content-skeleton{position:absolute;z-index:3;top:0;left:0;right:0}.fc-time-grid .fc-business-container{position:relative;z-index:1}.fc-time-grid .fc-bgevent-container{position:relative;z-index:2}.fc-time-grid .fc-highlight-container{position:relative;z-index:3}.fc-time-grid .fc-event-container{position:relative;z-index:4}.fc-time-grid .fc-now-indicator-line{z-index:5}.fc-time-grid .fc-helper-container{position:relative;z-index:6}.fc-time-grid .fc-slats td{height:1.5em;border-bottom:0}.fc-time-grid .fc-slats .fc-minor td{border-top-style:dotted}.fc-time-grid .fc-slats .ui-widget-content{background:none}.fc-time-grid .fc-highlight-container{position:relative}.fc-time-grid .fc-highlight{position:absolute;left:0;right:0}.fc-ltr .fc-time-grid .fc-event-container{margin:0 2.5% 0 2px}.fc-rtl .fc-time-grid .fc-event-container{margin:0 2px 0 2.5%}.fc-time-grid .fc-bgevent,.fc-time-grid .fc-event{position:absolute;z-index:1}.fc-time-grid .fc-bgevent{left:0;right:0}.fc-v-event.fc-not-start{border-top-width:0;padding-top:1px;border-top-left-radius:0;border-top-right-radius:0}.fc-v-event.fc-not-end{border-bottom-width:0;padding-bottom:1px;border-bottom-left-radius:0;border-bottom-right-radius:0}.fc-time-grid-event{overflow:hidden}.fc-time-grid-event .fc-time,.fc-time-grid-event .fc-title{padding:0 1px}.fc-time-grid-event .fc-time{font-size:.85em;white-space:nowrap}.fc-time-grid-event.fc-short .fc-content{white-space:nowrap}.fc-time-grid-event.fc-short .fc-time,.fc-time-grid-event.fc-short .fc-title{display:inline-block;vertical-align:top}.fc-time-grid-event.fc-short .fc-time span{display:none}.fc-time-grid-event.fc-short .fc-time:before{content:attr(data-start)}.fc-time-grid-event.fc-short .fc-time:after{content:"\\A0-\\A0"}.fc-time-grid-event.fc-short .fc-title{font-size:.85em;padding:0}.fc-time-grid-event .fc-resizer{left:0;right:0;bottom:0;height:8px;overflow:hidden;line-height:8px;font-size:11px;font-family:monospace;text-align:center;cursor:s-resize}.fc-time-grid-event .fc-resizer:after{content:"="}.fc-time-grid .fc-now-indicator-line{border-top-width:1px;left:0;right:0}.fc-time-grid .fc-now-indicator-arrow{margin-top:-5px}.fc-ltr .fc-time-grid .fc-now-indicator-arrow{left:0;border-width:5px 0 5px 6px;border-top-color:transparent;border-bottom-color:transparent}.fc-rtl .fc-time-grid .fc-now-indicator-arrow{right:0;border-width:5px 6px 5px 0;border-top-color:transparent;border-bottom-color:transparent}',""]);
-},function(e,t,n){t=e.exports=n(3)(),t.push([e.id,".fc-view-container{background-color:#fbfbfb;color:#333}.fc-row.fc-widget-header{border-bottom:1px solid #ececec}.fc-row.fc-widget-header .fc-day-header{text-transform:uppercase;font-size:.9em;font-weight:600}.fc-axis,.fc-row.fc-widget-header .fc-day-header:first-line{color:#b9b9b9}.fc-axis{font-size:.9em}.fc-state-default{text-shadow:none;box-shadow:none;background-image:none;background-color:#fff;border-color:#fff}.fc-button{text-transform:uppercase;font-weight:600;font-size:1.1em;border:0;outline:none}.fc-button:active,.fc-button:focus,.fc-button:hover,.fc-button:visited{outline:none;border:0;background-color:transparent}.fc-content-skeleton{border-top:1px solid #ddd}.fc .fc-toolbar{padding:0;margin-bottom:0;border-bottom:1px solid #ececec}.fc .fc-toolbar>*>button{padding:15px 17px;height:auto;outline:0;margin-left:0;-webkit-transition:opacity .2s ease;transition:opacity .2s ease;opacity:.3}.fc .fc-toolbar>*>button:hover{opacity:1}.fc .fc-toolbar>*>button.fc-state-disabled{-webkit-transition:opacity 0s;transition:opacity 0s;opacity:0}.fc .fc-toolbar>*>button.fc-prev-button{padding-right:8px}.fc .fc-toolbar>*>button.fc-next-button{padding-left:8px}.fc .fc-toolbar>*>button .fc-icon{font-size:1.1em}.fc .fc-toolbar>.fc-right>button.fc-today-button{padding:15px 5px}.fc-unthemed .fc-today{background:#fff}.fc-body>tr>.fc-widget-content,.fc-head>tr>.fc-widget-header{border:0!important}.fc th{border-color:#fff;padding:5px}.fc-unthemed .fc-divider,.fc-unthemed .fc-popover .fc-header{background-color:transparent}.empty-calendar .fc-event{opacity:0}.fc-event{-webkit-transition:all .2s,opacity .6s;transition:all .2s,opacity .6s;border:none;border-left:3px solid #689ad8;padding:3px;background-color:#fff;border-radius:4px;color:#333;margin:1px 0;box-shadow:0 1px 2px rgba(0,0,0,.07);cursor:pointer;margin-bottom:2px;opacity:1}.fc-event:hover{color:#fff;background-color:#689ad8;border-left:3px solid #689ad8;box-shadow:0 1px 3px rgba(0,0,0,.15)}.fc-event .fc-bg{opacity:0}.fc-day-grid-event{padding:15px;margin:5px}.fc-day-grid-event .fc-time{font-weight:600}.fc-time-grid .fc-slats .fc-minor td{border-top-style:none}.fc-time-grid .fc-slats td{border-top-color:#fbfbfb}.fc-time-grid .fc-slats td.fc-axis{border-top-color:#ececec}.fc-time-grid-event.fc-short .fc-content{font-size:.7em;line-height:.2em}.fc-time-grid-event.fc-short .fc-time:after{content:''}.fc-time-grid-event .fc-time{font-size:1.1em;padding:5px}.fc-unthemed .fc-divider,.fc-unthemed .fc-popover,.fc-unthemed .fc-row,.fc-unthemed tbody,.fc-unthemed td,.fc-unthemed th,.fc-unthemed thead{border-color:#ececec}.fc-agendaMonthly-view .fc-event{color:#fff}.fc-now-indicator{border-color:rgba(255,0,0,.5)}",""])},function(e,t,n){t=e.exports=n(3)(),t.push([e.id,"@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,600);",""]),t.push([e.id,"/*!\n * Booking.js\n * http://booking.timekit.io\n * (c) 2015 Timekit Inc.\n */.bookingjs{position:relative;font-family:Open Sans,Helvetica,Tahoma,Arial,sans-serif;font-size:13px;border-radius:4px;background-color:#fff;box-shadow:rgba(0,0,0,.2) 0 2px 4px 0;margin:60px auto 20px;z-index:10;opacity:0;color:#333}.bookingjs.show{-webkit-transition:opacity .3s ease;transition:opacity .3s ease;opacity:1}.is-small.has-avatar.has-displayname .bookingjs-calendar .fc-toolbar{padding-bottom:24px}.is-small .bookingjs-calendar .fc-toolbar>.fc-right>button.fc-today-button{position:absolute;left:15px}.bookingjs-timezonehelper{color:#aeaeae;text-align:center;padding:7px 10px;background-color:#fbfbfb;border-top:1px solid #ececec;min-height:15px;z-index:20;border-radius:0 0 4px 4px}.bookingjs-timezoneicon{width:10px;margin-right:5px}.bookingjs-avatar{position:absolute;top:-50px;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%);border-radius:150px;border:3px solid #fff;box-shadow:0 1px 3px 0 rgba(0,0,0,.13);overflow:hidden;z-index:40;background-color:#fff}.is-small .bookingjs-avatar{top:-40px}.bookingjs-avatar img{max-width:100%;vertical-align:middle;display:inline-block;width:80px;height:80px}.is-small .bookingjs-avatar img{width:70px;height:70px}.bookingjs-displayname{position:absolute;top:0;left:0;padding:15px 20px;color:#333;font-weight:600}.is-small .bookingjs-displayname{text-align:center;width:100%;box-sizing:border-box}.is-small.has-avatar .bookingjs-displayname{top:44px;padding:0 20px}.bookingjs-bookpage{position:absolute;height:100%;width:100%;top:0;left:0;background-color:#fbfbfb;z-index:30;opacity:0;-webkit-transition:opacity .2s ease;transition:opacity .2s ease;border-radius:4px}.bookingjs-bookpage.show{opacity:1}.bookingjs-bookpage-close{position:absolute;top:0;right:0;padding:18px;-webkit-transition:opacity .2s ease;transition:opacity .2s ease;opacity:.3}.bookingjs-bookpage-close:hover{opacity:1}.bookingjs-bookpage-date,.bookingjs-bookpage h2{text-align:center;font-size:34px;font-weight:400;margin-top:70px;margin-bottom:10px}.is-small .bookingjs-bookpage-date,.is-small .bookingjs-bookpage h2{font-size:27px;margin-top:60px}.bookingjs-bookpage-time,.bookingjs-bookpage h3{text-align:center;font-size:17px;font-weight:400;margin-bottom:50px;margin-top:10px}.is-small .bookingjs-bookpage-time,.is-small .bookingjs-bookpage h3{font-size:15px;margin-bottom:35px}.bookingjs-closeicon{width:15px}.bookingjs-form{width:350px;position:relative;margin:0 auto;text-align:center}.is-small .bookingjs-form{width:90%}.bookingjs-form-box{position:relative;box-shadow:0 1px 3px 0 rgba(0,0,0,.1);overflow:hidden;background-color:#fff;line-height:0}.bookingjs-form-success-message{position:absolute;top:-999px;left:0;right:0;padding:30px;background-color:#fff;opacity:0;-webkit-transition:opacity .3s ease;transition:opacity .3s ease;line-height:normal}.is-small .bookingjs-form-success-message{padding:22px 10px}.bookingjs-form-success-message .title{font-size:20px;display:block;margin-bottom:25px}.bookingjs-form-success-message .body{display:block}.bookingjs-form-success-message .body .booked-email{color:#aeaeae}.bookingjs-form.success .bookingjs-form-success-message{opacity:1;top:0;bottom:0}.bookingjs-form-input,.bookingjs-form input,.bookingjs-form input:invalid textarea,.bookingjs-form textarea:invalid{-webkit-transition:box-shadow .2s ease;transition:box-shadow .2s ease;width:100%;padding:15px 25px;margin:0;border:0 solid #ececec;font-size:1em;box-shadow:inset 0 0 1px 1px hsla(0,0%,100%,0);text-align:left;box-sizing:border-box;line-height:normal;font-family:Open Sans,Helvetica,Tahoma,Arial,sans-serif;color:#333}.bookingjs-form-input:focus,.bookingjs-form input:focus,.bookingjs-form input:invalid textarea:focus,.bookingjs-form textarea:invalid:focus{outline:0;box-shadow:inset 0 0 1px 1px #689ad8}.bookingjs-form-input.hidden,.bookingjs-form input.hidden,.bookingjs-form input:invalid textarea.hidden,.bookingjs-form textarea:invalid.hidden{display:none}.bookingjs-form-input:-moz-read-only,.bookingjs-form input:-moz-read-only,.bookingjs-form input:invalid textarea:-moz-read-only,.bookingjs-form textarea:invalid:-moz-read-only{cursor:not-allowed;font-style:italic}.bookingjs-form-input:read-only,.bookingjs-form input:invalid textarea:read-only,.bookingjs-form input:read-only,.bookingjs-form textarea:invalid:read-only{cursor:not-allowed;font-style:italic}.bookingjs-form-input:-moz-read-only:focus,.bookingjs-form input:-moz-read-only:focus,.bookingjs-form input:invalid textarea:-moz-read-only:focus,.bookingjs-form textarea:invalid:-moz-read-only:focus{box-shadow:inset 0 0 1px 1px #d8d8d8}.bookingjs-form-input:read-only:focus,.bookingjs-form input:invalid textarea:read-only:focus,.bookingjs-form input:read-only:focus,.bookingjs-form textarea:invalid:read-only:focus{box-shadow:inset 0 0 1px 1px #d8d8d8}.bookingjs-form-button{position:relative;-webkit-transition:background-color .2s,max-width .3s;transition:background-color .2s,max-width .3s;display:inline-block;padding:13px 25px;background-color:#689ad8;text-transform:uppercase;box-shadow:0 1px 3px 0 rgba(0,0,0,.15);color:#fff;border:0;border-radius:3px;font-size:1.1em;font-weight:600;margin-top:30px;cursor:pointer;height:44px;outline:0;text-align:center;max-width:200px}.bookingjs-form-button .error-text,.bookingjs-form-button .loading-text,.bookingjs-form-button .success-text{-webkit-transition:opacity .3s ease;transition:opacity .3s ease;position:absolute;top:13px;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%);opacity:0}.bookingjs-form-button .inactive-text{white-space:nowrap;opacity:1}.bookingjs-form-button .loading-text svg{height:19px;width:19px;-webkit-animation:spin .6s infinite linear;animation:spin .6s infinite linear}.bookingjs-form-button .error-text svg{height:15px;width:15px;margin-top:2px}.bookingjs-form-button .success-text svg{height:15px;margin-top:2px;-webkit-transform:scale(0);transform:scale(0);-webkit-transition:-webkit-transform .6s ease;transition:-webkit-transform .6s ease;transition:transform .6s ease;transition:transform .6s ease,-webkit-transform .6s ease}.bookingjs-form-button:focus,.bookingjs-form-button:hover{background-color:#3f7fce}.bookingjs-form-button.button-shake{-webkit-animation:shake .5s 1 ease;animation:shake .5s 1 ease}.bookingjs-form.loading .bookingjs-form-button,.bookingjs-form.loading .bookingjs-form-button:hover{max-width:80px;background-color:#b1b1b1;cursor:not-allowed}.bookingjs-form.loading .bookingjs-form-button .inactive-text,.bookingjs-form.loading .bookingjs-form-button:hover .inactive-text{opacity:0}.bookingjs-form.loading .bookingjs-form-button .loading-text,.bookingjs-form.loading .bookingjs-form-button:hover .loading-text{opacity:1}.bookingjs-form.error .bookingjs-form-button,.bookingjs-form.error .bookingjs-form-button:hover{max-width:80px;background-color:#d83b46;cursor:not-allowed}.bookingjs-form.error .bookingjs-form-button .inactive-text,.bookingjs-form.error .bookingjs-form-button:hover .inactive-text{opacity:0}.bookingjs-form.error .bookingjs-form-button .error-text,.bookingjs-form.error .bookingjs-form-button:hover .error-text{opacity:1}.bookingjs-form.success .bookingjs-form-button,.bookingjs-form.success .bookingjs-form-button:hover{max-width:80px;background-color:#5baf56;cursor:not-allowed}.bookingjs-form.success .bookingjs-form-button .inactive-text,.bookingjs-form.success .bookingjs-form-button:hover .inactive-text{opacity:0}.bookingjs-form.success .bookingjs-form-button .success-text,.bookingjs-form.success .bookingjs-form-button:hover .success-text{opacity:1}.bookingjs-form.success .bookingjs-form-button .success-text svg,.bookingjs-form.success .bookingjs-form-button:hover .success-text svg{-webkit-transform:scale(1);transform:scale(1)}.bookingjs-poweredby{position:absolute;bottom:0;left:0;right:0;text-align:center;padding:7px 10px}.bookingjs-poweredby a{-webkit-transition:color .2s ease;transition:color .2s ease;color:#aeaeae;text-decoration:none}.bookingjs-poweredby a svg path{-webkit-transition:fill .2s ease;transition:fill .2s ease;fill:#aeaeae}.bookingjs-poweredby a:hover{color:#333}.bookingjs-poweredby a:hover svg path{fill:#333}.bookingjs-timekiticon{width:13px;margin-right:5px;vertical-align:sub}",""])},function(e,t,n){t=e.exports=n(3)(),t.push([e.id,"@-webkit-keyframes spin{to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}@keyframes spin{to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}@-webkit-keyframes shake{0%{-webkit-transform:translateX(0);transform:translateX(0)}25%{-webkit-transform:translateX(5px);transform:translateX(5px)}50%{-webkit-transform:translateX(-5px);transform:translateX(-5px)}75%{-webkit-transform:translateX(5px);transform:translateX(5px)}to{-webkit-transform:translateX(0);transform:translateX(0)}}@keyframes shake{0%{-webkit-transform:translateX(0);transform:translateX(0)}25%{-webkit-transform:translateX(5px);transform:translateX(5px)}50%{-webkit-transform:translateX(-5px);transform:translateX(-5px)}75%{-webkit-transform:translateX(5px);transform:translateX(5px)}to{-webkit-transform:translateX(0);transform:translateX(0)}}",""])},function(e,t,n){var i;(function(e,r,o,a){/*!
-	 * @overview es6-promise - a tiny implementation of Promises/A+.
-	 * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
-	 * @license   Licensed under MIT license
-	 *            See https://raw.githubusercontent.com/jakearchibald/es6-promise/master/LICENSE
-	 * @version   2.3.0
-	 */
-(function(){"use strict";function s(e){return"function"==typeof e||"object"==typeof e&&null!==e}function l(e){return"function"==typeof e}function c(e){return"object"==typeof e&&null!==e}function u(e){X=e}function d(e){$=e}function f(){var t=e.nextTick,n=e.versions.node.match(/^(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)$/);return Array.isArray(n)&&"0"===n[1]&&"10"===n[2]&&(t=r),function(){t(b)}}function h(){return function(){U(b)}}function p(){var e=0,t=new te(b),n=document.createTextNode("");return t.observe(n,{characterData:!0}),function(){n.data=e=++e%2}}function m(){var e=new MessageChannel;return e.port1.onmessage=b,function(){e.port2.postMessage(0)}}function g(){return function(){setTimeout(b,1)}}function b(){for(var e=0;J>e;e+=2){var t=re[e],n=re[e+1];t(n),re[e]=void 0,re[e+1]=void 0}J=0}function v(){try{var e=n(58);return U=e.runOnLoop||e.runOnContext,h()}catch(t){return g()}}function y(){}function w(){return new TypeError("You cannot resolve a promise with itself")}function A(){return new TypeError("A promises callback cannot return that same promise.")}function S(e){try{return e.then}catch(t){return le.error=t,le}}function k(e,t,n,i){try{e.call(t,n,i)}catch(r){return r}}function T(e,t,n){$(function(e){var i=!1,r=k(n,t,function(n){i||(i=!0,t!==n?M(e,n):C(e,n))},function(t){i||(i=!0,D(e,t))},"Settle: "+(e._label||" unknown promise"));!i&&r&&(i=!0,D(e,r))},e)}function x(e,t){t._state===ae?C(e,t._result):t._state===se?D(e,t._result):z(t,void 0,function(t){M(e,t)},function(t){D(e,t)})}function E(e,t){if(t.constructor===e.constructor)x(e,t);else{var n=S(t);n===le?D(e,le.error):void 0===n?C(e,t):l(n)?T(e,t,n):C(e,t)}}function M(e,t){e===t?D(e,w()):s(t)?E(e,t):C(e,t)}function _(e){e._onerror&&e._onerror(e._result),H(e)}function C(e,t){e._state===oe&&(e._result=t,e._state=ae,0!==e._subscribers.length&&$(H,e))}function D(e,t){e._state===oe&&(e._state=se,e._result=t,$(_,e))}function z(e,t,n,i){var r=e._subscribers,o=r.length;e._onerror=null,r[o]=t,r[o+ae]=n,r[o+se]=i,0===o&&e._state&&$(H,e)}function H(e){var t=e._subscribers,n=e._state;if(0!==t.length){for(var i,r,o=e._result,a=0;a<t.length;a+=3)i=t[a],r=t[a+n],i?O(n,i,r,o):r(o);e._subscribers.length=0}}function L(){this.error=null}function R(e,t){try{return e(t)}catch(n){return ce.error=n,ce}}function O(e,t,n,i){var r,o,a,s,c=l(n);if(c){if(r=R(n,i),r===ce?(s=!0,o=r.error,r=null):a=!0,t===r)return void D(t,A())}else r=i,a=!0;t._state!==oe||(c&&a?M(t,r):s?D(t,o):e===ae?C(t,r):e===se&&D(t,r))}function P(e,t){try{t(function(t){M(e,t)},function(t){D(e,t)})}catch(n){D(e,n)}}function B(e,t){var n=this;n._instanceConstructor=e,n.promise=new e(y),n._validateInput(t)?(n._input=t,n.length=t.length,n._remaining=t.length,n._init(),0===n.length?C(n.promise,n._result):(n.length=n.length||0,n._enumerate(),0===n._remaining&&C(n.promise,n._result))):D(n.promise,n._validationError())}function j(e){return new ue(this,e).promise}function Y(e){function t(e){M(r,e)}function n(e){D(r,e)}var i=this,r=new i(y);if(!Z(e))return D(r,new TypeError("You must pass an array to race.")),r;for(var o=e.length,a=0;r._state===oe&&o>a;a++)z(i.resolve(e[a]),void 0,t,n);return r}function F(e){var t=this;if(e&&"object"==typeof e&&e.constructor===t)return e;var n=new t(y);return M(n,e),n}function G(e){var t=this,n=new t(y);return D(n,e),n}function I(){throw new TypeError("You must pass a resolver function as the first argument to the promise constructor")}function W(){throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.")}function N(e){this._id=me++,this._state=void 0,this._result=void 0,this._subscribers=[],y!==e&&(l(e)||I(),this instanceof N||W(),P(this,e))}function q(){var e;if("undefined"!=typeof o)e=o;else if("undefined"!=typeof self)e=self;else try{e=Function("return this")()}catch(t){throw new Error("polyfill failed because global object is unavailable in this environment")}var n=e.Promise;(!n||"[object Promise]"!==Object.prototype.toString.call(n.resolve())||n.cast)&&(e.Promise=ge)}var V;V=Array.isArray?Array.isArray:function(e){return"[object Array]"===Object.prototype.toString.call(e)};var U,X,K,Z=V,J=0,$=({}.toString,function(e,t){re[J]=e,re[J+1]=t,J+=2,2===J&&(X?X(b):K())}),Q="undefined"!=typeof window?window:void 0,ee=Q||{},te=ee.MutationObserver||ee.WebKitMutationObserver,ne="undefined"!=typeof e&&"[object process]"==={}.toString.call(e),ie="undefined"!=typeof Uint8ClampedArray&&"undefined"!=typeof importScripts&&"undefined"!=typeof MessageChannel,re=new Array(1e3);K=ne?f():te?p():ie?m():void 0===Q?v():g();var oe=void 0,ae=1,se=2,le=new L,ce=new L;B.prototype._validateInput=function(e){return Z(e)},B.prototype._validationError=function(){return new Error("Array Methods must be provided an Array")},B.prototype._init=function(){this._result=new Array(this.length)};var ue=B;B.prototype._enumerate=function(){for(var e=this,t=e.length,n=e.promise,i=e._input,r=0;n._state===oe&&t>r;r++)e._eachEntry(i[r],r)},B.prototype._eachEntry=function(e,t){var n=this,i=n._instanceConstructor;c(e)?e.constructor===i&&e._state!==oe?(e._onerror=null,n._settledAt(e._state,t,e._result)):n._willSettleAt(i.resolve(e),t):(n._remaining--,n._result[t]=e)},B.prototype._settledAt=function(e,t,n){var i=this,r=i.promise;r._state===oe&&(i._remaining--,e===se?D(r,n):i._result[t]=n),0===i._remaining&&C(r,i._result)},B.prototype._willSettleAt=function(e,t){var n=this;z(e,void 0,function(e){n._settledAt(ae,t,e)},function(e){n._settledAt(se,t,e)})};var de=j,fe=Y,he=F,pe=G,me=0,ge=N;N.all=de,N.race=fe,N.resolve=he,N.reject=pe,N._setScheduler=u,N._setAsap=d,N._asap=$,N.prototype={constructor:N,then:function(e,t){var n=this,i=n._state;if(i===ae&&!e||i===se&&!t)return this;var r=new this.constructor(y),o=n._result;if(i){var a=arguments[i-1];$(function(){O(i,r,a,o)})}else z(n,r,e,t);return r},"catch":function(e){return this.then(null,e)}};var be=q,ve={Promise:ge,polyfill:be};n(55).amd?(i=function(){return ve}.call(t,n,t,a),!(void 0!==i&&(a.exports=i))):"undefined"!=typeof a&&a.exports?a.exports=ve:"undefined"!=typeof this&&(this.ES6Promise=ve),be()}).call(this)}).call(t,n(6),n(7).setImmediate,function(){return this}(),n(8)(e))},function(e,t,n){var i,r,o;/*!
-	 * FullCalendar v2.6.0
+	
+	// External depenencies
+	var $               = __webpack_require__(1);
+	window.fullcalendar = __webpack_require__(2);
+	var moment          = window.moment = __webpack_require__(3);
+	var timekit = __webpack_require__(7);
+	__webpack_require__(8);
+	var interpolate     = __webpack_require__(9);
+	
+	// Internal dependencies
+	var utils         = __webpack_require__(10);
+	var defaultConfig = __webpack_require__(12);
+	
+	// Main library
+	function TimekitBooking() {
+	
+	  // Library config
+	  var config = {};
+	
+	  // DOM nodes
+	  var rootTarget;
+	  var calendarTarget;
+	  var bookingPageTarget;
+	
+	  // Inject style dependencies
+	  var includeStyles = function() {
+	    __webpack_require__(13);
+	    __webpack_require__(17);
+	    __webpack_require__(19);
+	    __webpack_require__(21);
+	  };
+	
+	  // Make sure DOM element is ready and clean it
+	  var prepareDOM = function() {
+	
+	    rootTarget = $(config.targetEl);
+	    if (rootTarget.length === 0) {
+	      utils.logError('No target DOM element was found (' + config.targetEl + ')');
+	    }
+	    rootTarget.addClass('bookingjs');
+	    rootTarget.children(':not(script)').remove();
+	
+	  };
+	
+	  // Setup the Timekit SDK with correct credentials
+	  var timekitSetup = function() {
+	
+	    timekit.configure(config.timekitConfig);
+	    timekit.setUser(config.email, config.apiToken);
+	
+	  };
+	
+	  // Fetch availabile time through Timekit SDK
+	  var timekitFindTime = function() {
+	
+	    var args = { emails: [config.email] };
+	    $.extend(args, config.timekitFindTime);
+	
+	    utils.doCallback('findTimeStarted', config, args);
+	
+	    timekit.findTime(args)
+	    .then(function(response){
+	
+	      utils.doCallback('findTimeSuccessful', config, response);
+	
+	      // Go to first event if enabled
+	      if(config.goToFirstEvent && response.data.length > 0) {
+	        var firstEventStart = response.data[0].start;
+	        var firstEventStartHour = moment(firstEventStart).format('H');
+	        goToDate(firstEventStart);
+	        scrollToTime(firstEventStartHour);
+	      }
+	
+	      // Render available timeslots in FullCalendar
+	      renderCalendarEvents(response.data);
+	
+	    }).catch(function(response){
+	      utils.doCallback('findTimeFailed', config, response);
+	      utils.logError('An error with Timekit FindTime occured, context: ' + response);
+	    });
+	
+	  };
+	
+	  // Tells FullCalendar to go to a specifc date
+	  var goToDate = function(date) {
+	
+	    calendarTarget.fullCalendar('gotoDate', date);
+	
+	  };
+	
+	  // Scrolls fullcalendar to the specified hour
+	  var scrollToTime = function(time) {
+	
+	    // Only proceed for agendaWeek view
+	    if (calendarTarget.fullCalendar('getView').name !== 'agendaWeek'){
+	      return;
+	    }
+	
+	    // Get height of each hour row
+	    var hours = calendarTarget.find('.fc-slats .fc-minor');
+	    var hourHeight = $(hours[0]).height() * 2;
+	
+	    // If minTime is set in fullCalendar config, subtract that from the scollTo calculationn
+	    var minTimeHeight = 0;
+	    if (config.fullCalendar.minTime) {
+	      var minTime = moment(config.fullCalendar.minTime, 'HH:mm:ss').format('H');
+	      minTimeHeight = hourHeight * minTime;
+	    }
+	
+	    // Calculate scrolling location and container sizes
+	    var scrollTo = (hourHeight * time) - minTimeHeight;
+	    var scrollable = calendarTarget.find('.fc-scroller');
+	    var scrollableHeight = scrollable.height();
+	    var scrollableScrollTop = scrollable.scrollTop();
+	    var maximumHeight = scrollable.find('.fc-time-grid').height();
+	
+	    // Only perform the scroll if the scrollTo is outside the current visible boundary
+	    if (scrollTo > scrollableScrollTop && scrollTo < scrollableScrollTop + scrollableHeight) {
+	      return;
+	    }
+	
+	    // If scrollTo point is past the maximum height, then scroll to maximum possible while still animating
+	    if (scrollTo > maximumHeight - scrollableHeight) {
+	      scrollTo = maximumHeight - scrollableHeight;
+	    }
+	
+	    // Perform the scrollTo animation
+	    scrollable.animate({scrollTop: scrollTo});
+	
+	  };
+	
+	  // Calculate and display timezone helper
+	  var renderTimezoneHelper = function() {
+	
+	    var localTzOffset = (moment().utcOffset()/60);
+	    var timezoneIcon = __webpack_require__(23);
+	
+	    var template = __webpack_require__(24);
+	
+	    var timezoneHelperTarget = $(template.render({
+	      timezoneIcon: timezoneIcon,
+	      loadingText: config.localization.strings.timezoneHelperLoading,
+	      loading: true
+	    }));
+	
+	    rootTarget.addClass('has-timezonehelper');
+	    rootTarget.append(timezoneHelperTarget);
+	
+	    var args = {
+	      email: config.email
+	    };
+	
+	    utils.doCallback('getUserTimezoneStarted', config, args);
+	
+	    timekit.getUserTimezone(args).then(function(response){
+	
+	      utils.doCallback('getUserTimezoneSuccessful', config, response);
+	
+	      var hostTzOffset = response.data.utc_offset;
+	      var tzOffsetDiff = Math.abs(localTzOffset - hostTzOffset);
+	      var tzDirection = (tzOffsetDiff > 0 ? 'ahead' : 'behind');
+	
+	      var template = __webpack_require__(24);
+	      var newTimezoneHelperTarget = $(template.render({
+	        timezoneIcon: timezoneIcon,
+	        timezoneDifference: (tzOffsetDiff === 0 ? false : true),
+	        timezoneDifferent: interpolate.sprintf(config.localization.strings.timezoneHelperDifferent, tzOffsetDiff, tzDirection, config.name),
+	        timezoneSame: interpolate.sprintf(config.localization.strings.timezoneHelperSame, config.name)
+	      }));
+	
+	      timezoneHelperTarget.replaceWith(newTimezoneHelperTarget);
+	
+	    }).catch(function(response){
+	      utils.doCallback('getUserTimezoneFailed', config, response);
+	      utils.logError('An error with Timekit getUserTimezone occured, context: ' + response);
+	    });
+	
+	  };
+	
+	  // Setup and render FullCalendar
+	  var initializeCalendar = function() {
+	
+	    var sizing = decideCalendarSize();
+	
+	    var args = {
+	      defaultView: sizing.view,
+	      height: sizing.height,
+	      eventClick: showBookingPage,
+	      windowResize: function() {
+	        var sizing = decideCalendarSize();
+	        calendarTarget.fullCalendar('changeView', sizing.view);
+	        calendarTarget.fullCalendar('option', 'height', sizing.height);
+	      }
+	    };
+	
+	    $.extend(true, args, config.fullCalendar);
+	
+	    calendarTarget = $('<div class="bookingjs-calendar empty-calendar">');
+	    rootTarget.append(calendarTarget);
+	
+	    calendarTarget.fullCalendar(args);
+	    rootTarget.addClass('show');
+	
+	    utils.doCallback('fullCalendarInitialized', config);
+	
+	  };
+	
+	  // Fires when window is resized and calendar must adhere
+	  var decideCalendarSize = function() {
+	
+	    var view = 'agendaWeek';
+	    var height = 420;
+	    var rootWidth = rootTarget.width();
+	
+	    if (rootWidth < 480) {
+	      view = 'basicDay';
+	      height = 335;
+	      rootTarget.addClass('is-small');
+	    } else {
+	      rootTarget.removeClass('is-small');
+	    }
+	
+	    if (config.bookingFields.comment.enabled) {  height += 84; }
+	    if (config.bookingFields.phone.enabled) {    height += 48; }
+	    if (config.bookingFields.voip.enabled) {     height += 48; }
+	    if (config.bookingFields.location.enabled) { height += 48; }
+	
+	    return {
+	      height: height,
+	      view: view
+	    };
+	
+	  };
+	
+	  // Render the supplied calendar events in FullCalendar
+	  var renderCalendarEvents = function(eventData) {
+	
+	    calendarTarget.fullCalendar('addEventSource', {
+	      events: eventData
+	    });
+	
+	    calendarTarget.removeClass('empty-calendar');
+	
+	  };
+	
+	  // Render the avatar image
+	  var renderAvatarImage = function() {
+	
+	    var template = __webpack_require__(28);
+	    var avatarTarget = $(template.render({
+	      image: config.avatar
+	    }));
+	
+	    rootTarget.addClass('has-avatar');
+	    rootTarget.append(avatarTarget);
+	
+	  };
+	
+	  // Render the avatar image
+	  var renderDisplayName = function() {
+	
+	    var template = __webpack_require__(29);
+	    var displayNameTarget = $(template.render({
+	      name: config.name
+	    }));
+	
+	    rootTarget.addClass('has-displayname');
+	    rootTarget.append(displayNameTarget);
+	
+	  };
+	
+	  // Event handler when a timeslot is clicked in FullCalendar
+	  var showBookingPage = function(eventData) {
+	
+	    utils.doCallback('showBookingPage', config, eventData);
+	
+	    var fieldsTemplate = __webpack_require__(30);
+	    var template = __webpack_require__(31);
+	
+	    var dateFormat = config.localization.bookingDateFormat || moment.localeData().longDateFormat('LL');
+	    var timeFormat = config.localization.bookingTimeFormat || moment.localeData().longDateFormat('LT');
+	
+	    bookingPageTarget = $(template.render({
+	      chosenDate:           moment(eventData.start).format(dateFormat),
+	      chosenTime:           moment(eventData.start).format(timeFormat) + ' - ' + moment(eventData.end).format(timeFormat),
+	      start:                moment(eventData.start).format(),
+	      end:                  moment(eventData.end).format(),
+	      closeIcon:            __webpack_require__(32),
+	      checkmarkIcon:        __webpack_require__(33),
+	      loadingIcon:          __webpack_require__(34),
+	      errorIcon:            __webpack_require__(35),
+	      submitText:           config.localization.strings.submitText,
+	      successMessageTitle:  config.localization.strings.successMessageTitle,
+	      successMessageBody:   interpolate.sprintf(config.localization.strings.successMessageBody, '<span class="booked-email"></span>'),
+	      fields:               config.bookingFields
+	    }, {
+	      formFields: fieldsTemplate
+	    }));
+	
+	    bookingPageTarget.children('.bookingjs-bookpage-close').click(function(e) {
+	      e.preventDefault();
+	      hideBookingPage();
+	    });
+	
+	    var form = bookingPageTarget.children('.bookingjs-form');
+	
+	    form.submit(function(e) {
+	      submitBookingForm(this, e);
+	    });
+	
+	    // Show powered by Timekit message
+	    if (config.showCredits) {
+	      renderPoweredByMessage(bookingPageTarget);
+	    }
+	
+	    $(document).on('keyup', function(e) {
+	      // escape key maps to keycode `27`
+	      if (e.keyCode === 27) { hideBookingPage(); }
+	    });
+	
+	    rootTarget.append(bookingPageTarget);
+	
+	    setTimeout(function(){
+	      bookingPageTarget.addClass('show');
+	    }, 100);
+	
+	  };
+	
+	  // Remove the booking page DOM node
+	  var hideBookingPage = function() {
+	
+	    utils.doCallback('closeBookingPage', config);
+	
+	    bookingPageTarget.removeClass('show');
+	
+	    setTimeout(function(){
+	      bookingPageTarget.remove();
+	    }, 200);
+	
+	    $(document).off('keyup');
+	
+	  };
+	
+	  // Event handler on form submit
+	  var submitBookingForm = function(form, e) {
+	
+	    e.preventDefault();
+	
+	    var formElement = $(form);
+	
+	    // Abort if form is submitting, have submitted or does not validate
+	    if(formElement.hasClass('loading') || formElement.hasClass('success') || formElement.hasClass('error') || !e.target.checkValidity()) {
+	      var submitButton = formElement.find('.bookingjs-form-button');
+	      submitButton.addClass('button-shake');
+	      setTimeout(function() {
+	        submitButton.removeClass('button-shake');
+	      }, 500);
+	      return;
+	    }
+	
+	    var values = {};
+	    $.each(formElement.serializeArray(), function(i, field) {
+	        values[field.name] = field.value;
+	    });
+	
+	    formElement.addClass('loading');
+	
+	    utils.doCallback('submitBookingForm', config, values);
+	
+	    // Call create event endpoint
+	    timekitCreateBooking(values).then(function(response){
+	
+	      utils.doCallback('createBookingSuccessful', config, response);
+	
+	      // Call deprecated callback
+	      var responseDeprecated = response;
+	      responseDeprecated.data = response.data.attributes.event_info;
+	      utils.doCallback('createEventSuccessful', config, responseDeprecated, true);
+	
+	      formElement.find('.booked-email').html(values.email);
+	      formElement.removeClass('loading').addClass('success');
+	
+	    }).catch(function(response){
+	
+	      utils.doCallback('createBookingFailed', config, response);
+	
+	      // Call deprecated callback
+	      utils.doCallback('createEventFailed', config, response, true);
+	
+	      var submitButton = formElement.find('.bookingjs-form-button');
+	      submitButton.addClass('button-shake');
+	      setTimeout(function() {
+	        submitButton.removeClass('button-shake');
+	      }, 500);
+	
+	      formElement.removeClass('loading').addClass('error');
+	      setTimeout(function() {
+	        formElement.removeClass('error');
+	      }, 2000);
+	
+	      utils.logError('An error with Timekit createBooking occured, context: ' + response);
+	    });
+	
+	  };
+	
+	  // Create new booking
+	  var timekitCreateBooking = function(data) {
+	
+	    var args = {
+	      event: {
+	        start: data.start,
+	        end: data.end,
+	        what: config.name + ' x ' + data.name,
+	        where: 'TBD',
+	        description: '',
+	        calendar_id: config.calendar,
+	        participants: [config.email, data.email]
+	      },
+	      customer: {
+	        name: data.name,
+	        email: data.email,
+	        timezone: moment.tz.guess()
+	      }
+	    };
+	
+	    if (config.bookingFields.location.enabled) { args.event.where = data.location; }
+	    if (config.bookingFields.comment.enabled) {
+	      args.event.description += config.bookingFields.comment.placeholder + ': ' + data.comment + '\n';
+	    }
+	    if (config.bookingFields.phone.enabled) {
+	      args.customer.phone = data.phone;
+	      args.event.description += config.bookingFields.phone.placeholder + ': ' + data.phone + '\n';
+	    }
+	    if (config.bookingFields.voip.enabled) {
+	      args.customer.voip = data.voip;
+	      args.event.description += config.bookingFields.voip.placeholder + ': ' + data.voip + '\n';
+	    }
+	
+	    $.extend(true, args, config.timekitCreateBooking);
+	
+	    if (config.timekitCreateEvent) {
+	      $.extend(true, args.event, config.timekitCreateEvent); // backwards compatibility
+	      utils.logDeprecated('config key "timekitCreateEvent" has been replaced, use "timekitCreateBooking" and see docs');
+	    }
+	
+	    utils.doCallback('createBookingStarted', config, args);
+	    utils.doCallback('createEventStarted', config, args, true);
+	
+	    var requestHeaders = {
+	      'Timekit-OutputTimestampFormat': 'Y-m-d ' + config.localization.emailTimeFormat + ' (P e)'
+	    };
+	
+	    return timekit
+	    .headers(requestHeaders)
+	    .createBooking(args);
+	
+	  };
+	
+	  // Render the powered by Timekit message
+	  var renderPoweredByMessage = function(pageTarget) {
+	
+	    var template = __webpack_require__(36);
+	    var timekitIcon = __webpack_require__(37);
+	    var poweredTarget = $(template.render({
+	      timekitIcon: timekitIcon
+	    }));
+	
+	    pageTarget.append(poweredTarget);
+	
+	  };
+	
+	  // Set configs and defaults
+	  var setConfig = function(suppliedConfig) {
+	
+	    // Check whether a config is supplied
+	    if(suppliedConfig === undefined || typeof suppliedConfig !== 'object' || $.isEmptyObject(suppliedConfig)) {
+	      if (window.timekitBookingConfig !== undefined) {
+	        suppliedConfig = window.timekitBookingConfig;
+	      } else {
+	        utils.logError('No configuration was supplied or found. Please supply a config object upon library initialization');
+	      }
+	    }
+	
+	    // Extend the default config with supplied settings
+	    var newConfig = $.extend(true, {}, defaultConfig.primary, suppliedConfig);
+	
+	    // Apply timeDateFormat presets
+	    var presetsConfig = {};
+	    if(newConfig.localization.timeDateFormat === '24h-dmy-mon') {
+	      presetsConfig = defaultConfig.presets.timeDateFormat24hdmymon;
+	    } else if(newConfig.localization.timeDateFormat === '12h-mdy-sun') {
+	      presetsConfig = defaultConfig.presets.timeDateFormat12hmdysun;
+	    }
+	    var finalConfig = $.extend(true, {}, presetsConfig, newConfig);
+	
+	    // Apply bookingGraph presets
+	    presetsConfig = {};
+	    if(newConfig.bookingGraph === 'instant') {
+	      presetsConfig = defaultConfig.presets.bookingInstant;
+	    } else if(newConfig.bookingGraph === 'confirm_decline') {
+	      presetsConfig = defaultConfig.presets.bookingConfirmDecline;
+	    }
+	    finalConfig = $.extend(true, {}, presetsConfig, finalConfig);
+	
+	    // Check for required settings
+	    if(!finalConfig.email || !finalConfig.apiToken || !finalConfig.calendar) {
+	      utils.logError('A required config setting was missing ("email", "apiToken" or "calendar")');
+	    }
+	
+	    // Set new config to instance config
+	    config = finalConfig;
+	
+	    return config;
+	
+	  };
+	
+	  // Get library config
+	  var getConfig = function() {
+	
+	    return config;
+	
+	  };
+	
+	  // Render method
+	  var render = function() {
+	
+	    // Set rootTarget to the target element and clean before child nodes before continuing
+	    prepareDOM();
+	
+	    // Setup Timekit SDK config
+	    timekitSetup();
+	
+	    // Initialize FullCalendar
+	    initializeCalendar();
+	
+	    // Get availability through Timekit SDK
+	    timekitFindTime();
+	
+	    // Show timezone helper if enabled
+	    if (config.localization.showTimezoneHelper) {
+	      renderTimezoneHelper();
+	    }
+	
+	    // Show image avatar if set
+	    if (config.avatar) {
+	      renderAvatarImage();
+	    }
+	
+	    // Print out display name
+	    if (config.name) {
+	      renderDisplayName();
+	    }
+	
+	    utils.doCallback('renderCompleted', config);
+	
+	    return this;
+	
+	  };
+	
+	  // Initilization method
+	  var init = function(suppliedConfig) {
+	
+	    // Handle config and defaults
+	    setConfig(suppliedConfig);
+	
+	    // Include library styles if enabled
+	    if (config.includeStyles) {
+	      includeStyles();
+	    }
+	
+	    return render();
+	
+	  };
+	
+	  var destroy = function() {
+	
+	    prepareDOM();
+	    config = {};
+	    return this;
+	
+	  };
+	
+	  // The fullCalendar object for advanced puppeting
+	  var fullCalendar = function() {
+	
+	    if (calendarTarget.fullCalendar === undefined) { return undefined; }
+	    return calendarTarget.fullCalendar.apply(calendarTarget, arguments);
+	
+	  };
+	
+	  // Expose methods
+	  return {
+	    setConfig: setConfig,
+	    getConfig: getConfig,
+	    render:    render,
+	    init:      init,
+	    destroy:   destroy,
+	    fullCalendar: fullCalendar
+	  };
+	
+	}
+	
+	// Autoload if config is available on window, else export function
+	if (window && window.timekitBookingConfig && window.timekitBookingConfig.autoload !== false) {
+	  $(window).load(function(){
+	    var instance = new TimekitBooking();
+	    instance.init(window.timekitBookingConfig);
+	    module.exports = instance;
+	  });
+	} else {
+	  module.exports = TimekitBooking;
+	}
+
+
+/***/ },
+/* 1 */
+/***/ function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	 * FullCalendar v2.6.1
 	 * Docs & License: http://fullcalendar.io/
 	 * (c) 2015 Adam Shaw
 	 */
-!function(a){r=[n(13),n(4)],i=a,o="function"==typeof i?i.apply(t,r):i,!(void 0!==o&&(e.exports=o))}(function(e,t){function n(e){return I(e,We)}function i(t){var n,i={views:t.views||{}};return e.each(t,function(t,r){"views"!=t&&(e.isPlainObject(r)&&!/(time|duration|interval)$/i.test(t)&&-1==e.inArray(t,We)?(n=null,e.each(r,function(e,r){/^(month|week|day|default|basic(Week|Day)?|agenda(Week|Day)?)$/.test(e)?(i.views[e]||(i.views[e]={}),i.views[e][t]=r):(n||(n={}),n[e]=r)}),n&&(i[t]=n)):i[t]=r)}),i}function r(e,t){t.left&&e.css({"border-left-width":1,"margin-left":t.left-1}),t.right&&e.css({"border-right-width":1,"margin-right":t.right-1})}function o(e){e.css({"margin-left":"","margin-right":"","border-left-width":"","border-right-width":""})}function a(){e("body").addClass("fc-not-allowed")}function s(){e("body").removeClass("fc-not-allowed")}function l(t,n,i){var r=Math.floor(n/t.length),o=Math.floor(n-r*(t.length-1)),a=[],s=[],l=[],u=0;c(t),t.each(function(n,i){var c=n===t.length-1?o:r,d=e(i).outerHeight(!0);c>d?(a.push(i),s.push(d),l.push(e(i).height())):u+=d}),i&&(n-=u,r=Math.floor(n/a.length),o=Math.floor(n-r*(a.length-1))),e(a).each(function(t,n){var i=t===a.length-1?o:r,c=s[t],u=l[t],d=i-(c-u);i>c&&e(n).height(d)})}function c(e){e.height("")}function u(t){var n=0;return t.find("> span").each(function(t,i){var r=e(i).outerWidth();r>n&&(n=r)}),n++,t.width(n),n}function d(e,t){return e.height(t).addClass("fc-scroller"),e[0].scrollHeight-1>e[0].clientHeight?!0:(f(e),!1)}function f(e){e.height("").removeClass("fc-scroller")}function h(t){var n=t.css("position"),i=t.parents().filter(function(){var t=e(this);return/(auto|scroll)/.test(t.css("overflow")+t.css("overflow-y")+t.css("overflow-x"))}).eq(0);return"fixed"!==n&&i.length?i:e(t[0].ownerDocument||document)}function p(e){var t=e.offset();return{left:t.left,right:t.left+e.outerWidth(),top:t.top,bottom:t.top+e.outerHeight()}}function m(e){var t=e.offset(),n=b(e),i=t.left+w(e,"border-left-width")+n.left,r=t.top+w(e,"border-top-width")+n.top;return{left:i,right:i+e[0].clientWidth,top:r,bottom:r+e[0].clientHeight}}function g(e){var t=e.offset(),n=t.left+w(e,"border-left-width")+w(e,"padding-left"),i=t.top+w(e,"border-top-width")+w(e,"padding-top");return{left:n,right:n+e.width(),top:i,bottom:i+e.height()}}function b(e){var t=e.innerWidth()-e[0].clientWidth,n={left:0,right:0,top:0,bottom:e.innerHeight()-e[0].clientHeight};return v()&&"rtl"==e.css("direction")?n.left=t:n.right=t,n}function v(){return null===Ne&&(Ne=y()),Ne}function y(){var t=e("<div><div/></div>").css({position:"absolute",top:-1e3,left:0,border:0,padding:0,overflow:"scroll",direction:"rtl"}).appendTo("body"),n=t.children(),i=n.offset().left>t.offset().left;return t.remove(),i}function w(e,t){return parseFloat(e.css(t))||0}function A(e){return 1==e.which&&!e.ctrlKey}function S(e,t){var n={left:Math.max(e.left,t.left),right:Math.min(e.right,t.right),top:Math.max(e.top,t.top),bottom:Math.min(e.bottom,t.bottom)};return n.left<n.right&&n.top<n.bottom?n:!1}function k(e,t){return{left:Math.min(Math.max(e.left,t.left),t.right),top:Math.min(Math.max(e.top,t.top),t.bottom)}}function T(e){return{left:(e.left+e.right)/2,top:(e.top+e.bottom)/2}}function x(e,t){return{left:e.left-t.left,top:e.top-t.top}}function E(t){var n,i,r=[],o=[];for("string"==typeof t?o=t.split(/\s*,\s*/):"function"==typeof t?o=[t]:e.isArray(t)&&(o=t),n=0;n<o.length;n++)i=o[n],"string"==typeof i?r.push("-"==i.charAt(0)?{field:i.substring(1),order:-1}:{field:i,order:1}):"function"==typeof i&&r.push({func:i});return r}function M(e,t,n){var i,r;for(i=0;i<n.length;i++)if(r=_(e,t,n[i]))return r;return 0}function _(e,t,n){return n.func?n.func(e,t):C(e[n.field],t[n.field])*(n.order||1)}function C(t,n){return t||n?null==n?-1:null==t?1:"string"===e.type(t)||"string"===e.type(n)?String(t).localeCompare(String(n)):t-n:0}function D(e,t){var n,i,r,o,a=e.start,s=e.end,l=t.start,c=t.end;return s>l&&c>a?(a>=l?(n=a.clone(),r=!0):(n=l.clone(),r=!1),c>=s?(i=s.clone(),o=!0):(i=c.clone(),o=!1),{start:n,end:i,isStart:r,isEnd:o}):void 0}function z(e,n){return t.duration({days:e.clone().stripTime().diff(n.clone().stripTime(),"days"),ms:e.time()-n.time()})}function H(e,n){return t.duration({days:e.clone().stripTime().diff(n.clone().stripTime(),"days")})}function L(e,n,i){return t.duration(Math.round(e.diff(n,i,!0)),i)}function R(e,t){var n,i,r;for(n=0;n<Ve.length&&(i=Ve[n],r=O(i,e,t),!(r>=1&&te(r)));n++);return i}function O(e,n,i){return null!=i?i.diff(n,e,!0):t.isDuration(n)?n.as(e):n.end.diff(n.start,e,!0)}function P(e,t,n){var i;return Y(n)?(t-e)/n:(i=n.asMonths(),Math.abs(i)>=1&&te(i)?t.diff(e,"months",!0)/i:t.diff(e,"days",!0)/n.asDays())}function B(e,t){var n,i;return Y(e)||Y(t)?e/t:(n=e.asMonths(),i=t.asMonths(),Math.abs(n)>=1&&te(n)&&Math.abs(i)>=1&&te(i)?n/i:e.asDays()/t.asDays())}function j(e,n){var i;return Y(e)?t.duration(e*n):(i=e.asMonths(),Math.abs(i)>=1&&te(i)?t.duration({months:i*n}):t.duration({days:e.asDays()*n}))}function Y(e){return Boolean(e.hours()||e.minutes()||e.seconds()||e.milliseconds())}function F(e){return"[object Date]"===Object.prototype.toString.call(e)||e instanceof Date}function G(e){return/^\d+\:\d+(?:\:\d+\.?(?:\d{3})?)?$/.test(e)}function I(e,t){var n,i,r,o,a,s,l={};if(t)for(n=0;n<t.length;n++){for(i=t[n],r=[],o=e.length-1;o>=0;o--)if(a=e[o][i],"object"==typeof a)r.unshift(a);else if(void 0!==a){l[i]=a;break}r.length&&(l[i]=I(r))}for(n=e.length-1;n>=0;n--){s=e[n];for(i in s)i in l||(l[i]=s[i])}return l}function W(e){var t=function(){};return t.prototype=e,new t}function N(e,t){for(var n in e)V(e,n)&&(t[n]=e[n])}function q(e,t){var n,i,r=["constructor","toString","valueOf"];for(n=0;n<r.length;n++)i=r[n],e[i]!==Object.prototype[i]&&(t[i]=e[i])}function V(e,t){return Ze.call(e,t)}function U(t){return/undefined|null|boolean|number|string/.test(e.type(t))}function X(t,n,i){if(e.isFunction(t)&&(t=[t]),t){var r,o;for(r=0;r<t.length;r++)o=t[r].apply(n,i)||o;return o}}function K(){for(var e=0;e<arguments.length;e++)if(void 0!==arguments[e])return arguments[e]}function Z(e){return(e+"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/'/g,"&#039;").replace(/"/g,"&quot;").replace(/\n/g,"<br />")}function J(e){return e.replace(/&.*?;/g,"")}function $(t){var n=[];return e.each(t,function(e,t){null!=t&&n.push(e+":"+t)}),n.join(";")}function Q(e){return e.charAt(0).toUpperCase()+e.slice(1)}function ee(e,t){return e-t}function te(e){return e%1===0}function ne(e,t){var n=e[t];return function(){return n.apply(e,arguments)}}function ie(e,t){var n,i,r,o,a=function(){var s=+new Date-o;t>s&&s>0?n=setTimeout(a,t-s):(n=null,e.apply(r,i),n||(r=i=null))};return function(){r=this,i=arguments,o=+new Date,n||(n=setTimeout(a,t))}}function re(n,i,r){var o,a,s,l,c=n[0],u=1==n.length&&"string"==typeof c;return t.isMoment(c)?(l=t.apply(null,n),ae(c,l)):F(c)||void 0===c?l=t.apply(null,n):(o=!1,a=!1,u?Je.test(c)?(c+="-01",n=[c],o=!0,a=!0):(s=$e.exec(c))&&(o=!s[5],a=!0):e.isArray(c)&&(a=!0),l=i||o?t.utc.apply(t,n):t.apply(null,n),o?(l._ambigTime=!0,l._ambigZone=!0):r&&(a?l._ambigZone=!0:u&&(l.utcOffset?l.utcOffset(c):l.zone(c)))),l._fullCalendar=!0,l}function oe(e,n){var i,r,o=!1,a=!1,s=e.length,l=[];for(i=0;s>i;i++)r=e[i],t.isMoment(r)||(r=Ge.moment.parseZone(r)),o=o||r._ambigTime,a=a||r._ambigZone,l.push(r);for(i=0;s>i;i++)r=l[i],n||!o||r._ambigTime?a&&!r._ambigZone&&(l[i]=r.clone().stripZone()):l[i]=r.clone().stripTime();return l}function ae(e,t){e._ambigTime?t._ambigTime=!0:t._ambigTime&&(t._ambigTime=!1),e._ambigZone?t._ambigZone=!0:t._ambigZone&&(t._ambigZone=!1)}function se(e,t){e.year(t[0]||0).month(t[1]||0).date(t[2]||0).hours(t[3]||0).minutes(t[4]||0).seconds(t[5]||0).milliseconds(t[6]||0)}function le(e,t){return et.format.call(e,t)}function ce(e,t){return ue(e,me(t))}function ue(e,t){var n,i="";for(n=0;n<t.length;n++)i+=de(e,t[n]);return i}function de(e,t){var n,i;return"string"==typeof t?t:(n=t.token)?tt[n]?tt[n](e):le(e,n):t.maybe&&(i=ue(e,t.maybe),i.match(/[1-9]/))?i:""}function fe(e,t,n,i,r){var o;return e=Ge.moment.parseZone(e),t=Ge.moment.parseZone(t),o=(e.localeData||e.lang).call(e),n=o.longDateFormat(n)||n,i=i||" - ",he(e,t,me(n),i,r)}function he(e,t,n,i,r){var o,a,s,l,c=e.clone().stripZone(),u=t.clone().stripZone(),d="",f="",h="",p="",m="";for(a=0;a<n.length&&(o=pe(e,t,c,u,n[a]),o!==!1);a++)d+=o;for(s=n.length-1;s>a&&(o=pe(e,t,c,u,n[s]),o!==!1);s--)f=o+f;for(l=a;s>=l;l++)h+=de(e,n[l]),p+=de(t,n[l]);return(h||p)&&(m=r?p+i+h:h+i+p),d+m+f}function pe(e,t,n,i,r){var o,a;return"string"==typeof r?r:(o=r.token)&&(a=nt[o.charAt(0)],a&&n.isSame(i,a))?le(e,o):!1}function me(e){return e in it?it[e]:it[e]=ge(e)}function ge(e){for(var t,n=[],i=/\[([^\]]*)\]|\(([^\)]*)\)|(LTS|LT|(\w)\4*o?)|([^\w\[\(]+)/g;t=i.exec(e);)t[1]?n.push(t[1]):t[2]?n.push({maybe:ge(t[2])}):t[3]?n.push({token:t[3]}):t[5]&&n.push(t[5]);return n}function be(){}function ve(e,t){var n;return V(t,"constructor")&&(n=t.constructor),"function"!=typeof n&&(n=t.constructor=function(){e.apply(this,arguments)}),n.prototype=W(e.prototype),N(t,n.prototype),q(t,n.prototype),N(e,n),n}function ye(e,t){N(t.prototype||t,e.prototype)}function we(e,t){return e||t?e&&t?e.component===t.component&&Ae(e,t)&&Ae(t,e):!1:!0}function Ae(e,t){for(var n in e)if(!/^(component|left|right|top|bottom)$/.test(n)&&e[n]!==t[n])return!1;return!0}function Se(e){var t=Te(e);return"background"===t||"inverse-background"===t}function ke(e){return"inverse-background"===Te(e)}function Te(e){return K((e.source||{}).rendering,e.rendering)}function xe(e){var t,n,i={};for(t=0;t<e.length;t++)n=e[t],(i[n._id]||(i[n._id]=[])).push(n);return i}function Ee(e,t){return e.start-t.start}function Me(n){var i,r,o,a,s=Ge.dataAttrPrefix;return s&&(s+="-"),i=n.data(s+"event")||null,i&&(i="object"==typeof i?e.extend({},i):{},r=i.start,null==r&&(r=i.time),o=i.duration,a=i.stick,delete i.start,delete i.time,delete i.duration,delete i.stick),null==r&&(r=n.data(s+"start")),null==r&&(r=n.data(s+"time")),null==o&&(o=n.data(s+"duration")),null==a&&(a=n.data(s+"stick")),r=null!=r?t.duration(r):null,o=null!=o?t.duration(o):null,a=Boolean(a),{eventProps:i,startTime:r,duration:o,stick:a}}function _e(e,t){var n,i;for(n=0;n<t.length;n++)if(i=t[n],i.leftCol<=e.rightCol&&i.rightCol>=e.leftCol)return!0;return!1}function Ce(e,t){return e.leftCol-t.leftCol}function De(e){var t,n,i,r=[];for(t=0;t<e.length;t++){for(n=e[t],i=0;i<r.length&&Le(n,r[i]).length;i++);n.level=i,(r[i]||(r[i]=[])).push(n)}return r}function ze(e){var t,n,i,r,o;for(t=0;t<e.length;t++)for(n=e[t],i=0;i<n.length;i++)for(r=n[i],r.forwardSegs=[],o=t+1;o<e.length;o++)Le(r,e[o],r.forwardSegs)}function He(e){var t,n,i=e.forwardSegs,r=0;if(void 0===e.forwardPressure){for(t=0;t<i.length;t++)n=i[t],He(n),r=Math.max(r,1+n.forwardPressure);e.forwardPressure=r}}function Le(e,t,n){n=n||[];for(var i=0;i<t.length;i++)Re(e,t[i])&&n.push(t[i]);return n}function Re(e,t){return e.bottom>t.top&&e.top<t.bottom}function Oe(n,i){function r(){V?s()&&(u(),l()):o()}function o(){U=F.theme?"ui":"fc",n.addClass("fc"),F.isRTL?n.addClass("fc-rtl"):n.addClass("fc-ltr"),F.theme?n.addClass("ui-widget"):n.addClass("fc-unthemed"),V=e("<div class='fc-view-container'/>").prependTo(n),N=Y.header=new je(Y,F),q=N.render(),q&&n.prepend(q),l(F.defaultView),F.handleWindowResize&&(Z=ie(f,F.windowResizeDelay),e(window).resize(Z))}function a(){X&&X.removeElement(),N.removeElement(),V.remove(),n.removeClass("fc fc-ltr fc-rtl fc-unthemed ui-widget"),Z&&e(window).unbind("resize",Z)}function s(){return n.is(":visible")}function l(t){ne++,X&&t&&X.type!==t&&(N.deactivateButton(X.type),L(),X.removeElement(),X=Y.view=null),!X&&t&&(X=Y.view=te[t]||(te[t]=Y.instantiateView(t)),X.setElement(e("<div class='fc-view fc-"+t+"-view' />").appendTo(V)),N.activateButton(t)),X&&(J=X.massageCurrentDate(J),X.displaying&&J.isWithin(X.intervalStart,X.intervalEnd)||s()&&(X.display(J),R(),w(),A(),g())),R(),ne--}function c(e){return s()?(e&&d(),ne++,X.updateSize(!0),ne--,!0):void 0}function u(){s()&&d()}function d(){K="number"==typeof F.contentHeight?F.contentHeight:"number"==typeof F.height?F.height-(q?q.outerHeight(!0):0):Math.round(V.width()/Math.max(F.aspectRatio,.5))}function f(e){!ne&&e.target===window&&X.start&&c(!0)&&X.trigger("windowResize",ee)}function h(){m(),b()}function p(){s()&&(L(),X.displayEvents(re),R())}function m(){L(),X.clearEvents(),R()}function g(){!F.lazyFetching||$(X.start,X.end)?b():p()}function b(){Q(X.start,X.end)}function v(e){re=e,p()}function y(){p()}function w(){N.updateTitle(X.title)}function A(){var e=Y.getNow();e.isWithin(X.intervalStart,X.intervalEnd)?N.disableButton("today"):N.enableButton("today")}function S(e,t){X.select(Y.buildSelectSpan.apply(Y,arguments))}function k(){X&&X.unselect()}function T(){J=X.computePrevDate(J),l()}function x(){J=X.computeNextDate(J),l()}function E(){J.add(-1,"years"),l()}function M(){J.add(1,"years"),l()}function _(){J=Y.getNow(),l()}function C(e){J=Y.moment(e).stripZone(),l()}function D(e){J.add(t.duration(e)),l()}function z(e,t){var n;t=t||"day",n=Y.getViewSpec(t)||Y.getUnitViewSpec(t),J=e.clone(),l(n?n.type:null)}function H(){return Y.applyTimezone(J)}function L(){V.css({width:"100%",height:V.height(),overflow:"hidden"})}function R(){V.css({width:"",height:"",overflow:""})}function O(){return Y}function P(){return X}function B(e,t){return void 0===t?F[e]:void(("height"==e||"contentHeight"==e||"aspectRatio"==e)&&(F[e]=t,c(!0)))}function j(e,t){var n=Array.prototype.slice.call(arguments,2);return t=t||ee,this.triggerWith(e,t,n),F[e]?F[e].apply(t,n):void 0}var Y=this;Y.initOptions(i||{});var F=this.options;Y.render=r,Y.destroy=a,Y.refetchEvents=h,Y.reportEvents=v,Y.reportEventChange=y,Y.rerenderEvents=p,Y.changeView=l,Y.select=S,Y.unselect=k,Y.prev=T,Y.next=x,Y.prevYear=E,Y.nextYear=M,Y.today=_,Y.gotoDate=C,Y.incrementDate=D,Y.zoomTo=z,Y.getDate=H,Y.getCalendar=O,Y.getView=P,Y.option=B,Y.trigger=j;var G=W(Be(F.lang));if(F.monthNames&&(G._months=F.monthNames),F.monthNamesShort&&(G._monthsShort=F.monthNamesShort),F.dayNames&&(G._weekdays=F.dayNames),F.dayNamesShort&&(G._weekdaysShort=F.dayNamesShort),null!=F.firstDay){var I=W(G._week);I.dow=F.firstDay,G._week=I}G._fullCalendar_weekCalc=function(e){return"function"==typeof e?e:"local"===e?e:"iso"===e||"ISO"===e?"ISO":void 0}(F.weekNumberCalculation),Y.defaultAllDayEventDuration=t.duration(F.defaultAllDayEventDuration),Y.defaultTimedEventDuration=t.duration(F.defaultTimedEventDuration),Y.moment=function(){var e;return"local"===F.timezone?(e=Ge.moment.apply(null,arguments),e.hasTime()&&e.local()):e="UTC"===F.timezone?Ge.moment.utc.apply(null,arguments):Ge.moment.parseZone.apply(null,arguments),"_locale"in e?e._locale=G:e._lang=G,e},Y.getIsAmbigTimezone=function(){return"local"!==F.timezone&&"UTC"!==F.timezone},Y.applyTimezone=function(e){if(!e.hasTime())return e.clone();var t,n=Y.moment(e.toArray()),i=e.time()-n.time();return i&&(t=n.clone().add(i),e.time()-t.time()===0&&(n=t)),n},Y.getNow=function(){var e=F.now;return"function"==typeof e&&(e=e()),Y.moment(e).stripZone()},Y.getEventEnd=function(e){return e.end?e.end.clone():Y.getDefaultEventEnd(e.allDay,e.start)},Y.getDefaultEventEnd=function(e,t){var n=t.clone();return e?n.stripTime().add(Y.defaultAllDayEventDuration):n.add(Y.defaultTimedEventDuration),Y.getIsAmbigTimezone()&&n.stripZone(),n},Y.humanizeDuration=function(e){return(e.locale||e.lang).call(e,F.lang).humanize()},Ye.call(Y,F);var N,q,V,U,X,K,Z,J,$=Y.isFetchNeeded,Q=Y.fetchEvents,ee=n[0],te={},ne=0,re=[];J=null!=F.defaultDate?Y.moment(F.defaultDate).stripZone():Y.getNow(),Y.getSuggestedViewHeight=function(){return void 0===K&&u(),K},Y.isHeightAuto=function(){return"auto"===F.contentHeight||"auto"===F.height},Y.freezeContentHeight=L,Y.unfreezeContentHeight=R,Y.initialize()}function Pe(t){e.each(yt,function(e,n){null==t[e]&&(t[e]=n(t))})}function Be(e){var n=t.localeData||t.langData;return n.call(t,e)||n.call(t,"en")}function je(t,n){function i(){var t=n.header;return h=n.theme?"ui":"fc",t?p=e("<div class='fc-toolbar'/>").append(o("left")).append(o("right")).append(o("center")).append('<div class="fc-clear"/>'):void 0}function r(){p.remove(),p=e()}function o(i){var r=e('<div class="fc-'+i+'"/>'),o=n.header[i];return o&&e.each(o.split(" "),function(i){var o,a=e(),s=!0;e.each(this.split(","),function(i,r){var o,l,c,u,d,f,p,g,b,v;"title"==r?(a=a.add(e("<h2>&nbsp;</h2>")),s=!1):((o=(t.options.customButtons||{})[r])?(c=function(e){o.click&&o.click.call(v[0],e)},u="",d=o.text):(l=t.getViewSpec(r))?(c=function(){t.changeView(r)},m.push(r),u=l.buttonTextOverride,d=l.buttonTextDefault):t[r]&&(c=function(){t[r]()},u=(t.overrides.buttonText||{})[r],d=n.buttonText[r]),c&&(f=o?o.themeIcon:n.themeButtonIcons[r],p=o?o.icon:n.buttonIcons[r],g=u?Z(u):f&&n.theme?"<span class='ui-icon ui-icon-"+f+"'></span>":p&&!n.theme?"<span class='fc-icon fc-icon-"+p+"'></span>":Z(d),b=["fc-"+r+"-button",h+"-button",h+"-state-default"],v=e('<button type="button" class="'+b.join(" ")+'">'+g+"</button>").click(function(e){v.hasClass(h+"-state-disabled")||(c(e),(v.hasClass(h+"-state-active")||v.hasClass(h+"-state-disabled"))&&v.removeClass(h+"-state-hover"))}).mousedown(function(){v.not("."+h+"-state-active").not("."+h+"-state-disabled").addClass(h+"-state-down")}).mouseup(function(){v.removeClass(h+"-state-down")}).hover(function(){v.not("."+h+"-state-active").not("."+h+"-state-disabled").addClass(h+"-state-hover")},function(){v.removeClass(h+"-state-hover").removeClass(h+"-state-down")}),a=a.add(v)))}),s&&a.first().addClass(h+"-corner-left").end().last().addClass(h+"-corner-right").end(),a.length>1?(o=e("<div/>"),s&&o.addClass("fc-button-group"),o.append(a),r.append(o)):r.append(a)}),r}function a(e){p.find("h2").text(e)}function s(e){p.find(".fc-"+e+"-button").addClass(h+"-state-active")}function l(e){p.find(".fc-"+e+"-button").removeClass(h+"-state-active")}function c(e){p.find(".fc-"+e+"-button").attr("disabled","disabled").addClass(h+"-state-disabled")}function u(e){p.find(".fc-"+e+"-button").removeAttr("disabled").removeClass(h+"-state-disabled")}function d(){return m}var f=this;f.render=i,f.removeElement=r,f.updateTitle=a,f.activateButton=s,f.deactivateButton=l,f.disableButton=c,f.enableButton=u,f.getViewsWithButtons=d;var h,p=e(),m=[]}function Ye(n){function i(e,t){return!B||B>e||t>j}function r(e,t){B=e,j=t,q=[];var n=++W,i=I.length;N=i;for(var r=0;i>r;r++)o(I[r],n)}function o(t,n){a(t,function(i){var r,o,a,s=e.isArray(t.events);if(n==W){if(i)for(r=0;r<i.length;r++)o=i[r],a=s?o:v(o,t),a&&q.push.apply(q,S(a));N--,N||Y(q)}})}function a(t,i){var r,o,s=Ge.sourceFetchers;for(r=0;r<s.length;r++){if(o=s[r].call(P,t,B.clone(),j.clone(),n.timezone,i),o===!0)return;if("object"==typeof o)return void a(o,i)}var l=t.events;if(l)e.isFunction(l)?(P.pushLoading(),l.call(P,B.clone(),j.clone(),n.timezone,function(e){i(e),P.popLoading()})):e.isArray(l)?i(l):i();else{var c=t.url;if(c){var u,d=t.success,f=t.error,h=t.complete;u=e.isFunction(t.data)?t.data():t.data;var p=e.extend({},u||{}),m=K(t.startParam,n.startParam),g=K(t.endParam,n.endParam),b=K(t.timezoneParam,n.timezoneParam);m&&(p[m]=B.format()),g&&(p[g]=j.format()),n.timezone&&"local"!=n.timezone&&(p[b]=n.timezone),P.pushLoading(),e.ajax(e.extend({},wt,t,{data:p,success:function(t){t=t||[];var n=X(d,this,arguments);e.isArray(n)&&(t=n),i(t)},error:function(){X(f,this,arguments),i()},complete:function(){X(h,this,arguments),P.popLoading()}}))}else i()}}function s(e){var t=l(e);t&&(I.push(t),N++,o(t,W))}function l(t){var n,i,r=Ge.sourceNormalizers;if(e.isFunction(t)||e.isArray(t)?n={events:t}:"string"==typeof t?n={url:t}:"object"==typeof t&&(n=e.extend({},t)),n){for(n.className?"string"==typeof n.className&&(n.className=n.className.split(/\s+/)):n.className=[],e.isArray(n.events)&&(n.origArray=n.events,n.events=e.map(n.events,function(e){return v(e,n)})),i=0;i<r.length;i++)r[i].call(P,n);return n}}function c(t){I=e.grep(I,function(e){return!u(e,t)}),q=e.grep(q,function(e){return!u(e.source,t)}),Y(q)}function u(e,t){return e&&t&&d(e)==d(t)}function d(e){return("object"==typeof e?e.origArray||e.googleCalendarId||e.url||e.events:null)||e}function f(e){e.start=P.moment(e.start),e.end?e.end=P.moment(e.end):e.end=null,k(e,h(e)),Y(q)}function h(t){var n={};return e.each(t,function(e,t){p(e)&&void 0!==t&&U(t)&&(n[e]=t)}),n}function p(e){return!/^_|^(id|allDay|start|end)$/.test(e)}function m(e,t){var n,i,r,o=v(e);if(o){for(n=S(o),i=0;i<n.length;i++)r=n[i],r.source||(t&&(F.events.push(r),r.source=F),q.push(r));return Y(q),n}return[]}function g(t){var n,i;for(null==t?t=function(){return!0}:e.isFunction(t)||(n=t+"",t=function(e){return e._id==n}),q=e.grep(q,t,!0),i=0;i<I.length;i++)e.isArray(I[i].events)&&(I[i].events=e.grep(I[i].events,t,!0));Y(q)}function b(t){return e.isFunction(t)?e.grep(q,t):null!=t?(t+="",e.grep(q,function(e){return e._id==t})):q}function v(i,r){var o,a,s,l={};if(n.eventDataTransform&&(i=n.eventDataTransform(i)),r&&r.eventDataTransform&&(i=r.eventDataTransform(i)),e.extend(l,i),r&&(l.source=r),l._id=i._id||(void 0===i.id?"_fc"+At++:i.id+""),i.className?"string"==typeof i.className?l.className=i.className.split(/\s+/):l.className=i.className:l.className=[],o=i.start||i.date,a=i.end,G(o)&&(o=t.duration(o)),G(a)&&(a=t.duration(a)),i.dow||t.isDuration(o)||t.isDuration(a))l.start=o?t.duration(o):null,l.end=a?t.duration(a):null,l._recurring=!0;else{if(o&&(o=P.moment(o),!o.isValid()))return!1;a&&(a=P.moment(a),a.isValid()||(a=null)),s=i.allDay,void 0===s&&(s=K(r?r.allDayDefault:void 0,n.allDayDefault)),y(o,a,s,l)}return l}function y(e,t,n,i){i.start=e,i.end=t,i.allDay=n,w(i),Fe(i)}function w(e){A(e),e.end&&!e.end.isAfter(e.start)&&(e.end=null),e.end||(n.forceEventDuration?e.end=P.getDefaultEventEnd(e.allDay,e.start):e.end=null)}function A(e){null==e.allDay&&(e.allDay=!(e.start.hasTime()||e.end&&e.end.hasTime())),e.allDay?(e.start.stripTime(),e.end&&e.end.stripTime()):(e.start.hasTime()||(e.start=P.applyTimezone(e.start.time(0))),e.end&&!e.end.hasTime()&&(e.end=P.applyTimezone(e.end.time(0))))}function S(t,n,i){var r,o,a,s,l,c,u,d,f,h=[];if(n=n||B,i=i||j,t)if(t._recurring){if(o=t.dow)for(r={},a=0;a<o.length;a++)r[o[a]]=!0;for(s=n.clone().stripTime();s.isBefore(i);)(!r||r[s.day()])&&(l=t.start,c=t.end,u=s.clone(),d=null,l&&(u=u.time(l)),c&&(d=s.clone().time(c)),f=e.extend({},t),y(u,d,!l&&!c,f),h.push(f)),s.add(1,"days")}else h.push(t);return h}function k(t,n,i){function r(e,t){return i?L(e,t,i):n.allDay?H(e,t):z(e,t)}var o,a,s,l,c,u,d={};return n=n||{},n.start||(n.start=t.start.clone()),void 0===n.end&&(n.end=t.end?t.end.clone():null),null==n.allDay&&(n.allDay=t.allDay),w(n),o={start:t._start.clone(),end:t._end?t._end.clone():P.getDefaultEventEnd(t._allDay,t._start),allDay:n.allDay},w(o),a=null!==t._end&&null===n.end,s=r(n.start,o.start),n.end?(l=r(n.end,o.end),c=l.subtract(s)):c=null,e.each(n,function(e,t){p(e)&&void 0!==t&&(d[e]=t)}),u=T(b(t._id),a,n.allDay,s,c,d),{dateDelta:s,durationDelta:c,undo:u}}function T(t,n,i,r,o,a){var s=P.getIsAmbigTimezone(),l=[];return r&&!r.valueOf()&&(r=null),o&&!o.valueOf()&&(o=null),e.each(t,function(t,c){var u,d;u={start:c.start.clone(),end:c.end?c.end.clone():null,allDay:c.allDay},e.each(a,function(e){u[e]=c[e]}),d={start:c._start,end:c._end,allDay:i},w(d),n?d.end=null:o&&!d.end&&(d.end=P.getDefaultEventEnd(d.allDay,d.start)),r&&(d.start.add(r),d.end&&d.end.add(r)),o&&d.end.add(o),s&&!d.allDay&&(r||o)&&(d.start.stripZone(),d.end&&d.end.stripZone()),e.extend(c,a,d),Fe(c),l.push(function(){e.extend(c,u),Fe(c)})}),function(){for(var e=0;e<l.length;e++)l[e]()}}function x(t){var i,r=n.businessHours,o={className:"fc-nonbusiness",start:"09:00",end:"17:00",dow:[1,2,3,4,5],rendering:"inverse-background"},a=P.getView();return r&&(i=e.extend({},o,"object"==typeof r?r:{})),i?(t&&(i.start=null,i.end=null),S(v(i),a.start,a.end)):[]}function E(e,t){var i=t.source||{},r=K(t.constraint,i.constraint,n.eventConstraint),o=K(t.overlap,i.overlap,n.eventOverlap);return C(e,r,o,t)}function M(t,n,i){var r,o;return i&&(r=e.extend({},i,n),o=S(v(r))[0]),o?E(t,o):_(t)}function _(e){return C(e,n.selectConstraint,n.selectOverlap)}function C(e,t,n,i){var r,o,a,s,l,c;if(null!=t){for(r=D(t),o=!1,s=0;s<r.length;s++)if(R(r[s],e)){o=!0;break}if(!o)return!1}for(a=P.getPeerEvents(e,i),s=0;s<a.length;s++)if(l=a[s],O(l,e)){if(n===!1)return!1;if("function"==typeof n&&!n(l,i))return!1;if(i){if(c=K(l.overlap,(l.source||{}).overlap),c===!1)return!1;if("function"==typeof c&&!c(i,l))return!1}}return!0}function D(e){return"businessHours"===e?x():"object"==typeof e?S(v(e)):b(e)}function R(e,t){var n=e.start.clone().stripZone(),i=P.getEventEnd(e).stripZone();return t.start>=n&&t.end<=i}function O(e,t){var n=e.start.clone().stripZone(),i=P.getEventEnd(e).stripZone();return t.start<i&&t.end>n}var P=this;P.isFetchNeeded=i,P.fetchEvents=r,P.addEventSource=s,P.removeEventSource=c,P.updateEvent=f,P.renderEvent=m,P.removeEvents=g,P.clientEvents=b,P.mutateEvent=k,P.normalizeEventDates=w,P.normalizeEventTimes=A;var B,j,Y=P.reportEvents,F={events:[]},I=[F],W=0,N=0,q=[];e.each((n.events?[n.events]:[]).concat(n.eventSources||[]),function(e,t){var n=l(t);n&&I.push(n)}),P.getBusinessHoursEvents=x,P.isEventSpanAllowed=E,P.isExternalSpanAllowed=M,P.isSelectionSpanAllowed=_,P.getEventCache=function(){return q}}function Fe(e){e._allDay=e.allDay,e._start=e.start.clone(),e._end=e.end?e.end.clone():null}var Ge=e.fullCalendar={version:"2.6.0",internalApiVersion:2},Ie=Ge.views={};e.fn.fullCalendar=function(t){var n=Array.prototype.slice.call(arguments,1),i=this;return this.each(function(r,o){var a,s=e(o),l=s.data("fullCalendar");"string"==typeof t?l&&e.isFunction(l[t])&&(a=l[t].apply(l,n),r||(i=a),"destroy"===t&&s.removeData("fullCalendar")):l||(l=new mt(s,t),s.data("fullCalendar",l),l.render())}),i};var We=["header","buttonText","buttonIcons","themeButtonIcons"];Ge.intersectRanges=D,Ge.applyAll=X,Ge.debounce=ie,Ge.isInt=te,Ge.htmlEscape=Z,Ge.cssToStr=$,Ge.proxy=ne,Ge.capitaliseFirstLetter=Q,Ge.getOuterRect=p,Ge.getClientRect=m,Ge.getContentRect=g,Ge.getScrollbarWidths=b;var Ne=null;Ge.intersectRects=S,Ge.parseFieldSpecs=E,Ge.compareByFieldSpecs=M,Ge.compareByFieldSpec=_,Ge.flexibleCompare=C,Ge.computeIntervalUnit=R,Ge.divideRangeByDuration=P,Ge.divideDurationByDuration=B,Ge.multiplyDuration=j,Ge.durationHasTime=Y;var qe=["sun","mon","tue","wed","thu","fri","sat"],Ve=["year","month","week","day","hour","minute","second","millisecond"];Ge.log=function(){var e=window.console;return e&&e.log?e.log.apply(e,arguments):void 0},Ge.warn=function(){var e=window.console;return e&&e.warn?e.warn.apply(e,arguments):Ge.log.apply(Ge,arguments)};var Ue,Xe,Ke,Ze={}.hasOwnProperty,Je=/^\s*\d{4}-\d\d$/,$e=/^\s*\d{4}-(?:(\d\d-\d\d)|(W\d\d$)|(W\d\d-\d)|(\d\d\d))((T| )(\d\d(:\d\d(:\d\d(\.\d+)?)?)?)?)?$/,Qe=t.fn,et=e.extend({},Qe);Ge.moment=function(){return re(arguments)},Ge.moment.utc=function(){var e=re(arguments,!0);return e.hasTime()&&e.utc(),e},Ge.moment.parseZone=function(){return re(arguments,!0,!0)},Qe.clone=function(){var e=et.clone.apply(this,arguments);return ae(this,e),this._fullCalendar&&(e._fullCalendar=!0),e},Qe.week=Qe.weeks=function(e){var t=(this._locale||this._lang)._fullCalendar_weekCalc;return null==e&&"function"==typeof t?t(this):"ISO"===t?et.isoWeek.apply(this,arguments):et.week.apply(this,arguments)},Qe.time=function(e){if(!this._fullCalendar)return et.time.apply(this,arguments);if(null==e)return t.duration({hours:this.hours(),minutes:this.minutes(),seconds:this.seconds(),milliseconds:this.milliseconds()});this._ambigTime=!1,t.isDuration(e)||t.isMoment(e)||(e=t.duration(e));var n=0;return t.isDuration(e)&&(n=24*Math.floor(e.asDays())),this.hours(n+e.hours()).minutes(e.minutes()).seconds(e.seconds()).milliseconds(e.milliseconds())},Qe.stripTime=function(){var e;return this._ambigTime||(e=this.toArray(),this.utc(),Xe(this,e.slice(0,3)),this._ambigTime=!0,this._ambigZone=!0),this},Qe.hasTime=function(){return!this._ambigTime},Qe.stripZone=function(){var e,t;return this._ambigZone||(e=this.toArray(),t=this._ambigTime,this.utc(),Xe(this,e),this._ambigTime=t||!1,this._ambigZone=!0),this},Qe.hasZone=function(){return!this._ambigZone},Qe.local=function(){var e=this.toArray(),t=this._ambigZone;return et.local.apply(this,arguments),this._ambigTime=!1,this._ambigZone=!1,t&&Ke(this,e),this},Qe.utc=function(){return et.utc.apply(this,arguments),this._ambigTime=!1,this._ambigZone=!1,this},e.each(["zone","utcOffset"],function(e,t){et[t]&&(Qe[t]=function(e){return null!=e&&(this._ambigTime=!1,this._ambigZone=!1),et[t].apply(this,arguments)})}),Qe.format=function(){return this._fullCalendar&&arguments[0]?ce(this,arguments[0]):this._ambigTime?le(this,"YYYY-MM-DD"):this._ambigZone?le(this,"YYYY-MM-DD[T]HH:mm:ss"):et.format.apply(this,arguments)},Qe.toISOString=function(){return this._ambigTime?le(this,"YYYY-MM-DD"):this._ambigZone?le(this,"YYYY-MM-DD[T]HH:mm:ss"):et.toISOString.apply(this,arguments)},Qe.isWithin=function(e,t){var n=oe([this,e,t]);return n[0]>=n[1]&&n[0]<n[2]},Qe.isSame=function(e,t){var n;return this._fullCalendar?t?(n=oe([this,e],!0),et.isSame.call(n[0],n[1],t)):(e=Ge.moment.parseZone(e),et.isSame.call(this,e)&&Boolean(this._ambigTime)===Boolean(e._ambigTime)&&Boolean(this._ambigZone)===Boolean(e._ambigZone)):et.isSame.apply(this,arguments)},e.each(["isBefore","isAfter"],function(e,t){Qe[t]=function(e,n){var i;return this._fullCalendar?(i=oe([this,e]),et[t].call(i[0],i[1],n)):et[t].apply(this,arguments)}}),Ue="_d"in t()&&"updateOffset"in t,Xe=Ue?function(e,n){e._d.setTime(Date.UTC.apply(Date,n)),t.updateOffset(e,!1)}:se,Ke=Ue?function(e,n){e._d.setTime(+new Date(n[0]||0,n[1]||0,n[2]||0,n[3]||0,n[4]||0,n[5]||0,n[6]||0)),t.updateOffset(e,!1)}:se;var tt={t:function(e){return le(e,"a").charAt(0)},T:function(e){return le(e,"A").charAt(0)}};Ge.formatRange=fe;var nt={Y:"year",M:"month",D:"day",d:"day",A:"second",a:"second",T:"second",t:"second",H:"second",h:"second",m:"second",s:"second"},it={};Ge.Class=be,be.extend=function(){var e,t,n=arguments.length;for(e=0;n>e;e++)t=arguments[e],n-1>e&&ye(this,t);return ve(this,t||{})},be.mixin=function(e){ye(this,e)};var rt=Ge.Emitter=be.extend({callbackHash:null,on:function(e,t){return this.getCallbacks(e).add(t),this},off:function(e,t){return this.getCallbacks(e).remove(t),this},trigger:function(e){var t=Array.prototype.slice.call(arguments,1);return this.triggerWith(e,this,t),this},triggerWith:function(e,t,n){var i=this.getCallbacks(e);return i.fireWith(t,n),this},getCallbacks:function(t){var n;return this.callbackHash||(this.callbackHash={}),n=this.callbackHash[t],n||(n=this.callbackHash[t]=e.Callbacks()),n}}),ot=be.extend({isHidden:!0,options:null,el:null,documentMousedownProxy:null,margin:10,constructor:function(e){this.options=e||{}},show:function(){this.isHidden&&(this.el||this.render(),this.el.show(),this.position(),this.isHidden=!1,this.trigger("show"))},hide:function(){this.isHidden||(this.el.hide(),this.isHidden=!0,this.trigger("hide"))},render:function(){var t=this,n=this.options;this.el=e('<div class="fc-popover"/>').addClass(n.className||"").css({top:0,left:0}).append(n.content).appendTo(n.parentEl),this.el.on("click",".fc-close",function(){t.hide()}),n.autoHide&&e(document).on("mousedown",this.documentMousedownProxy=ne(this,"documentMousedown"))},documentMousedown:function(t){this.el&&!e(t.target).closest(this.el).length&&this.hide()},removeElement:function(){this.hide(),this.el&&(this.el.remove(),this.el=null),e(document).off("mousedown",this.documentMousedownProxy)},position:function(){var t,n,i,r,o,a=this.options,s=this.el.offsetParent().offset(),l=this.el.outerWidth(),c=this.el.outerHeight(),u=e(window),d=h(this.el);r=a.top||0,o=void 0!==a.left?a.left:void 0!==a.right?a.right-l:0,d.is(window)||d.is(document)?(d=u,t=0,n=0):(i=d.offset(),t=i.top,n=i.left),t+=u.scrollTop(),n+=u.scrollLeft(),a.viewportConstrain!==!1&&(r=Math.min(r,t+d.outerHeight()-c-this.margin),r=Math.max(r,t+this.margin),o=Math.min(o,n+d.outerWidth()-l-this.margin),o=Math.max(o,n+this.margin)),this.el.css({
-top:r-s.top,left:o-s.left})},trigger:function(e){this.options[e]&&this.options[e].apply(this,Array.prototype.slice.call(arguments,1))}}),at=Ge.CoordCache=be.extend({els:null,forcedOffsetParentEl:null,origin:null,boundingRect:null,isHorizontal:!1,isVertical:!1,lefts:null,rights:null,tops:null,bottoms:null,constructor:function(t){this.els=e(t.els),this.isHorizontal=t.isHorizontal,this.isVertical=t.isVertical,this.forcedOffsetParentEl=t.offsetParent?e(t.offsetParent):null},build:function(){var e=this.forcedOffsetParentEl||this.els.eq(0).offsetParent();this.origin=e.offset(),this.boundingRect=this.queryBoundingRect(),this.isHorizontal&&this.buildElHorizontals(),this.isVertical&&this.buildElVerticals()},clear:function(){this.origin=null,this.boundingRect=null,this.lefts=null,this.rights=null,this.tops=null,this.bottoms=null},queryBoundingRect:function(){var e=h(this.els.eq(0));return e.is(document)?void 0:m(e)},buildElHorizontals:function(){var t=[],n=[];this.els.each(function(i,r){var o=e(r),a=o.offset().left,s=o.outerWidth();t.push(a),n.push(a+s)}),this.lefts=t,this.rights=n},buildElVerticals:function(){var t=[],n=[];this.els.each(function(i,r){var o=e(r),a=o.offset().top,s=o.outerHeight();t.push(a),n.push(a+s)}),this.tops=t,this.bottoms=n},getHorizontalIndex:function(e){var t,n=this.boundingRect,i=this.lefts,r=this.rights,o=i.length;if(!n||e>=n.left&&e<n.right)for(t=0;o>t;t++)if(e>=i[t]&&e<r[t])return t},getVerticalIndex:function(e){var t,n=this.boundingRect,i=this.tops,r=this.bottoms,o=i.length;if(!n||e>=n.top&&e<n.bottom)for(t=0;o>t;t++)if(e>=i[t]&&e<r[t])return t},getLeftOffset:function(e){return this.lefts[e]},getLeftPosition:function(e){return this.lefts[e]-this.origin.left},getRightOffset:function(e){return this.rights[e]},getRightPosition:function(e){return this.rights[e]-this.origin.left},getWidth:function(e){return this.rights[e]-this.lefts[e]},getTopOffset:function(e){return this.tops[e]},getTopPosition:function(e){return this.tops[e]-this.origin.top},getBottomOffset:function(e){return this.bottoms[e]},getBottomPosition:function(e){return this.bottoms[e]-this.origin.top},getHeight:function(e){return this.bottoms[e]-this.tops[e]}}),st=Ge.DragListener=be.extend({options:null,isListening:!1,isDragging:!1,originX:null,originY:null,mousemoveProxy:null,mouseupProxy:null,subjectEl:null,subjectHref:null,scrollEl:null,scrollBounds:null,scrollTopVel:null,scrollLeftVel:null,scrollIntervalId:null,scrollHandlerProxy:null,scrollSensitivity:30,scrollSpeed:200,scrollIntervalMs:50,constructor:function(e){e=e||{},this.options=e,this.subjectEl=e.subjectEl},mousedown:function(e){A(e)&&(e.preventDefault(),this.startListening(e),this.options.distance||this.startDrag(e))},startListening:function(t){var n;this.isListening||(t&&this.options.scroll&&(n=h(e(t.target)),n.is(window)||n.is(document)||(this.scrollEl=n,this.scrollHandlerProxy=ie(ne(this,"scrollHandler"),100),this.scrollEl.on("scroll",this.scrollHandlerProxy))),e(document).on("mousemove",this.mousemoveProxy=ne(this,"mousemove")).on("mouseup",this.mouseupProxy=ne(this,"mouseup")).on("selectstart",this.preventDefault),t?(this.originX=t.pageX,this.originY=t.pageY):(this.originX=0,this.originY=0),this.isListening=!0,this.listenStart(t))},listenStart:function(e){this.trigger("listenStart",e)},mousemove:function(e){var t,n,i=e.pageX-this.originX,r=e.pageY-this.originY;this.isDragging||(t=this.options.distance||1,n=i*i+r*r,n>=t*t&&this.startDrag(e)),this.isDragging&&this.drag(i,r,e)},startDrag:function(e){this.isListening||this.startListening(),this.isDragging||(this.isDragging=!0,this.dragStart(e))},dragStart:function(e){var t=this.subjectEl;this.trigger("dragStart",e),(this.subjectHref=t?t.attr("href"):null)&&t.removeAttr("href")},drag:function(e,t,n){this.trigger("drag",e,t,n),this.updateScroll(n)},mouseup:function(e){this.stopListening(e)},stopDrag:function(e){this.isDragging&&(this.stopScrolling(),this.dragStop(e),this.isDragging=!1)},dragStop:function(e){var t=this;this.trigger("dragStop",e),setTimeout(function(){t.subjectHref&&t.subjectEl.attr("href",t.subjectHref)},0)},stopListening:function(t){this.stopDrag(t),this.isListening&&(this.scrollEl&&(this.scrollEl.off("scroll",this.scrollHandlerProxy),this.scrollHandlerProxy=null),e(document).off("mousemove",this.mousemoveProxy).off("mouseup",this.mouseupProxy).off("selectstart",this.preventDefault),this.mousemoveProxy=null,this.mouseupProxy=null,this.isListening=!1,this.listenStop(t))},listenStop:function(e){this.trigger("listenStop",e)},trigger:function(e){this.options[e]&&this.options[e].apply(this,Array.prototype.slice.call(arguments,1))},preventDefault:function(e){e.preventDefault()},computeScrollBounds:function(){var e=this.scrollEl;this.scrollBounds=e?p(e):null},updateScroll:function(e){var t,n,i,r,o=this.scrollSensitivity,a=this.scrollBounds,s=0,l=0;a&&(t=(o-(e.pageY-a.top))/o,n=(o-(a.bottom-e.pageY))/o,i=(o-(e.pageX-a.left))/o,r=(o-(a.right-e.pageX))/o,t>=0&&1>=t?s=t*this.scrollSpeed*-1:n>=0&&1>=n&&(s=n*this.scrollSpeed),i>=0&&1>=i?l=i*this.scrollSpeed*-1:r>=0&&1>=r&&(l=r*this.scrollSpeed)),this.setScrollVel(s,l)},setScrollVel:function(e,t){this.scrollTopVel=e,this.scrollLeftVel=t,this.constrainScrollVel(),!this.scrollTopVel&&!this.scrollLeftVel||this.scrollIntervalId||(this.scrollIntervalId=setInterval(ne(this,"scrollIntervalFunc"),this.scrollIntervalMs))},constrainScrollVel:function(){var e=this.scrollEl;this.scrollTopVel<0?e.scrollTop()<=0&&(this.scrollTopVel=0):this.scrollTopVel>0&&e.scrollTop()+e[0].clientHeight>=e[0].scrollHeight&&(this.scrollTopVel=0),this.scrollLeftVel<0?e.scrollLeft()<=0&&(this.scrollLeftVel=0):this.scrollLeftVel>0&&e.scrollLeft()+e[0].clientWidth>=e[0].scrollWidth&&(this.scrollLeftVel=0)},scrollIntervalFunc:function(){var e=this.scrollEl,t=this.scrollIntervalMs/1e3;this.scrollTopVel&&e.scrollTop(e.scrollTop()+this.scrollTopVel*t),this.scrollLeftVel&&e.scrollLeft(e.scrollLeft()+this.scrollLeftVel*t),this.constrainScrollVel(),this.scrollTopVel||this.scrollLeftVel||this.stopScrolling()},stopScrolling:function(){this.scrollIntervalId&&(clearInterval(this.scrollIntervalId),this.scrollIntervalId=null,this.scrollStop())},scrollHandler:function(){this.scrollIntervalId||this.scrollStop()},scrollStop:function(){}}),lt=st.extend({component:null,origHit:null,hit:null,coordAdjust:null,constructor:function(e,t){st.call(this,t),this.component=e},listenStart:function(e){var t,n,i,r=this.subjectEl;st.prototype.listenStart.apply(this,arguments),this.computeCoords(),e?(n={left:e.pageX,top:e.pageY},i=n,r&&(t=p(r),i=k(i,t)),this.origHit=this.queryHit(i.left,i.top),r&&this.options.subjectCenter&&(this.origHit&&(t=S(this.origHit,t)||t),i=T(t)),this.coordAdjust=x(i,n)):(this.origHit=null,this.coordAdjust=null)},computeCoords:function(){this.component.prepareHits(),this.computeScrollBounds()},dragStart:function(e){var t;st.prototype.dragStart.apply(this,arguments),t=this.queryHit(e.pageX,e.pageY),t&&this.hitOver(t)},drag:function(e,t,n){var i;st.prototype.drag.apply(this,arguments),i=this.queryHit(n.pageX,n.pageY),we(i,this.hit)||(this.hit&&this.hitOut(),i&&this.hitOver(i))},dragStop:function(){this.hitDone(),st.prototype.dragStop.apply(this,arguments)},hitOver:function(e){var t=we(e,this.origHit);this.hit=e,this.trigger("hitOver",this.hit,t,this.origHit)},hitOut:function(){this.hit&&(this.trigger("hitOut",this.hit),this.hitDone(),this.hit=null)},hitDone:function(){this.hit&&this.trigger("hitDone",this.hit)},listenStop:function(){st.prototype.listenStop.apply(this,arguments),this.origHit=null,this.hit=null,this.component.releaseHits()},scrollStop:function(){st.prototype.scrollStop.apply(this,arguments),this.computeCoords()},queryHit:function(e,t){return this.coordAdjust&&(e+=this.coordAdjust.left,t+=this.coordAdjust.top),this.component.queryHit(e,t)}}),ct=be.extend({options:null,sourceEl:null,el:null,parentEl:null,top0:null,left0:null,mouseY0:null,mouseX0:null,topDelta:null,leftDelta:null,mousemoveProxy:null,isFollowing:!1,isHidden:!1,isAnimating:!1,constructor:function(t,n){this.options=n=n||{},this.sourceEl=t,this.parentEl=n.parentEl?e(n.parentEl):t.parent()},start:function(t){this.isFollowing||(this.isFollowing=!0,this.mouseY0=t.pageY,this.mouseX0=t.pageX,this.topDelta=0,this.leftDelta=0,this.isHidden||this.updatePosition(),e(document).on("mousemove",this.mousemoveProxy=ne(this,"mousemove")))},stop:function(t,n){function i(){this.isAnimating=!1,r.removeElement(),this.top0=this.left0=null,n&&n()}var r=this,o=this.options.revertDuration;this.isFollowing&&!this.isAnimating&&(this.isFollowing=!1,e(document).off("mousemove",this.mousemoveProxy),t&&o&&!this.isHidden?(this.isAnimating=!0,this.el.animate({top:this.top0,left:this.left0},{duration:o,complete:i})):i())},getEl:function(){var e=this.el;return e||(this.sourceEl.width(),e=this.el=this.sourceEl.clone().css({position:"absolute",visibility:"",display:this.isHidden?"none":"",margin:0,right:"auto",bottom:"auto",width:this.sourceEl.width(),height:this.sourceEl.height(),opacity:this.options.opacity||"",zIndex:this.options.zIndex}).appendTo(this.parentEl)),e},removeElement:function(){this.el&&(this.el.remove(),this.el=null)},updatePosition:function(){var e,t;this.getEl(),null===this.top0&&(this.sourceEl.width(),e=this.sourceEl.offset(),t=this.el.offsetParent().offset(),this.top0=e.top-t.top,this.left0=e.left-t.left),this.el.css({top:this.top0+this.topDelta,left:this.left0+this.leftDelta})},mousemove:function(e){this.topDelta=e.pageY-this.mouseY0,this.leftDelta=e.pageX-this.mouseX0,this.isHidden||this.updatePosition()},hide:function(){this.isHidden||(this.isHidden=!0,this.el&&this.el.hide())},show:function(){this.isHidden&&(this.isHidden=!1,this.updatePosition(),this.getEl().show())}}),ut=Ge.Grid=be.extend({view:null,isRTL:null,start:null,end:null,el:null,elsByFill:null,externalDragStartProxy:null,eventTimeFormat:null,displayEventTime:null,displayEventEnd:null,minResizeDuration:null,largeUnit:null,constructor:function(e){this.view=e,this.isRTL=e.opt("isRTL"),this.elsByFill={},this.externalDragStartProxy=ne(this,"externalDragStart")},computeEventTimeFormat:function(){return this.view.opt("smallTimeFormat")},computeDisplayEventTime:function(){return!0},computeDisplayEventEnd:function(){return!0},setRange:function(e){this.start=e.start.clone(),this.end=e.end.clone(),this.rangeUpdated(),this.processRangeOptions()},rangeUpdated:function(){},processRangeOptions:function(){var e,t,n=this.view;this.eventTimeFormat=n.opt("eventTimeFormat")||n.opt("timeFormat")||this.computeEventTimeFormat(),e=n.opt("displayEventTime"),null==e&&(e=this.computeDisplayEventTime()),t=n.opt("displayEventEnd"),null==t&&(t=this.computeDisplayEventEnd()),this.displayEventTime=e,this.displayEventEnd=t},spanToSegs:function(e){},diffDates:function(e,t){return this.largeUnit?L(e,t,this.largeUnit):z(e,t)},prepareHits:function(){},releaseHits:function(){},queryHit:function(e,t){},getHitSpan:function(e){},getHitEl:function(e){},setElement:function(t){var n=this;this.el=t,t.on("mousedown",function(t){e(t.target).is(".fc-event-container *, .fc-more")||e(t.target).closest(".fc-popover").length||n.dayMousedown(t)}),this.bindSegHandlers(),this.bindGlobalHandlers()},removeElement:function(){this.unbindGlobalHandlers(),this.el.remove()},renderSkeleton:function(){},renderDates:function(){},unrenderDates:function(){},bindGlobalHandlers:function(){e(document).on("dragstart sortstart",this.externalDragStartProxy)},unbindGlobalHandlers:function(){e(document).off("dragstart sortstart",this.externalDragStartProxy)},dayMousedown:function(e){var t,n,i=this,r=this.view,o=r.opt("selectable"),l=new lt(this,{scroll:r.opt("dragScroll"),dragStart:function(){r.unselect()},hitOver:function(e,r,s){s&&(t=r?e:null,o&&(n=i.computeSelection(i.getHitSpan(s),i.getHitSpan(e)),n?i.renderSelection(n):n===!1&&a()))},hitOut:function(){t=null,n=null,i.unrenderSelection(),s()},listenStop:function(e){t&&r.triggerDayClick(i.getHitSpan(t),i.getHitEl(t),e),n&&r.reportSelection(n,e),s()}});l.mousedown(e)},renderEventLocationHelper:function(e,t){var n=this.fabricateHelperEvent(e,t);this.renderHelper(n,t)},fabricateHelperEvent:function(e,t){var n=t?W(t.event):{};return n.start=e.start.clone(),n.end=e.end?e.end.clone():null,n.allDay=null,this.view.calendar.normalizeEventDates(n),n.className=(n.className||[]).concat("fc-helper"),t||(n.editable=!1),n},renderHelper:function(e,t){},unrenderHelper:function(){},renderSelection:function(e){this.renderHighlight(e)},unrenderSelection:function(){this.unrenderHighlight()},computeSelection:function(e,t){var n=this.computeSelectionSpan(e,t);return n&&!this.view.calendar.isSelectionSpanAllowed(n)?!1:n},computeSelectionSpan:function(e,t){var n=[e.start,e.end,t.start,t.end];return n.sort(ee),{start:n[0].clone(),end:n[3].clone()}},renderHighlight:function(e){this.renderFill("highlight",this.spanToSegs(e))},unrenderHighlight:function(){this.unrenderFill("highlight")},highlightSegClasses:function(){return["fc-highlight"]},renderBusinessHours:function(){},unrenderBusinessHours:function(){},getNowIndicatorUnit:function(){},renderNowIndicator:function(e){},unrenderNowIndicator:function(){},renderFill:function(e,t){},unrenderFill:function(e){var t=this.elsByFill[e];t&&(t.remove(),delete this.elsByFill[e])},renderFillSegEls:function(t,n){var i,r=this,o=this[t+"SegEl"],a="",s=[];if(n.length){for(i=0;i<n.length;i++)a+=this.fillSegHtml(t,n[i]);e(a).each(function(t,i){var a=n[t],l=e(i);o&&(l=o.call(r,a,l)),l&&(l=e(l),l.is(r.fillSegTag)&&(a.el=l,s.push(a)))})}return s},fillSegTag:"div",fillSegHtml:function(e,t){var n=this[e+"SegClasses"],i=this[e+"SegCss"],r=n?n.call(this,t):[],o=$(i?i.call(this,t):{});return"<"+this.fillSegTag+(r.length?' class="'+r.join(" ")+'"':"")+(o?' style="'+o+'"':"")+" />"},getDayClasses:function(e){var t=this.view,n=t.calendar.getNow(),i=["fc-"+qe[e.day()]];return 1==t.intervalDuration.as("months")&&e.month()!=t.intervalStart.month()&&i.push("fc-other-month"),e.isSame(n,"day")?i.push("fc-today",t.highlightStateClass):n>e?i.push("fc-past"):i.push("fc-future"),i}});ut.mixin({mousedOverSeg:null,isDraggingSeg:!1,isResizingSeg:!1,isDraggingExternal:!1,segs:null,renderEvents:function(e){var t,n=[],i=[];for(t=0;t<e.length;t++)(Se(e[t])?n:i).push(e[t]);this.segs=[].concat(this.renderBgEvents(n),this.renderFgEvents(i))},renderBgEvents:function(e){var t=this.eventsToSegs(e);return this.renderBgSegs(t)||t},renderFgEvents:function(e){var t=this.eventsToSegs(e);return this.renderFgSegs(t)||t},unrenderEvents:function(){this.triggerSegMouseout(),this.unrenderFgSegs(),this.unrenderBgSegs(),this.segs=null},getEventSegs:function(){return this.segs||[]},renderFgSegs:function(e){},unrenderFgSegs:function(){},renderFgSegEls:function(t,n){var i,r=this.view,o="",a=[];if(t.length){for(i=0;i<t.length;i++)o+=this.fgSegHtml(t[i],n);e(o).each(function(n,i){var o=t[n],s=r.resolveEventEl(o.event,e(i));s&&(s.data("fc-seg",o),o.el=s,a.push(o))})}return a},fgSegHtml:function(e,t){},renderBgSegs:function(e){return this.renderFill("bgEvent",e)},unrenderBgSegs:function(){this.unrenderFill("bgEvent")},bgEventSegEl:function(e,t){return this.view.resolveEventEl(e.event,t)},bgEventSegClasses:function(e){var t=e.event,n=t.source||{};return["fc-bgevent"].concat(t.className,n.className||[])},bgEventSegCss:function(e){var t=this.view,n=e.event,i=n.source||{};return{"background-color":n.backgroundColor||n.color||i.backgroundColor||i.color||t.opt("eventBackgroundColor")||t.opt("eventColor")}},businessHoursSegClasses:function(e){return["fc-nonbusiness","fc-bgevent"]},bindSegHandlers:function(){var t=this,n=this.view;e.each({mouseenter:function(e,n){t.triggerSegMouseover(e,n)},mouseleave:function(e,n){t.triggerSegMouseout(e,n)},click:function(e,t){return n.trigger("eventClick",this,e.event,t)},mousedown:function(i,r){e(r.target).is(".fc-resizer")&&n.isEventResizable(i.event)?t.segResizeMousedown(i,r,e(r.target).is(".fc-start-resizer")):n.isEventDraggable(i.event)&&t.segDragMousedown(i,r)}},function(n,i){t.el.on(n,".fc-event-container > *",function(n){var r=e(this).data("fc-seg");return!r||t.isDraggingSeg||t.isResizingSeg?void 0:i.call(this,r,n)})})},triggerSegMouseover:function(e,t){this.mousedOverSeg||(this.mousedOverSeg=e,this.view.trigger("eventMouseover",e.el[0],e.event,t))},triggerSegMouseout:function(e,t){t=t||{},this.mousedOverSeg&&(e=e||this.mousedOverSeg,this.mousedOverSeg=null,this.view.trigger("eventMouseout",e.el[0],e.event,t))},segDragMousedown:function(e,t){var n,i=this,r=this.view,o=r.calendar,l=e.el,c=e.event,u=new ct(e.el,{parentEl:r.el,opacity:r.opt("dragOpacity"),revertDuration:r.opt("dragRevertDuration"),zIndex:2}),d=new lt(r,{distance:5,scroll:r.opt("dragScroll"),subjectEl:l,subjectCenter:!0,listenStart:function(e){u.hide(),u.start(e)},dragStart:function(t){i.triggerSegMouseout(e,t),i.segDragStart(e,t),r.hideEvent(c)},hitOver:function(t,s,l){e.hit&&(l=e.hit),n=i.computeEventDrop(l.component.getHitSpan(l),t.component.getHitSpan(t),c),n&&!o.isEventSpanAllowed(i.eventToSpan(n),c)&&(a(),n=null),n&&r.renderDrag(n,e)?u.hide():u.show(),s&&(n=null)},hitOut:function(){r.unrenderDrag(),u.show(),n=null},hitDone:function(){s()},dragStop:function(t){u.stop(!n,function(){r.unrenderDrag(),r.showEvent(c),i.segDragStop(e,t),n&&r.reportEventDrop(c,n,this.largeUnit,l,t)})},listenStop:function(){u.stop()}});d.mousedown(t)},segDragStart:function(e,t){this.isDraggingSeg=!0,this.view.trigger("eventDragStart",e.el[0],e.event,t,{})},segDragStop:function(e,t){this.isDraggingSeg=!1,this.view.trigger("eventDragStop",e.el[0],e.event,t,{})},computeEventDrop:function(e,t,n){var i,r,o=this.view.calendar,a=e.start,s=t.start;return a.hasTime()===s.hasTime()?(i=this.diffDates(s,a),n.allDay&&Y(i)?(r={start:n.start.clone(),end:o.getEventEnd(n),allDay:!1},o.normalizeEventTimes(r)):r={start:n.start.clone(),end:n.end?n.end.clone():null,allDay:n.allDay},r.start.add(i),r.end&&r.end.add(i)):r={start:s.clone(),end:null,allDay:!s.hasTime()},r},applyDragOpacity:function(e){var t=this.view.opt("dragOpacity");null!=t&&e.each(function(e,n){n.style.opacity=t})},externalDragStart:function(t,n){var i,r,o=this.view;o.opt("droppable")&&(i=e((n?n.item:null)||t.target),r=o.opt("dropAccept"),(e.isFunction(r)?r.call(i[0],i):i.is(r))&&(this.isDraggingExternal||this.listenToExternalDrag(i,t,n)))},listenToExternalDrag:function(e,t,n){var i,r=this,o=this.view.calendar,l=Me(e),c=new lt(this,{listenStart:function(){r.isDraggingExternal=!0},hitOver:function(e){i=r.computeExternalDrop(e.component.getHitSpan(e),l),i&&!o.isExternalSpanAllowed(r.eventToSpan(i),i,l.eventProps)&&(a(),i=null),i&&r.renderDrag(i)},hitOut:function(){i=null},hitDone:function(){s(),r.unrenderDrag()},dragStop:function(){i&&r.view.reportExternalDrop(l,i,e,t,n)},listenStop:function(){r.isDraggingExternal=!1}});c.startDrag(t)},computeExternalDrop:function(e,t){var n=this.view.calendar,i={start:n.applyTimezone(e.start),end:null};return t.startTime&&!i.start.hasTime()&&i.start.time(t.startTime),t.duration&&(i.end=i.start.clone().add(t.duration)),i},renderDrag:function(e,t){},unrenderDrag:function(){},segResizeMousedown:function(e,t,n){var i,r=this,o=this.view,l=o.calendar,c=e.el,u=e.event,d=l.getEventEnd(u),f=new lt(this,{distance:5,scroll:o.opt("dragScroll"),subjectEl:c,dragStart:function(t){r.triggerSegMouseout(e,t),r.segResizeStart(e,t)},hitOver:function(t,s,c){var f=r.getHitSpan(c),h=r.getHitSpan(t);i=n?r.computeEventStartResize(f,h,u):r.computeEventEndResize(f,h,u),i&&(l.isEventSpanAllowed(r.eventToSpan(i),u)?i.start.isSame(u.start)&&i.end.isSame(d)&&(i=null):(a(),i=null)),i&&(o.hideEvent(u),r.renderEventResize(i,e))},hitOut:function(){i=null},hitDone:function(){r.unrenderEventResize(),o.showEvent(u),s()},dragStop:function(t){r.segResizeStop(e,t),i&&o.reportEventResize(u,i,this.largeUnit,c,t)}});f.mousedown(t)},segResizeStart:function(e,t){this.isResizingSeg=!0,this.view.trigger("eventResizeStart",e.el[0],e.event,t,{})},segResizeStop:function(e,t){this.isResizingSeg=!1,this.view.trigger("eventResizeStop",e.el[0],e.event,t,{})},computeEventStartResize:function(e,t,n){return this.computeEventResize("start",e,t,n)},computeEventEndResize:function(e,t,n){return this.computeEventResize("end",e,t,n)},computeEventResize:function(e,t,n,i){var r,o,a=this.view.calendar,s=this.diffDates(n[e],t[e]);return r={start:i.start.clone(),end:a.getEventEnd(i),allDay:i.allDay},r.allDay&&Y(s)&&(r.allDay=!1,a.normalizeEventTimes(r)),r[e].add(s),r.start.isBefore(r.end)||(o=this.minResizeDuration||(i.allDay?a.defaultAllDayEventDuration:a.defaultTimedEventDuration),"start"==e?r.start=r.end.clone().subtract(o):r.end=r.start.clone().add(o)),r},renderEventResize:function(e,t){},unrenderEventResize:function(){},getEventTimeText:function(e,t,n){return null==t&&(t=this.eventTimeFormat),null==n&&(n=this.displayEventEnd),this.displayEventTime&&e.start.hasTime()?n&&e.end?this.view.formatRange(e,t):e.start.format(t):""},getSegClasses:function(e,t,n){var i=e.event,r=["fc-event",e.isStart?"fc-start":"fc-not-start",e.isEnd?"fc-end":"fc-not-end"].concat(i.className,i.source?i.source.className:[]);return t&&r.push("fc-draggable"),n&&r.push("fc-resizable"),r},getEventSkinCss:function(e){var t=this.view,n=e.source||{},i=e.color,r=n.color,o=t.opt("eventColor");return{"background-color":e.backgroundColor||i||n.backgroundColor||r||t.opt("eventBackgroundColor")||o,"border-color":e.borderColor||i||n.borderColor||r||t.opt("eventBorderColor")||o,color:e.textColor||n.textColor||t.opt("eventTextColor")}},eventToSegs:function(e){return this.eventsToSegs([e])},eventToSpan:function(e){return this.eventToSpans(e)[0]},eventToSpans:function(e){var t=this.eventToRange(e);return this.eventRangeToSpans(t,e)},eventsToSegs:function(t,n){var i=this,r=xe(t),o=[];return e.each(r,function(e,t){var r,a=[];for(r=0;r<t.length;r++)a.push(i.eventToRange(t[r]));if(ke(t[0]))for(a=i.invertRanges(a),r=0;r<a.length;r++)o.push.apply(o,i.eventRangeToSegs(a[r],t[0],n));else for(r=0;r<a.length;r++)o.push.apply(o,i.eventRangeToSegs(a[r],t[r],n))}),o},eventToRange:function(e){return{start:e.start.clone().stripZone(),end:(e.end?e.end.clone():this.view.calendar.getDefaultEventEnd(null!=e.allDay?e.allDay:!e.start.hasTime(),e.start)).stripZone()}},eventRangeToSegs:function(e,t,n){var i,r=this.eventRangeToSpans(e,t),o=[];for(i=0;i<r.length;i++)o.push.apply(o,this.eventSpanToSegs(r[i],t,n));return o},eventRangeToSpans:function(t,n){return[e.extend({},t)]},eventSpanToSegs:function(e,t,n){var i,r,o=n?n(e):this.spanToSegs(e);for(i=0;i<o.length;i++)r=o[i],r.event=t,r.eventStartMS=+e.start,r.eventDurationMS=e.end-e.start;return o},invertRanges:function(e){var t,n,i=this.view,r=i.start.clone(),o=i.end.clone(),a=[],s=r;for(e.sort(Ee),t=0;t<e.length;t++)n=e[t],n.start>s&&a.push({start:s,end:n.start}),s=n.end;return o>s&&a.push({start:s,end:o}),a},sortEventSegs:function(e){e.sort(ne(this,"compareEventSegs"))},compareEventSegs:function(e,t){return e.eventStartMS-t.eventStartMS||t.eventDurationMS-e.eventDurationMS||t.event.allDay-e.event.allDay||M(e.event,t.event,this.view.eventOrderSpecs)}}),Ge.isBgEvent=Se,Ge.dataAttrPrefix="";var dt=Ge.DayTableMixin={breakOnWeeks:!1,dayDates:null,dayIndices:null,daysPerRow:null,rowCnt:null,colCnt:null,colHeadFormat:null,updateDayTable:function(){for(var e,t,n,i=this.view,r=this.start.clone(),o=-1,a=[],s=[];r.isBefore(this.end);)i.isHiddenDay(r)?a.push(o+.5):(o++,a.push(o),s.push(r.clone())),r.add(1,"days");if(this.breakOnWeeks){for(t=s[0].day(),e=1;e<s.length&&s[e].day()!=t;e++);n=Math.ceil(s.length/e)}else n=1,e=s.length;this.dayDates=s,this.dayIndices=a,this.daysPerRow=e,this.rowCnt=n,this.updateDayTableCols()},updateDayTableCols:function(){this.colCnt=this.computeColCnt(),this.colHeadFormat=this.view.opt("columnFormat")||this.computeColHeadFormat()},computeColCnt:function(){return this.daysPerRow},getCellDate:function(e,t){return this.dayDates[this.getCellDayIndex(e,t)].clone()},getCellRange:function(e,t){var n=this.getCellDate(e,t),i=n.clone().add(1,"days");return{start:n,end:i}},getCellDayIndex:function(e,t){return e*this.daysPerRow+this.getColDayIndex(t)},getColDayIndex:function(e){return this.isRTL?this.colCnt-1-e:e},getDateDayIndex:function(e){var t=this.dayIndices,n=e.diff(this.start,"days");return 0>n?t[0]-1:n>=t.length?t[t.length-1]+1:t[n]},computeColHeadFormat:function(){return this.rowCnt>1||this.colCnt>10?"ddd":this.colCnt>1?this.view.opt("dayOfMonthFormat"):"dddd"},sliceRangeByRow:function(e){var t,n,i,r,o,a=this.daysPerRow,s=this.view.computeDayRange(e),l=this.getDateDayIndex(s.start),c=this.getDateDayIndex(s.end.clone().subtract(1,"days")),u=[];for(t=0;t<this.rowCnt;t++)n=t*a,i=n+a-1,r=Math.max(l,n),o=Math.min(c,i),r=Math.ceil(r),o=Math.floor(o),o>=r&&u.push({row:t,firstRowDayIndex:r-n,lastRowDayIndex:o-n,isStart:r===l,isEnd:o===c});return u},sliceRangeByDay:function(e){var t,n,i,r,o,a,s=this.daysPerRow,l=this.view.computeDayRange(e),c=this.getDateDayIndex(l.start),u=this.getDateDayIndex(l.end.clone().subtract(1,"days")),d=[];for(t=0;t<this.rowCnt;t++)for(n=t*s,i=n+s-1,r=n;i>=r;r++)o=Math.max(c,r),a=Math.min(u,r),o=Math.ceil(o),a=Math.floor(a),a>=o&&d.push({row:t,firstRowDayIndex:o-n,lastRowDayIndex:a-n,isStart:o===c,isEnd:a===u});return d},renderHeadHtml:function(){var e=this.view;return'<div class="fc-row '+e.widgetHeaderClass+'"><table><thead>'+this.renderHeadTrHtml()+"</thead></table></div>"},renderHeadIntroHtml:function(){return this.renderIntroHtml()},renderHeadTrHtml:function(){return"<tr>"+(this.isRTL?"":this.renderHeadIntroHtml())+this.renderHeadDateCellsHtml()+(this.isRTL?this.renderHeadIntroHtml():"")+"</tr>"},renderHeadDateCellsHtml:function(){var e,t,n=[];for(e=0;e<this.colCnt;e++)t=this.getCellDate(0,e),n.push(this.renderHeadDateCellHtml(t));return n.join("")},renderHeadDateCellHtml:function(e,t,n){var i=this.view;return'<th class="fc-day-header '+i.widgetHeaderClass+" fc-"+qe[e.day()]+'"'+(1==this.rowCnt?' data-date="'+e.format("YYYY-MM-DD")+'"':"")+(t>1?' colspan="'+t+'"':"")+(n?" "+n:"")+">"+Z(e.format(this.colHeadFormat))+"</th>"},renderBgTrHtml:function(e){return"<tr>"+(this.isRTL?"":this.renderBgIntroHtml(e))+this.renderBgCellsHtml(e)+(this.isRTL?this.renderBgIntroHtml(e):"")+"</tr>"},renderBgIntroHtml:function(e){return this.renderIntroHtml()},renderBgCellsHtml:function(e){var t,n,i=[];for(t=0;t<this.colCnt;t++)n=this.getCellDate(e,t),i.push(this.renderBgCellHtml(n));return i.join("")},renderBgCellHtml:function(e,t){var n=this.view,i=this.getDayClasses(e);return i.unshift("fc-day",n.widgetContentClass),'<td class="'+i.join(" ")+'" data-date="'+e.format("YYYY-MM-DD")+'"'+(t?" "+t:"")+"></td>"},renderIntroHtml:function(){},bookendCells:function(e){var t=this.renderIntroHtml();t&&(this.isRTL?e.append(t):e.prepend(t))}},ft=Ge.DayGrid=ut.extend(dt,{numbersVisible:!1,bottomCoordPadding:0,rowEls:null,cellEls:null,helperEls:null,rowCoordCache:null,colCoordCache:null,renderDates:function(e){var t,n,i=this.view,r=this.rowCnt,o=this.colCnt,a="";for(t=0;r>t;t++)a+=this.renderDayRowHtml(t,e);for(this.el.html(a),this.rowEls=this.el.find(".fc-row"),this.cellEls=this.el.find(".fc-day"),this.rowCoordCache=new at({els:this.rowEls,isVertical:!0}),this.colCoordCache=new at({els:this.cellEls.slice(0,this.colCnt),isHorizontal:!0}),t=0;r>t;t++)for(n=0;o>n;n++)i.trigger("dayRender",null,this.getCellDate(t,n),this.getCellEl(t,n))},unrenderDates:function(){this.removeSegPopover()},renderBusinessHours:function(){var e=this.view.calendar.getBusinessHoursEvents(!0),t=this.eventsToSegs(e);this.renderFill("businessHours",t,"bgevent")},renderDayRowHtml:function(e,t){var n=this.view,i=["fc-row","fc-week",n.widgetContentClass];return t&&i.push("fc-rigid"),'<div class="'+i.join(" ")+'"><div class="fc-bg"><table>'+this.renderBgTrHtml(e)+'</table></div><div class="fc-content-skeleton"><table>'+(this.numbersVisible?"<thead>"+this.renderNumberTrHtml(e)+"</thead>":"")+"</table></div></div>"},renderNumberTrHtml:function(e){return"<tr>"+(this.isRTL?"":this.renderNumberIntroHtml(e))+this.renderNumberCellsHtml(e)+(this.isRTL?this.renderNumberIntroHtml(e):"")+"</tr>"},renderNumberIntroHtml:function(e){return this.renderIntroHtml()},renderNumberCellsHtml:function(e){var t,n,i=[];for(t=0;t<this.colCnt;t++)n=this.getCellDate(e,t),i.push(this.renderNumberCellHtml(n));return i.join("")},renderNumberCellHtml:function(e){var t;return this.view.dayNumbersVisible?(t=this.getDayClasses(e),t.unshift("fc-day-number"),'<td class="'+t.join(" ")+'" data-date="'+e.format()+'">'+e.date()+"</td>"):"<td/>"},computeEventTimeFormat:function(){return this.view.opt("extraSmallTimeFormat")},computeDisplayEventEnd:function(){return 1==this.colCnt},rangeUpdated:function(){this.updateDayTable()},spanToSegs:function(e){var t,n,i=this.sliceRangeByRow(e);for(t=0;t<i.length;t++)n=i[t],this.isRTL?(n.leftCol=this.daysPerRow-1-n.lastRowDayIndex,n.rightCol=this.daysPerRow-1-n.firstRowDayIndex):(n.leftCol=n.firstRowDayIndex,n.rightCol=n.lastRowDayIndex);return i},prepareHits:function(){this.colCoordCache.build(),this.rowCoordCache.build(),this.rowCoordCache.bottoms[this.rowCnt-1]+=this.bottomCoordPadding},releaseHits:function(){this.colCoordCache.clear(),this.rowCoordCache.clear()},queryHit:function(e,t){var n=this.colCoordCache.getHorizontalIndex(e),i=this.rowCoordCache.getVerticalIndex(t);return null!=i&&null!=n?this.getCellHit(i,n):void 0},getHitSpan:function(e){return this.getCellRange(e.row,e.col)},getHitEl:function(e){return this.getCellEl(e.row,e.col)},getCellHit:function(e,t){return{row:e,col:t,component:this,left:this.colCoordCache.getLeftOffset(t),right:this.colCoordCache.getRightOffset(t),top:this.rowCoordCache.getTopOffset(e),bottom:this.rowCoordCache.getBottomOffset(e)}},getCellEl:function(e,t){return this.cellEls.eq(e*this.colCnt+t)},renderDrag:function(e,t){return this.renderHighlight(this.eventToSpan(e)),t&&!t.el.closest(this.el).length?(this.renderEventLocationHelper(e,t),this.applyDragOpacity(this.helperEls),!0):void 0},unrenderDrag:function(){this.unrenderHighlight(),this.unrenderHelper()},renderEventResize:function(e,t){this.renderHighlight(this.eventToSpan(e)),this.renderEventLocationHelper(e,t)},unrenderEventResize:function(){this.unrenderHighlight(),this.unrenderHelper()},renderHelper:function(t,n){var i,r=[],o=this.eventToSegs(t);o=this.renderFgSegEls(o),i=this.renderSegRows(o),this.rowEls.each(function(t,o){var a,s=e(o),l=e('<div class="fc-helper-skeleton"><table/></div>');a=n&&n.row===t?n.el.position().top:s.find(".fc-content-skeleton tbody").position().top,l.css("top",a).find("table").append(i[t].tbodyEl),s.append(l),r.push(l[0])}),this.helperEls=e(r)},unrenderHelper:function(){this.helperEls&&(this.helperEls.remove(),this.helperEls=null)},fillSegTag:"td",renderFill:function(t,n,i){var r,o,a,s=[];for(n=this.renderFillSegEls(t,n),r=0;r<n.length;r++)o=n[r],a=this.renderFillRow(t,o,i),this.rowEls.eq(o.row).append(a),s.push(a[0]);return this.elsByFill[t]=e(s),n},renderFillRow:function(t,n,i){var r,o,a=this.colCnt,s=n.leftCol,l=n.rightCol+1;return i=i||t.toLowerCase(),r=e('<div class="fc-'+i+'-skeleton"><table><tr/></table></div>'),o=r.find("tr"),s>0&&o.append('<td colspan="'+s+'"/>'),o.append(n.el.attr("colspan",l-s)),a>l&&o.append('<td colspan="'+(a-l)+'"/>'),this.bookendCells(o),r}});ft.mixin({rowStructs:null,unrenderEvents:function(){this.removeSegPopover(),ut.prototype.unrenderEvents.apply(this,arguments)},getEventSegs:function(){return ut.prototype.getEventSegs.call(this).concat(this.popoverSegs||[])},renderBgSegs:function(t){var n=e.grep(t,function(e){return e.event.allDay});return ut.prototype.renderBgSegs.call(this,n)},renderFgSegs:function(t){var n;return t=this.renderFgSegEls(t),n=this.rowStructs=this.renderSegRows(t),this.rowEls.each(function(t,i){e(i).find(".fc-content-skeleton > table").append(n[t].tbodyEl)}),t},unrenderFgSegs:function(){for(var e,t=this.rowStructs||[];e=t.pop();)e.tbodyEl.remove();this.rowStructs=null},renderSegRows:function(e){var t,n,i=[];for(t=this.groupSegRows(e),n=0;n<t.length;n++)i.push(this.renderSegRow(n,t[n]));return i},fgSegHtml:function(e,t){
-var n,i,r=this.view,o=e.event,a=r.isEventDraggable(o),s=!t&&o.allDay&&e.isStart&&r.isEventResizableFromStart(o),l=!t&&o.allDay&&e.isEnd&&r.isEventResizableFromEnd(o),c=this.getSegClasses(e,a,s||l),u=$(this.getEventSkinCss(o)),d="";return c.unshift("fc-day-grid-event","fc-h-event"),e.isStart&&(n=this.getEventTimeText(o),n&&(d='<span class="fc-time">'+Z(n)+"</span>")),i='<span class="fc-title">'+(Z(o.title||"")||"&nbsp;")+"</span>",'<a class="'+c.join(" ")+'"'+(o.url?' href="'+Z(o.url)+'"':"")+(u?' style="'+u+'"':"")+'><div class="fc-content">'+(this.isRTL?i+" "+d:d+" "+i)+"</div>"+(s?'<div class="fc-resizer fc-start-resizer" />':"")+(l?'<div class="fc-resizer fc-end-resizer" />':"")+"</a>"},renderSegRow:function(t,n){function i(t){for(;t>a;)u=(b[r-1]||[])[a],u?u.attr("rowspan",parseInt(u.attr("rowspan")||1,10)+1):(u=e("<td/>"),s.append(u)),g[r][a]=u,b[r][a]=u,a++}var r,o,a,s,l,c,u,d=this.colCnt,f=this.buildSegLevels(n),h=Math.max(1,f.length),p=e("<tbody/>"),m=[],g=[],b=[];for(r=0;h>r;r++){if(o=f[r],a=0,s=e("<tr/>"),m.push([]),g.push([]),b.push([]),o)for(l=0;l<o.length;l++){for(c=o[l],i(c.leftCol),u=e('<td class="fc-event-container"/>').append(c.el),c.leftCol!=c.rightCol?u.attr("colspan",c.rightCol-c.leftCol+1):b[r][a]=u;a<=c.rightCol;)g[r][a]=u,m[r][a]=c,a++;s.append(u)}i(d),this.bookendCells(s),p.append(s)}return{row:t,tbodyEl:p,cellMatrix:g,segMatrix:m,segLevels:f,segs:n}},buildSegLevels:function(e){var t,n,i,r=[];for(this.sortEventSegs(e),t=0;t<e.length;t++){for(n=e[t],i=0;i<r.length&&_e(n,r[i]);i++);n.level=i,(r[i]||(r[i]=[])).push(n)}for(i=0;i<r.length;i++)r[i].sort(Ce);return r},groupSegRows:function(e){var t,n=[];for(t=0;t<this.rowCnt;t++)n.push([]);for(t=0;t<e.length;t++)n[e[t].row].push(e[t]);return n}}),ft.mixin({segPopover:null,popoverSegs:null,removeSegPopover:function(){this.segPopover&&this.segPopover.hide()},limitRows:function(e){var t,n,i=this.rowStructs||[];for(t=0;t<i.length;t++)this.unlimitRow(t),n=e?"number"==typeof e?e:this.computeRowLevelLimit(t):!1,n!==!1&&this.limitRow(t,n)},computeRowLevelLimit:function(t){function n(t,n){o=Math.max(o,e(n).outerHeight())}var i,r,o,a=this.rowEls.eq(t),s=a.height(),l=this.rowStructs[t].tbodyEl.children();for(i=0;i<l.length;i++)if(r=l.eq(i).removeClass("fc-limited"),o=0,r.find("> td > :first-child").each(n),r.position().top+o>s)return i;return!1},limitRow:function(t,n){function i(i){for(;i>S;)c=y.getCellSegs(t,S,n),c.length&&(f=o[n-1][S],v=y.renderMoreLink(t,S,c),b=e("<div/>").append(v),f.append(b),A.push(b[0])),S++}var r,o,a,s,l,c,u,d,f,h,p,m,g,b,v,y=this,w=this.rowStructs[t],A=[],S=0;if(n&&n<w.segLevels.length){for(r=w.segLevels[n-1],o=w.cellMatrix,a=w.tbodyEl.children().slice(n).addClass("fc-limited").get(),s=0;s<r.length;s++){for(l=r[s],i(l.leftCol),d=[],u=0;S<=l.rightCol;)c=this.getCellSegs(t,S,n),d.push(c),u+=c.length,S++;if(u){for(f=o[n-1][l.leftCol],h=f.attr("rowspan")||1,p=[],m=0;m<d.length;m++)g=e('<td class="fc-more-cell"/>').attr("rowspan",h),c=d[m],v=this.renderMoreLink(t,l.leftCol+m,[l].concat(c)),b=e("<div/>").append(v),g.append(b),p.push(g[0]),A.push(g[0]);f.addClass("fc-limited").after(e(p)),a.push(f[0])}}i(this.colCnt),w.moreEls=e(A),w.limitedEls=e(a)}},unlimitRow:function(e){var t=this.rowStructs[e];t.moreEls&&(t.moreEls.remove(),t.moreEls=null),t.limitedEls&&(t.limitedEls.removeClass("fc-limited"),t.limitedEls=null)},renderMoreLink:function(t,n,i){var r=this,o=this.view;return e('<a class="fc-more"/>').text(this.getMoreLinkText(i.length)).on("click",function(a){var s=o.opt("eventLimitClick"),l=r.getCellDate(t,n),c=e(this),u=r.getCellEl(t,n),d=r.getCellSegs(t,n),f=r.resliceDaySegs(d,l),h=r.resliceDaySegs(i,l);"function"==typeof s&&(s=o.trigger("eventLimitClick",null,{date:l,dayEl:u,moreEl:c,segs:f,hiddenSegs:h},a)),"popover"===s?r.showSegPopover(t,n,c,f):"string"==typeof s&&o.calendar.zoomTo(l,s)})},showSegPopover:function(e,t,n,i){var r,o,a=this,s=this.view,l=n.parent();r=1==this.rowCnt?s.el:this.rowEls.eq(e),o={className:"fc-more-popover",content:this.renderSegPopoverContent(e,t,i),parentEl:this.el,top:r.offset().top,autoHide:!0,viewportConstrain:s.opt("popoverViewportConstrain"),hide:function(){a.segPopover.removeElement(),a.segPopover=null,a.popoverSegs=null}},this.isRTL?o.right=l.offset().left+l.outerWidth()+1:o.left=l.offset().left-1,this.segPopover=new ot(o),this.segPopover.show()},renderSegPopoverContent:function(t,n,i){var r,o=this.view,a=o.opt("theme"),s=this.getCellDate(t,n).format(o.opt("dayPopoverFormat")),l=e('<div class="fc-header '+o.widgetHeaderClass+'"><span class="fc-close '+(a?"ui-icon ui-icon-closethick":"fc-icon fc-icon-x")+'"></span><span class="fc-title">'+Z(s)+'</span><div class="fc-clear"/></div><div class="fc-body '+o.widgetContentClass+'"><div class="fc-event-container"></div></div>'),c=l.find(".fc-event-container");for(i=this.renderFgSegEls(i,!0),this.popoverSegs=i,r=0;r<i.length;r++)this.prepareHits(),i[r].hit=this.getCellHit(t,n),this.releaseHits(),c.append(i[r].el);return l},resliceDaySegs:function(t,n){var i=e.map(t,function(e){return e.event}),r=n.clone(),o=r.clone().add(1,"days"),a={start:r,end:o};return t=this.eventsToSegs(i,function(e){var t=D(e,a);return t?[t]:[]}),this.sortEventSegs(t),t},getMoreLinkText:function(e){var t=this.view.opt("eventLimitText");return"function"==typeof t?t(e):"+"+e+" "+t},getCellSegs:function(e,t,n){for(var i,r=this.rowStructs[e].segMatrix,o=n||0,a=[];o<r.length;)i=r[o][t],i&&a.push(i),o++;return a}});var ht=Ge.TimeGrid=ut.extend(dt,{slotDuration:null,snapDuration:null,snapsPerSlot:null,minTime:null,maxTime:null,labelFormat:null,labelInterval:null,colEls:null,slatEls:null,nowIndicatorEls:null,colCoordCache:null,slatCoordCache:null,constructor:function(){ut.apply(this,arguments),this.processOptions()},renderDates:function(){this.el.html(this.renderHtml()),this.colEls=this.el.find(".fc-day"),this.slatEls=this.el.find(".fc-slats tr"),this.colCoordCache=new at({els:this.colEls,isHorizontal:!0}),this.slatCoordCache=new at({els:this.slatEls,isVertical:!0}),this.renderContentSkeleton()},renderHtml:function(){return'<div class="fc-bg"><table>'+this.renderBgTrHtml(0)+'</table></div><div class="fc-slats"><table>'+this.renderSlatRowHtml()+"</table></div>"},renderSlatRowHtml:function(){for(var e,n,i,r=this.view,o=this.isRTL,a="",s=t.duration(+this.minTime);s<this.maxTime;)e=this.start.clone().time(s),n=te(B(s,this.labelInterval)),i='<td class="fc-axis fc-time '+r.widgetContentClass+'" '+r.axisStyleAttr()+">"+(n?"<span>"+Z(e.format(this.labelFormat))+"</span>":"")+"</td>",a+='<tr data-time="'+e.format("HH:mm:ss")+'"'+(n?"":' class="fc-minor"')+">"+(o?"":i)+'<td class="'+r.widgetContentClass+'"/>'+(o?i:"")+"</tr>",s.add(this.slotDuration);return a},processOptions:function(){var n,i=this.view,r=i.opt("slotDuration"),o=i.opt("snapDuration");r=t.duration(r),o=o?t.duration(o):r,this.slotDuration=r,this.snapDuration=o,this.snapsPerSlot=r/o,this.minResizeDuration=o,this.minTime=t.duration(i.opt("minTime")),this.maxTime=t.duration(i.opt("maxTime")),n=i.opt("slotLabelFormat"),e.isArray(n)&&(n=n[n.length-1]),this.labelFormat=n||i.opt("axisFormat")||i.opt("smallTimeFormat"),n=i.opt("slotLabelInterval"),this.labelInterval=n?t.duration(n):this.computeLabelInterval(r)},computeLabelInterval:function(e){var n,i,r;for(n=Ct.length-1;n>=0;n--)if(i=t.duration(Ct[n]),r=B(i,e),te(r)&&r>1)return i;return t.duration(e)},computeEventTimeFormat:function(){return this.view.opt("noMeridiemTimeFormat")},computeDisplayEventEnd:function(){return!0},prepareHits:function(){this.colCoordCache.build(),this.slatCoordCache.build()},releaseHits:function(){this.colCoordCache.clear()},queryHit:function(e,t){var n=this.snapsPerSlot,i=this.colCoordCache,r=this.slatCoordCache,o=i.getHorizontalIndex(e),a=r.getVerticalIndex(t);if(null!=o&&null!=a){var s=r.getTopOffset(a),l=r.getHeight(a),c=(t-s)/l,u=Math.floor(c*n),d=a*n+u,f=s+u/n*l,h=s+(u+1)/n*l;return{col:o,snap:d,component:this,left:i.getLeftOffset(o),right:i.getRightOffset(o),top:f,bottom:h}}},getHitSpan:function(e){var t,n=this.getCellDate(0,e.col),i=this.computeSnapTime(e.snap);return n.time(i),t=n.clone().add(this.snapDuration),{start:n,end:t}},getHitEl:function(e){return this.colEls.eq(e.col)},rangeUpdated:function(){this.updateDayTable()},computeSnapTime:function(e){return t.duration(this.minTime+this.snapDuration*e)},spanToSegs:function(e){var t,n=this.sliceRangeByTimes(e);for(t=0;t<n.length;t++)this.isRTL?n[t].col=this.daysPerRow-1-n[t].dayIndex:n[t].col=n[t].dayIndex;return n},sliceRangeByTimes:function(e){var t,n,i,r,o=[];for(n=0;n<this.daysPerRow;n++)i=this.dayDates[n].clone(),r={start:i.clone().time(this.minTime),end:i.clone().time(this.maxTime)},t=D(e,r),t&&(t.dayIndex=n,o.push(t));return o},updateSize:function(e){this.slatCoordCache.build(),e&&this.updateSegVerticals([].concat(this.fgSegs||[],this.bgSegs||[],this.businessSegs||[]))},computeDateTop:function(e,n){return this.computeTimeTop(t.duration(e-n.clone().stripTime()))},computeTimeTop:function(e){var t,n,i=this.slatEls.length,r=(e-this.minTime)/this.slotDuration;return r=Math.max(0,r),r=Math.min(i,r),t=Math.floor(r),t=Math.min(t,i-1),n=r-t,this.slatCoordCache.getTopPosition(t)+this.slatCoordCache.getHeight(t)*n},renderDrag:function(e,t){if(t){this.renderEventLocationHelper(e,t);for(var n=0;n<this.helperSegs.length;n++)this.applyDragOpacity(this.helperSegs[n].el);return!0}this.renderHighlight(this.eventToSpan(e))},unrenderDrag:function(){this.unrenderHelper(),this.unrenderHighlight()},renderEventResize:function(e,t){this.renderEventLocationHelper(e,t)},unrenderEventResize:function(){this.unrenderHelper()},renderHelper:function(e,t){this.renderHelperSegs(this.eventToSegs(e),t)},unrenderHelper:function(){this.unrenderHelperSegs()},renderBusinessHours:function(){var e=this.view.calendar.getBusinessHoursEvents(),t=this.eventsToSegs(e);this.renderBusinessSegs(t)},unrenderBusinessHours:function(){this.unrenderBusinessSegs()},getNowIndicatorUnit:function(){return"minute"},renderNowIndicator:function(t){var n,i=this.spanToSegs({start:t,end:t}),r=this.computeDateTop(t,t),o=[];for(n=0;n<i.length;n++)o.push(e('<div class="fc-now-indicator fc-now-indicator-line"></div>').css("top",r).appendTo(this.colContainerEls.eq(i[n].col))[0]);i.length>0&&o.push(e('<div class="fc-now-indicator fc-now-indicator-arrow"></div>').css("top",r).appendTo(this.el.find(".fc-content-skeleton"))[0]),this.nowIndicatorEls=e(o)},unrenderNowIndicator:function(){this.nowIndicatorEls&&(this.nowIndicatorEls.remove(),this.nowIndicatorEls=null)},renderSelection:function(e){this.view.opt("selectHelper")?this.renderEventLocationHelper(e):this.renderHighlight(e)},unrenderSelection:function(){this.unrenderHelper(),this.unrenderHighlight()},renderHighlight:function(e){this.renderHighlightSegs(this.spanToSegs(e))},unrenderHighlight:function(){this.unrenderHighlightSegs()}});ht.mixin({colContainerEls:null,fgContainerEls:null,bgContainerEls:null,helperContainerEls:null,highlightContainerEls:null,businessContainerEls:null,fgSegs:null,bgSegs:null,helperSegs:null,highlightSegs:null,businessSegs:null,renderContentSkeleton:function(){var t,n,i="";for(t=0;t<this.colCnt;t++)i+='<td><div class="fc-content-col"><div class="fc-event-container fc-helper-container"></div><div class="fc-event-container"></div><div class="fc-highlight-container"></div><div class="fc-bgevent-container"></div><div class="fc-business-container"></div></div></td>';n=e('<div class="fc-content-skeleton"><table><tr>'+i+"</tr></table></div>"),this.colContainerEls=n.find(".fc-content-col"),this.helperContainerEls=n.find(".fc-helper-container"),this.fgContainerEls=n.find(".fc-event-container:not(.fc-helper-container)"),this.bgContainerEls=n.find(".fc-bgevent-container"),this.highlightContainerEls=n.find(".fc-highlight-container"),this.businessContainerEls=n.find(".fc-business-container"),this.bookendCells(n.find("tr")),this.el.append(n)},renderFgSegs:function(e){return e=this.renderFgSegsIntoContainers(e,this.fgContainerEls),this.fgSegs=e,e},unrenderFgSegs:function(){this.unrenderNamedSegs("fgSegs")},renderHelperSegs:function(e,t){var n,i,r;for(e=this.renderFgSegsIntoContainers(e,this.helperContainerEls),n=0;n<e.length;n++)i=e[n],t&&t.col===i.col&&(r=t.el,i.el.css({left:r.css("left"),right:r.css("right"),"margin-left":r.css("margin-left"),"margin-right":r.css("margin-right")}));this.helperSegs=e},unrenderHelperSegs:function(){this.unrenderNamedSegs("helperSegs")},renderBgSegs:function(e){return e=this.renderFillSegEls("bgEvent",e),this.updateSegVerticals(e),this.attachSegsByCol(this.groupSegsByCol(e),this.bgContainerEls),this.bgSegs=e,e},unrenderBgSegs:function(){this.unrenderNamedSegs("bgSegs")},renderHighlightSegs:function(e){e=this.renderFillSegEls("highlight",e),this.updateSegVerticals(e),this.attachSegsByCol(this.groupSegsByCol(e),this.highlightContainerEls),this.highlightSegs=e},unrenderHighlightSegs:function(){this.unrenderNamedSegs("highlightSegs")},renderBusinessSegs:function(e){e=this.renderFillSegEls("businessHours",e),this.updateSegVerticals(e),this.attachSegsByCol(this.groupSegsByCol(e),this.businessContainerEls),this.businessSegs=e},unrenderBusinessSegs:function(){this.unrenderNamedSegs("businessSegs")},groupSegsByCol:function(e){var t,n=[];for(t=0;t<this.colCnt;t++)n.push([]);for(t=0;t<e.length;t++)n[e[t].col].push(e[t]);return n},attachSegsByCol:function(e,t){var n,i,r;for(n=0;n<this.colCnt;n++)for(i=e[n],r=0;r<i.length;r++)t.eq(n).append(i[r].el)},unrenderNamedSegs:function(e){var t,n=this[e];if(n){for(t=0;t<n.length;t++)n[t].el.remove();this[e]=null}},renderFgSegsIntoContainers:function(e,t){var n,i;for(e=this.renderFgSegEls(e),n=this.groupSegsByCol(e),i=0;i<this.colCnt;i++)this.updateFgSegCoords(n[i]);return this.attachSegsByCol(n,t),e},fgSegHtml:function(e,t){var n,i,r,o=this.view,a=e.event,s=o.isEventDraggable(a),l=!t&&e.isStart&&o.isEventResizableFromStart(a),c=!t&&e.isEnd&&o.isEventResizableFromEnd(a),u=this.getSegClasses(e,s,l||c),d=$(this.getEventSkinCss(a));return u.unshift("fc-time-grid-event","fc-v-event"),o.isMultiDayEvent(a)?(e.isStart||e.isEnd)&&(n=this.getEventTimeText(e),i=this.getEventTimeText(e,"LT"),r=this.getEventTimeText(e,null,!1)):(n=this.getEventTimeText(a),i=this.getEventTimeText(a,"LT"),r=this.getEventTimeText(a,null,!1)),'<a class="'+u.join(" ")+'"'+(a.url?' href="'+Z(a.url)+'"':"")+(d?' style="'+d+'"':"")+'><div class="fc-content">'+(n?'<div class="fc-time" data-start="'+Z(r)+'" data-full="'+Z(i)+'"><span>'+Z(n)+"</span></div>":"")+(a.title?'<div class="fc-title">'+Z(a.title)+"</div>":"")+'</div><div class="fc-bg"/>'+(c?'<div class="fc-resizer fc-end-resizer" />':"")+"</a>"},updateSegVerticals:function(e){this.computeSegVerticals(e),this.assignSegVerticals(e)},computeSegVerticals:function(e){var t,n;for(t=0;t<e.length;t++)n=e[t],n.top=this.computeDateTop(n.start,n.start),n.bottom=this.computeDateTop(n.end,n.start)},assignSegVerticals:function(e){var t,n;for(t=0;t<e.length;t++)n=e[t],n.el.css(this.generateSegVerticalCss(n))},generateSegVerticalCss:function(e){return{top:e.top,bottom:-e.bottom}},updateFgSegCoords:function(e){this.computeSegVerticals(e),this.computeFgSegHorizontals(e),this.assignSegVerticals(e),this.assignFgSegHorizontals(e)},computeFgSegHorizontals:function(e){var t,n,i;if(this.sortEventSegs(e),t=De(e),ze(t),n=t[0]){for(i=0;i<n.length;i++)He(n[i]);for(i=0;i<n.length;i++)this.computeFgSegForwardBack(n[i],0,0)}},computeFgSegForwardBack:function(e,t,n){var i,r=e.forwardSegs;if(void 0===e.forwardCoord)for(r.length?(this.sortForwardSegs(r),this.computeFgSegForwardBack(r[0],t+1,n),e.forwardCoord=r[0].backwardCoord):e.forwardCoord=1,e.backwardCoord=e.forwardCoord-(e.forwardCoord-n)/(t+1),i=0;i<r.length;i++)this.computeFgSegForwardBack(r[i],0,e.forwardCoord)},sortForwardSegs:function(e){e.sort(ne(this,"compareForwardSegs"))},compareForwardSegs:function(e,t){return t.forwardPressure-e.forwardPressure||(e.backwardCoord||0)-(t.backwardCoord||0)||this.compareEventSegs(e,t)},assignFgSegHorizontals:function(e){var t,n;for(t=0;t<e.length;t++)n=e[t],n.el.css(this.generateFgSegHorizontalCss(n)),n.bottom-n.top<30&&n.el.addClass("fc-short")},generateFgSegHorizontalCss:function(e){var t,n,i=this.view.opt("slotEventOverlap"),r=e.backwardCoord,o=e.forwardCoord,a=this.generateSegVerticalCss(e);return i&&(o=Math.min(1,r+2*(o-r))),this.isRTL?(t=1-o,n=r):(t=r,n=1-o),a.zIndex=e.level+1,a.left=100*t+"%",a.right=100*n+"%",i&&e.forwardPressure&&(a[this.isRTL?"marginLeft":"marginRight"]=20),a}});var pt=Ge.View=be.extend({type:null,name:null,title:null,calendar:null,options:null,el:null,displaying:null,isSkeletonRendered:!1,isEventsRendered:!1,start:null,end:null,intervalStart:null,intervalEnd:null,intervalDuration:null,intervalUnit:null,isRTL:!1,isSelected:!1,eventOrderSpecs:null,scrollerEl:null,scrollTop:null,widgetHeaderClass:null,widgetContentClass:null,highlightStateClass:null,nextDayThreshold:null,isHiddenDayHash:null,documentMousedownProxy:null,nowIndicatorTimeoutID:null,nowIndicatorIntervalID:null,constructor:function(e,n,i,r){this.calendar=e,this.type=this.name=n,this.options=i,this.intervalDuration=r||t.duration(1,"day"),this.nextDayThreshold=t.duration(this.opt("nextDayThreshold")),this.initThemingProps(),this.initHiddenDays(),this.isRTL=this.opt("isRTL"),this.eventOrderSpecs=E(this.opt("eventOrder")),this.documentMousedownProxy=ne(this,"documentMousedown"),this.initialize()},initialize:function(){},opt:function(e){return this.options[e]},trigger:function(e,t){var n=this.calendar;return n.trigger.apply(n,[e,t||this].concat(Array.prototype.slice.call(arguments,2),[this]))},setDate:function(e){this.setRange(this.computeRange(e))},setRange:function(t){e.extend(this,t),this.updateTitle()},computeRange:function(e){var t,n,i=R(this.intervalDuration),r=e.clone().startOf(i),o=r.clone().add(this.intervalDuration);return/year|month|week|day/.test(i)?(r.stripTime(),o.stripTime()):(r.hasTime()||(r=this.calendar.time(0)),o.hasTime()||(o=this.calendar.time(0))),t=r.clone(),t=this.skipHiddenDays(t),n=o.clone(),n=this.skipHiddenDays(n,-1,!0),{intervalUnit:i,intervalStart:r,intervalEnd:o,start:t,end:n}},computePrevDate:function(e){return this.massageCurrentDate(e.clone().startOf(this.intervalUnit).subtract(this.intervalDuration),-1)},computeNextDate:function(e){return this.massageCurrentDate(e.clone().startOf(this.intervalUnit).add(this.intervalDuration))},massageCurrentDate:function(e,t){return this.intervalDuration.as("days")<=1&&this.isHiddenDay(e)&&(e=this.skipHiddenDays(e,t),e.startOf("day")),e},updateTitle:function(){this.title=this.computeTitle()},computeTitle:function(){return this.formatRange({start:this.calendar.applyTimezone(this.intervalStart),end:this.calendar.applyTimezone(this.intervalEnd)},this.opt("titleFormat")||this.computeTitleFormat(),this.opt("titleRangeSeparator"))},computeTitleFormat:function(){return"year"==this.intervalUnit?"YYYY":"month"==this.intervalUnit?this.opt("monthYearFormat"):this.intervalDuration.as("days")>1?"ll":"LL"},formatRange:function(e,t,n){var i=e.end;return i.hasTime()||(i=i.clone().subtract(1)),fe(e.start,i,t,n,this.opt("isRTL"))},setElement:function(e){this.el=e,this.bindGlobalHandlers()},removeElement:function(){this.clear(),this.isSkeletonRendered&&(this.unrenderSkeleton(),this.isSkeletonRendered=!1),this.unbindGlobalHandlers(),this.el.remove()},display:function(t){var n=this,i=null;return this.displaying&&(i=this.queryScroll()),this.calendar.freezeContentHeight(),this.clear().then(function(){return n.displaying=e.when(n.displayView(t)).then(function(){n.forceScroll(n.computeInitialScroll(i)),n.calendar.unfreezeContentHeight(),n.triggerRender()})})},clear:function(){var t=this,n=this.displaying;return n?n.then(function(){return t.displaying=null,t.clearEvents(),t.clearView()}):e.when()},redisplay:function(){if(this.isSkeletonRendered){var e=this.isEventsRendered;this.clearEvents(),this.clearView(),this.displayView(),e&&this.displayEvents(this.calendar.getEventCache())}},displayView:function(e){this.isSkeletonRendered||(this.renderSkeleton(),this.isSkeletonRendered=!0),e&&this.setDate(e),this.render&&this.render(),this.renderDates(),this.updateSize(),this.renderBusinessHours(),this.opt("nowIndicator")&&this.startNowIndicator()},clearView:function(){this.unselect(),this.stopNowIndicator(),this.triggerUnrender(),this.unrenderBusinessHours(),this.unrenderDates(),this.destroy&&this.destroy()},renderSkeleton:function(){},unrenderSkeleton:function(){},renderDates:function(){},unrenderDates:function(){},triggerRender:function(){this.trigger("viewRender",this,this,this.el)},triggerUnrender:function(){this.trigger("viewDestroy",this,this,this.el)},bindGlobalHandlers:function(){e(document).on("mousedown",this.documentMousedownProxy)},unbindGlobalHandlers:function(){e(document).off("mousedown",this.documentMousedownProxy)},initThemingProps:function(){var e=this.opt("theme")?"ui":"fc";this.widgetHeaderClass=e+"-widget-header",this.widgetContentClass=e+"-widget-content",this.highlightStateClass=e+"-state-highlight"},renderBusinessHours:function(){},unrenderBusinessHours:function(){},startNowIndicator:function(){function e(){o.unrenderNowIndicator(),o.renderNowIndicator(n.clone().add(new Date-i))}var n,i,r,o=this,a=this.getNowIndicatorUnit();a&&(n=this.calendar.getNow(),i=+new Date,this.renderNowIndicator(n),r=n.clone().startOf(a).add(1,a)-n,this.nowIndicatorTimeoutID=setTimeout(function(){this.nowIndicatorTimeoutID=null,e(),r=+t.duration(1,a),r=Math.max(100,r),this.nowIndicatorIntervalID=setInterval(e,r)},r))},stopNowIndicator:function(){var e=!1;this.nowIndicatorTimeoutID&&(clearTimeout(this.nowIndicatorTimeoutID),e=!0),this.nowIndicatorIntervalID&&(clearTimeout(this.nowIndicatorIntervalID),e=!0),e&&this.unrenderNowIndicator()},getNowIndicatorUnit:function(){},renderNowIndicator:function(e){},unrenderNowIndicator:function(){},updateSize:function(e){var t;e&&(t=this.queryScroll()),this.updateHeight(e),this.updateWidth(e),e&&this.setScroll(t)},updateWidth:function(e){},updateHeight:function(e){var t=this.calendar;this.setHeight(t.getSuggestedViewHeight(),t.isHeightAuto())},setHeight:function(e,t){},computeScrollerHeight:function(e){var t,n,i=this.scrollerEl;return t=this.el.add(i),t.css({position:"relative",left:-1}),n=this.el.outerHeight()-i.height(),t.css({position:"",left:""}),e-n},computeInitialScroll:function(e){return 0},queryScroll:function(){return this.scrollerEl?this.scrollerEl.scrollTop():void 0},setScroll:function(e){return this.scrollerEl?this.scrollerEl.scrollTop(e):void 0},forceScroll:function(e){var t=this;this.setScroll(e),setTimeout(function(){t.setScroll(e)},0)},displayEvents:function(e){var t=this.queryScroll();this.clearEvents(),this.renderEvents(e),this.isEventsRendered=!0,this.setScroll(t),this.triggerEventRender()},clearEvents:function(){var e;this.isEventsRendered&&(e=this.queryScroll(),this.triggerEventUnrender(),this.destroyEvents&&this.destroyEvents(),this.unrenderEvents(),this.setScroll(e),this.isEventsRendered=!1)},renderEvents:function(e){},unrenderEvents:function(){},triggerEventRender:function(){this.renderedEventSegEach(function(e){this.trigger("eventAfterRender",e.event,e.event,e.el)}),this.trigger("eventAfterAllRender")},triggerEventUnrender:function(){this.renderedEventSegEach(function(e){this.trigger("eventDestroy",e.event,e.event,e.el)})},resolveEventEl:function(t,n){var i=this.trigger("eventRender",t,t,n);return i===!1?n=null:i&&i!==!0&&(n=e(i)),n},showEvent:function(e){this.renderedEventSegEach(function(e){e.el.css("visibility","")},e)},hideEvent:function(e){this.renderedEventSegEach(function(e){e.el.css("visibility","hidden")},e)},renderedEventSegEach:function(e,t){var n,i=this.getEventSegs();for(n=0;n<i.length;n++)t&&i[n].event._id!==t._id||i[n].el&&e.call(this,i[n])},getEventSegs:function(){return[]},isEventDraggable:function(e){var t=e.source||{};return K(e.startEditable,t.startEditable,this.opt("eventStartEditable"),e.editable,t.editable,this.opt("editable"))},reportEventDrop:function(e,t,n,i,r){var o=this.calendar,a=o.mutateEvent(e,t,n),s=function(){a.undo(),o.reportEventChange()};this.triggerEventDrop(e,a.dateDelta,s,i,r),o.reportEventChange()},triggerEventDrop:function(e,t,n,i,r){this.trigger("eventDrop",i[0],e,t,n,r,{})},reportExternalDrop:function(t,n,i,r,o){var a,s,l=t.eventProps;l&&(a=e.extend({},l,n),s=this.calendar.renderEvent(a,t.stick)[0]),this.triggerExternalDrop(s,n,i,r,o)},triggerExternalDrop:function(e,t,n,i,r){this.trigger("drop",n[0],t.start,i,r),e&&this.trigger("eventReceive",null,e)},renderDrag:function(e,t){},unrenderDrag:function(){},isEventResizableFromStart:function(e){return this.opt("eventResizableFromStart")&&this.isEventResizable(e)},isEventResizableFromEnd:function(e){return this.isEventResizable(e)},isEventResizable:function(e){var t=e.source||{};return K(e.durationEditable,t.durationEditable,this.opt("eventDurationEditable"),e.editable,t.editable,this.opt("editable"))},reportEventResize:function(e,t,n,i,r){var o=this.calendar,a=o.mutateEvent(e,t,n),s=function(){a.undo(),o.reportEventChange()};this.triggerEventResize(e,a.durationDelta,s,i,r),o.reportEventChange()},triggerEventResize:function(e,t,n,i,r){this.trigger("eventResize",i[0],e,t,n,r,{})},select:function(e,t){this.unselect(t),this.renderSelection(e),this.reportSelection(e,t)},renderSelection:function(e){},reportSelection:function(e,t){this.isSelected=!0,this.triggerSelect(e,t)},triggerSelect:function(e,t){this.trigger("select",null,this.calendar.applyTimezone(e.start),this.calendar.applyTimezone(e.end),t)},unselect:function(e){this.isSelected&&(this.isSelected=!1,this.destroySelection&&this.destroySelection(),this.unrenderSelection(),this.trigger("unselect",null,e))},unrenderSelection:function(){},documentMousedown:function(t){var n;this.isSelected&&this.opt("unselectAuto")&&A(t)&&(n=this.opt("unselectCancel"),n&&e(t.target).closest(n).length||this.unselect(t))},triggerDayClick:function(e,t,n){this.trigger("dayClick",t,this.calendar.applyTimezone(e.start),n)},initHiddenDays:function(){var t,n=this.opt("hiddenDays")||[],i=[],r=0;for(this.opt("weekends")===!1&&n.push(0,6),t=0;7>t;t++)(i[t]=-1!==e.inArray(t,n))||r++;if(!r)throw"invalid hiddenDays";this.isHiddenDayHash=i},isHiddenDay:function(e){return t.isMoment(e)&&(e=e.day()),this.isHiddenDayHash[e]},skipHiddenDays:function(e,t,n){var i=e.clone();for(t=t||1;this.isHiddenDayHash[(i.day()+(n?t:0)+7)%7];)i.add(t,"days");return i},computeDayRange:function(e){var t,n=e.start.clone().stripTime(),i=e.end,r=null;return i&&(r=i.clone().stripTime(),t=+i.time(),t&&t>=this.nextDayThreshold&&r.add(1,"days")),(!i||n>=r)&&(r=n.clone().add(1,"days")),{start:n,end:r}},isMultiDayEvent:function(e){var t=this.computeDayRange(e);return t.end.diff(t.start,"days")>1}}),mt=Ge.Calendar=be.extend({dirDefaults:null,langDefaults:null,overrides:null,options:null,viewSpecCache:null,view:null,header:null,loadingLevel:0,constructor:Oe,initialize:function(){},initOptions:function(e){var t,r,o,a;e=i(e),t=e.lang,r=gt[t],r||(t=mt.defaults.lang,r=gt[t]||{}),o=K(e.isRTL,r.isRTL,mt.defaults.isRTL),a=o?mt.rtlDefaults:{},this.dirDefaults=a,this.langDefaults=r,this.overrides=e,this.options=n([mt.defaults,a,r,e]),Pe(this.options),this.viewSpecCache={}},getViewSpec:function(e){var t=this.viewSpecCache;return t[e]||(t[e]=this.buildViewSpec(e))},getUnitViewSpec:function(t){var n,i,r;if(-1!=e.inArray(t,Ve))for(n=this.header.getViewsWithButtons(),e.each(Ge.views,function(e){n.push(e)}),i=0;i<n.length;i++)if(r=this.getViewSpec(n[i]),r&&r.singleUnit==t)return r},buildViewSpec:function(e){for(var i,r,o,a,s=this.overrides.views||{},l=[],c=[],u=[],d=e;d;)i=Ie[d],r=s[d],d=null,"function"==typeof i&&(i={"class":i}),i&&(l.unshift(i),c.unshift(i.defaults||{}),o=o||i.duration,d=d||i.type),r&&(u.unshift(r),o=o||r.duration,d=d||r.type);return i=I(l),i.type=e,i["class"]?(o&&(o=t.duration(o),o.valueOf()&&(i.duration=o,a=R(o),1===o.as(a)&&(i.singleUnit=a,u.unshift(s[a]||{})))),i.defaults=n(c),i.overrides=n(u),this.buildViewSpecOptions(i),this.buildViewSpecButtonText(i,e),i):!1},buildViewSpecOptions:function(e){e.options=n([mt.defaults,e.defaults,this.dirDefaults,this.langDefaults,this.overrides,e.overrides]),Pe(e.options)},buildViewSpecButtonText:function(e,t){function n(n){var i=n.buttonText||{};return i[t]||(e.singleUnit?i[e.singleUnit]:null)}e.buttonTextOverride=n(this.overrides)||e.overrides.buttonText,e.buttonTextDefault=n(this.langDefaults)||n(this.dirDefaults)||e.defaults.buttonText||n(mt.defaults)||(e.duration?this.humanizeDuration(e.duration):null)||t},instantiateView:function(e){var t=this.getViewSpec(e);return new t["class"](this,e,t.options,t.duration)},isValidViewType:function(e){return Boolean(this.getViewSpec(e))},pushLoading:function(){this.loadingLevel++||this.trigger("loading",null,!0,this.view)},popLoading:function(){--this.loadingLevel||this.trigger("loading",null,!1,this.view)},buildSelectSpan:function(e,t){var n,i=this.moment(e).stripZone();return n=t?this.moment(t).stripZone():i.hasTime()?i.clone().add(this.defaultTimedEventDuration):i.clone().add(this.defaultAllDayEventDuration),{start:i,end:n}}});mt.mixin(rt),mt.defaults={titleRangeSeparator:" — ",monthYearFormat:"MMMM YYYY",defaultTimedEventDuration:"02:00:00",defaultAllDayEventDuration:{days:1},forceEventDuration:!1,nextDayThreshold:"09:00:00",defaultView:"month",aspectRatio:1.35,header:{left:"title",center:"",right:"today prev,next"},weekends:!0,weekNumbers:!1,weekNumberTitle:"W",weekNumberCalculation:"local",scrollTime:"06:00:00",lazyFetching:!0,startParam:"start",endParam:"end",timezoneParam:"timezone",timezone:!1,isRTL:!1,buttonText:{prev:"prev",next:"next",prevYear:"prev year",nextYear:"next year",year:"year",today:"today",month:"month",week:"week",day:"day"},buttonIcons:{prev:"left-single-arrow",next:"right-single-arrow",prevYear:"left-double-arrow",nextYear:"right-double-arrow"},theme:!1,themeButtonIcons:{prev:"circle-triangle-w",next:"circle-triangle-e",prevYear:"seek-prev",nextYear:"seek-next"},dragOpacity:.75,dragRevertDuration:500,dragScroll:!0,unselectAuto:!0,dropAccept:"*",eventOrder:"title",eventLimit:!1,eventLimitText:"more",eventLimitClick:"popover",dayPopoverFormat:"LL",handleWindowResize:!0,windowResizeDelay:200},mt.englishDefaults={dayPopoverFormat:"dddd, MMMM D"},mt.rtlDefaults={header:{left:"next,prev today",center:"",right:"title"},buttonIcons:{prev:"right-single-arrow",next:"left-single-arrow",prevYear:"right-double-arrow",nextYear:"left-double-arrow"},themeButtonIcons:{prev:"circle-triangle-e",next:"circle-triangle-w",nextYear:"seek-prev",prevYear:"seek-next"}};var gt=Ge.langs={};Ge.datepickerLang=function(t,n,i){var r=gt[t]||(gt[t]={});r.isRTL=i.isRTL,r.weekNumberTitle=i.weekHeader,e.each(bt,function(e,t){r[e]=t(i)}),e.datepicker&&(e.datepicker.regional[n]=e.datepicker.regional[t]=i,e.datepicker.regional.en=e.datepicker.regional[""],e.datepicker.setDefaults(i))},Ge.lang=function(t,i){var r,o;r=gt[t]||(gt[t]={}),i&&(r=gt[t]=n([r,i])),o=Be(t),e.each(vt,function(e,t){null==r[e]&&(r[e]=t(o,r))}),mt.defaults.lang=t};var bt={buttonText:function(e){return{prev:J(e.prevText),next:J(e.nextText),today:J(e.currentText)}},monthYearFormat:function(e){return e.showMonthAfterYear?"YYYY["+e.yearSuffix+"] MMMM":"MMMM YYYY["+e.yearSuffix+"]"}},vt={dayOfMonthFormat:function(e,t){var n=e.longDateFormat("l");return n=n.replace(/^Y+[^\w\s]*|[^\w\s]*Y+$/g,""),t.isRTL?n+=" ddd":n="ddd "+n,n},mediumTimeFormat:function(e){return e.longDateFormat("LT").replace(/\s*a$/i,"a")},smallTimeFormat:function(e){return e.longDateFormat("LT").replace(":mm","(:mm)").replace(/(\Wmm)$/,"($1)").replace(/\s*a$/i,"a")},extraSmallTimeFormat:function(e){return e.longDateFormat("LT").replace(":mm","(:mm)").replace(/(\Wmm)$/,"($1)").replace(/\s*a$/i,"t")},hourFormat:function(e){return e.longDateFormat("LT").replace(":mm","").replace(/(\Wmm)$/,"").replace(/\s*a$/i,"a")},noMeridiemTimeFormat:function(e){return e.longDateFormat("LT").replace(/\s*a$/i,"")}},yt={smallDayDateFormat:function(e){return e.isRTL?"D dd":"dd D"},weekFormat:function(e){return e.isRTL?"w[ "+e.weekNumberTitle+"]":"["+e.weekNumberTitle+" ]w";
-},smallWeekFormat:function(e){return e.isRTL?"w["+e.weekNumberTitle+"]":"["+e.weekNumberTitle+"]w"}};Ge.lang("en",mt.englishDefaults),Ge.sourceNormalizers=[],Ge.sourceFetchers=[];var wt={dataType:"json",cache:!1},At=1;mt.prototype.getPeerEvents=function(e,t){var n,i,r=this.getEventCache(),o=[];for(n=0;n<r.length;n++)i=r[n],t&&t._id===i._id||o.push(i);return o};var St=Ge.BasicView=pt.extend({dayGridClass:ft,dayGrid:null,dayNumbersVisible:!1,weekNumbersVisible:!1,weekNumberWidth:null,headContainerEl:null,headRowEl:null,initialize:function(){this.dayGrid=this.instantiateDayGrid()},instantiateDayGrid:function(){var e=this.dayGridClass.extend(kt);return new e(this)},setRange:function(e){pt.prototype.setRange.call(this,e),this.dayGrid.breakOnWeeks=/year|month|week/.test(this.intervalUnit),this.dayGrid.setRange(e)},computeRange:function(e){var t=pt.prototype.computeRange.call(this,e);return/year|month/.test(t.intervalUnit)&&(t.start.startOf("week"),t.start=this.skipHiddenDays(t.start),t.end.weekday()&&(t.end.add(1,"week").startOf("week"),t.end=this.skipHiddenDays(t.end,-1,!0))),t},renderDates:function(){this.dayNumbersVisible=this.dayGrid.rowCnt>1,this.weekNumbersVisible=this.opt("weekNumbers"),this.dayGrid.numbersVisible=this.dayNumbersVisible||this.weekNumbersVisible,this.el.addClass("fc-basic-view").html(this.renderSkeletonHtml()),this.renderHead(),this.scrollerEl=this.el.find(".fc-day-grid-container"),this.dayGrid.setElement(this.el.find(".fc-day-grid")),this.dayGrid.renderDates(this.hasRigidRows())},renderHead:function(){this.headContainerEl=this.el.find(".fc-head-container").html(this.dayGrid.renderHeadHtml()),this.headRowEl=this.headContainerEl.find(".fc-row")},unrenderDates:function(){this.dayGrid.unrenderDates(),this.dayGrid.removeElement()},renderBusinessHours:function(){this.dayGrid.renderBusinessHours()},renderSkeletonHtml:function(){return'<table><thead class="fc-head"><tr><td class="fc-head-container '+this.widgetHeaderClass+'"></td></tr></thead><tbody class="fc-body"><tr><td class="'+this.widgetContentClass+'"><div class="fc-day-grid-container"><div class="fc-day-grid"/></div></td></tr></tbody></table>'},weekNumberStyleAttr:function(){return null!==this.weekNumberWidth?'style="width:'+this.weekNumberWidth+'px"':""},hasRigidRows:function(){var e=this.opt("eventLimit");return e&&"number"!=typeof e},updateWidth:function(){this.weekNumbersVisible&&(this.weekNumberWidth=u(this.el.find(".fc-week-number")))},setHeight:function(e,t){var n,i=this.opt("eventLimit");f(this.scrollerEl),o(this.headRowEl),this.dayGrid.removeSegPopover(),i&&"number"==typeof i&&this.dayGrid.limitRows(i),n=this.computeScrollerHeight(e),this.setGridHeight(n,t),i&&"number"!=typeof i&&this.dayGrid.limitRows(i),!t&&d(this.scrollerEl,n)&&(r(this.headRowEl,b(this.scrollerEl)),n=this.computeScrollerHeight(e),this.scrollerEl.height(n))},setGridHeight:function(e,t){t?c(this.dayGrid.rowEls):l(this.dayGrid.rowEls,e,!0)},prepareHits:function(){this.dayGrid.prepareHits()},releaseHits:function(){this.dayGrid.releaseHits()},queryHit:function(e,t){return this.dayGrid.queryHit(e,t)},getHitSpan:function(e){return this.dayGrid.getHitSpan(e)},getHitEl:function(e){return this.dayGrid.getHitEl(e)},renderEvents:function(e){this.dayGrid.renderEvents(e),this.updateHeight()},getEventSegs:function(){return this.dayGrid.getEventSegs()},unrenderEvents:function(){this.dayGrid.unrenderEvents()},renderDrag:function(e,t){return this.dayGrid.renderDrag(e,t)},unrenderDrag:function(){this.dayGrid.unrenderDrag()},renderSelection:function(e){this.dayGrid.renderSelection(e)},unrenderSelection:function(){this.dayGrid.unrenderSelection()}}),kt={renderHeadIntroHtml:function(){var e=this.view;return e.weekNumbersVisible?'<th class="fc-week-number '+e.widgetHeaderClass+'" '+e.weekNumberStyleAttr()+"><span>"+Z(e.opt("weekNumberTitle"))+"</span></th>":""},renderNumberIntroHtml:function(e){var t=this.view;return t.weekNumbersVisible?'<td class="fc-week-number" '+t.weekNumberStyleAttr()+"><span>"+this.getCellDate(e,0).format("w")+"</span></td>":""},renderBgIntroHtml:function(){var e=this.view;return e.weekNumbersVisible?'<td class="fc-week-number '+e.widgetContentClass+'" '+e.weekNumberStyleAttr()+"></td>":""},renderIntroHtml:function(){var e=this.view;return e.weekNumbersVisible?'<td class="fc-week-number" '+e.weekNumberStyleAttr()+"></td>":""}},Tt=Ge.MonthView=St.extend({computeRange:function(e){var t,n=St.prototype.computeRange.call(this,e);return this.isFixedWeeks()&&(t=Math.ceil(n.end.diff(n.start,"weeks",!0)),n.end.add(6-t,"weeks")),n},setGridHeight:function(e,t){t=t||"variable"===this.opt("weekMode"),t&&(e*=this.rowCnt/6),l(this.dayGrid.rowEls,e,!t)},isFixedWeeks:function(){var e=this.opt("weekMode");return e?"fixed"===e:this.opt("fixedWeekCount")}});Ie.basic={"class":St},Ie.basicDay={type:"basic",duration:{days:1}},Ie.basicWeek={type:"basic",duration:{weeks:1}},Ie.month={"class":Tt,duration:{months:1},defaults:{fixedWeekCount:!0}};var xt=Ge.AgendaView=pt.extend({timeGridClass:ht,timeGrid:null,dayGridClass:ft,dayGrid:null,axisWidth:null,headContainerEl:null,noScrollRowEls:null,bottomRuleEl:null,bottomRuleHeight:null,initialize:function(){this.timeGrid=this.instantiateTimeGrid(),this.opt("allDaySlot")&&(this.dayGrid=this.instantiateDayGrid())},instantiateTimeGrid:function(){var e=this.timeGridClass.extend(Et);return new e(this)},instantiateDayGrid:function(){var e=this.dayGridClass.extend(Mt);return new e(this)},setRange:function(e){pt.prototype.setRange.call(this,e),this.timeGrid.setRange(e),this.dayGrid&&this.dayGrid.setRange(e)},renderDates:function(){this.el.addClass("fc-agenda-view").html(this.renderSkeletonHtml()),this.renderHead(),this.scrollerEl=this.el.find(".fc-time-grid-container"),this.timeGrid.setElement(this.el.find(".fc-time-grid")),this.timeGrid.renderDates(),this.bottomRuleEl=e('<hr class="fc-divider '+this.widgetHeaderClass+'"/>').appendTo(this.timeGrid.el),this.dayGrid&&(this.dayGrid.setElement(this.el.find(".fc-day-grid")),this.dayGrid.renderDates(),this.dayGrid.bottomCoordPadding=this.dayGrid.el.next("hr").outerHeight()),this.noScrollRowEls=this.el.find(".fc-row:not(.fc-scroller *)")},renderHead:function(){this.headContainerEl=this.el.find(".fc-head-container").html(this.timeGrid.renderHeadHtml())},unrenderDates:function(){this.timeGrid.unrenderDates(),this.timeGrid.removeElement(),this.dayGrid&&(this.dayGrid.unrenderDates(),this.dayGrid.removeElement())},renderSkeletonHtml:function(){return'<table><thead class="fc-head"><tr><td class="fc-head-container '+this.widgetHeaderClass+'"></td></tr></thead><tbody class="fc-body"><tr><td class="'+this.widgetContentClass+'">'+(this.dayGrid?'<div class="fc-day-grid"/><hr class="fc-divider '+this.widgetHeaderClass+'"/>':"")+'<div class="fc-time-grid-container"><div class="fc-time-grid"/></div></td></tr></tbody></table>'},axisStyleAttr:function(){return null!==this.axisWidth?'style="width:'+this.axisWidth+'px"':""},renderBusinessHours:function(){this.timeGrid.renderBusinessHours(),this.dayGrid&&this.dayGrid.renderBusinessHours()},unrenderBusinessHours:function(){this.timeGrid.unrenderBusinessHours(),this.dayGrid&&this.dayGrid.unrenderBusinessHours()},getNowIndicatorUnit:function(){return this.timeGrid.getNowIndicatorUnit()},renderNowIndicator:function(e){this.timeGrid.renderNowIndicator(e)},unrenderNowIndicator:function(){this.timeGrid.unrenderNowIndicator()},updateSize:function(e){this.timeGrid.updateSize(e),pt.prototype.updateSize.call(this,e)},updateWidth:function(){this.axisWidth=u(this.el.find(".fc-axis"))},setHeight:function(e,t){var n,i;null===this.bottomRuleHeight&&(this.bottomRuleHeight=this.bottomRuleEl.outerHeight()),this.bottomRuleEl.hide(),this.scrollerEl.css("overflow",""),f(this.scrollerEl),o(this.noScrollRowEls),this.dayGrid&&(this.dayGrid.removeSegPopover(),n=this.opt("eventLimit"),n&&"number"!=typeof n&&(n=_t),n&&this.dayGrid.limitRows(n)),t||(i=this.computeScrollerHeight(e),d(this.scrollerEl,i)?(r(this.noScrollRowEls,b(this.scrollerEl)),i=this.computeScrollerHeight(e),this.scrollerEl.height(i)):(this.scrollerEl.height(i).css("overflow","hidden"),this.bottomRuleEl.show()))},computeInitialScroll:function(){var e=t.duration(this.opt("scrollTime")),n=this.timeGrid.computeTimeTop(e);return n=Math.ceil(n),n&&n++,n},prepareHits:function(){this.timeGrid.prepareHits(),this.dayGrid&&this.dayGrid.prepareHits()},releaseHits:function(){this.timeGrid.releaseHits(),this.dayGrid&&this.dayGrid.releaseHits()},queryHit:function(e,t){var n=this.timeGrid.queryHit(e,t);return!n&&this.dayGrid&&(n=this.dayGrid.queryHit(e,t)),n},getHitSpan:function(e){return e.component.getHitSpan(e)},getHitEl:function(e){return e.component.getHitEl(e)},renderEvents:function(e){var t,n,i=[],r=[],o=[];for(n=0;n<e.length;n++)e[n].allDay?i.push(e[n]):r.push(e[n]);t=this.timeGrid.renderEvents(r),this.dayGrid&&(o=this.dayGrid.renderEvents(i)),this.updateHeight()},getEventSegs:function(){return this.timeGrid.getEventSegs().concat(this.dayGrid?this.dayGrid.getEventSegs():[])},unrenderEvents:function(){this.timeGrid.unrenderEvents(),this.dayGrid&&this.dayGrid.unrenderEvents()},renderDrag:function(e,t){return e.start.hasTime()?this.timeGrid.renderDrag(e,t):this.dayGrid?this.dayGrid.renderDrag(e,t):void 0},unrenderDrag:function(){this.timeGrid.unrenderDrag(),this.dayGrid&&this.dayGrid.unrenderDrag()},renderSelection:function(e){e.start.hasTime()||e.end.hasTime()?this.timeGrid.renderSelection(e):this.dayGrid&&this.dayGrid.renderSelection(e)},unrenderSelection:function(){this.timeGrid.unrenderSelection(),this.dayGrid&&this.dayGrid.unrenderSelection()}}),Et={renderHeadIntroHtml:function(){var e,t=this.view;return t.opt("weekNumbers")?(e=this.start.format(t.opt("smallWeekFormat")),'<th class="fc-axis fc-week-number '+t.widgetHeaderClass+'" '+t.axisStyleAttr()+"><span>"+Z(e)+"</span></th>"):'<th class="fc-axis '+t.widgetHeaderClass+'" '+t.axisStyleAttr()+"></th>"},renderBgIntroHtml:function(){var e=this.view;return'<td class="fc-axis '+e.widgetContentClass+'" '+e.axisStyleAttr()+"></td>"},renderIntroHtml:function(){var e=this.view;return'<td class="fc-axis" '+e.axisStyleAttr()+"></td>"}},Mt={renderBgIntroHtml:function(){var e=this.view;return'<td class="fc-axis '+e.widgetContentClass+'" '+e.axisStyleAttr()+"><span>"+(e.opt("allDayHtml")||Z(e.opt("allDayText")))+"</span></td>"},renderIntroHtml:function(){var e=this.view;return'<td class="fc-axis" '+e.axisStyleAttr()+"></td>"}},_t=5,Ct=[{hours:1},{minutes:30},{minutes:15},{seconds:30},{seconds:15}];return Ie.agenda={"class":xt,defaults:{allDaySlot:!0,allDayText:"all-day",slotDuration:"00:30:00",minTime:"00:00:00",maxTime:"24:00:00",slotEventOverlap:!0}},Ie.agendaDay={type:"agenda",duration:{days:1}},Ie.agendaWeek={type:"agenda",duration:{weeks:1}},Ge})},function(e,t,n){!function(e){function t(e){"}"===e.n.substr(e.n.length-1)&&(e.n=e.n.substring(0,e.n.length-1))}function n(e){return e.trim?e.trim():e.replace(/^\s*|\s*$/g,"")}function i(e,t,n){if(t.charAt(n)!=e.charAt(0))return!1;for(var i=1,r=e.length;r>i;i++)if(t.charAt(n+i)!=e.charAt(i))return!1;return!0}function r(t,n,i,s){var l=[],c=null,u=null,d=null;for(u=i[i.length-1];t.length>0;){if(d=t.shift(),u&&"<"==u.tag&&!(d.tag in A))throw new Error("Illegal content in < super tag.");if(e.tags[d.tag]<=e.tags.$||o(d,s))i.push(d),d.nodes=r(t,d.tag,i,s);else{if("/"==d.tag){if(0===i.length)throw new Error("Closing tag without opener: /"+d.n);if(c=i.pop(),d.n!=c.n&&!a(d.n,c.n,s))throw new Error("Nesting error: "+c.n+" vs. "+d.n);return c.end=d.i,l}"\n"==d.tag&&(d.last=0==t.length||"\n"==t[0].tag)}l.push(d)}if(i.length>0)throw new Error("missing closing tag: "+i.pop().n);return l}function o(e,t){for(var n=0,i=t.length;i>n;n++)if(t[n].o==e.n)return e.tag="#",!0}function a(e,t,n){for(var i=0,r=n.length;r>i;i++)if(n[i].c==e&&n[i].o==t)return!0}function s(e){var t=[];for(var n in e)t.push('"'+c(n)+'": function(c,p,t,i) {'+e[n]+"}");return"{ "+t.join(",")+" }"}function l(e){var t=[];for(var n in e.partials)t.push('"'+c(n)+'":{name:"'+c(e.partials[n].name)+'", '+l(e.partials[n])+"}");return"partials: {"+t.join(",")+"}, subs: "+s(e.subs)}function c(e){return e.replace(v,"\\\\").replace(m,'\\"').replace(g,"\\n").replace(b,"\\r").replace(y,"\\u2028").replace(w,"\\u2029")}function u(e){return~e.indexOf(".")?"d":"f"}function d(e,t){var n="<"+(t.prefix||""),i=n+e.n+S++;return t.partials[i]={name:e.n,partials:{}},t.code+='t.b(t.rp("'+c(i)+'",c,p,"'+(e.indent||"")+'"));',i}function f(e,t){t.code+="t.b(t.t(t."+u(e.n)+'("'+c(e.n)+'",c,p,0)));'}function h(e){return"t.b("+e+");"}var p=/\S/,m=/\"/g,g=/\n/g,b=/\r/g,v=/\\/g,y=/\u2028/,w=/\u2029/;e.tags={"#":1,"^":2,"<":3,$:4,"/":5,"!":6,">":7,"=":8,_v:9,"{":10,"&":11,_t:12},e.scan=function(r,o){function a(){v.length>0&&(y.push({tag:"_t",text:new String(v)}),v="")}function s(){for(var t=!0,n=S;n<y.length;n++)if(t=e.tags[y[n].tag]<e.tags._v||"_t"==y[n].tag&&null===y[n].text.match(p),!t)return!1;return t}function l(e,t){if(a(),e&&s())for(var n,i=S;i<y.length;i++)y[i].text&&((n=y[i+1])&&">"==n.tag&&(n.indent=y[i].text.toString()),y.splice(i,1));else t||y.push({tag:"\n"});w=!1,S=y.length}function c(e,t){var i="="+T,r=e.indexOf(i,t),o=n(e.substring(e.indexOf("=",t)+1,r)).split(" ");return k=o[0],T=o[o.length-1],r+i.length-1}var u=r.length,d=0,f=1,h=2,m=d,g=null,b=null,v="",y=[],w=!1,A=0,S=0,k="{{",T="}}";for(o&&(o=o.split(" "),k=o[0],T=o[1]),A=0;u>A;A++)m==d?i(k,r,A)?(--A,a(),m=f):"\n"==r.charAt(A)?l(w):v+=r.charAt(A):m==f?(A+=k.length-1,b=e.tags[r.charAt(A+1)],g=b?r.charAt(A+1):"_v","="==g?(A=c(r,A),m=d):(b&&A++,m=h),w=A):i(T,r,A)?(y.push({tag:g,n:n(v),otag:k,ctag:T,i:"/"==g?w-k.length:A+T.length}),v="",A+=T.length-1,m=d,"{"==g&&("}}"==T?A++:t(y[y.length-1]))):v+=r.charAt(A);return l(w,!0),y};var A={_t:!0,"\n":!0,$:!0,"/":!0};e.stringify=function(t,n,i){return"{code: function (c,p,i) { "+e.wrapMain(t.code)+" },"+l(t)+"}"};var S=0;e.generate=function(t,n,i){S=0;var r={code:"",subs:{},partials:{}};return e.walk(t,r),i.asString?this.stringify(r,n,i):this.makeTemplate(r,n,i)},e.wrapMain=function(e){return'var t=this;t.b(i=i||"");'+e+"return t.fl();"},e.template=e.Template,e.makeTemplate=function(e,t,n){var i=this.makePartials(e);return i.code=new Function("c","p","i",this.wrapMain(e.code)),new this.template(i,t,this,n)},e.makePartials=function(e){var t,n={subs:{},partials:e.partials,name:e.name};for(t in n.partials)n.partials[t]=this.makePartials(n.partials[t]);for(t in e.subs)n.subs[t]=new Function("c","p","t","i",e.subs[t]);return n},e.codegen={"#":function(t,n){n.code+="if(t.s(t."+u(t.n)+'("'+c(t.n)+'",c,p,1),c,p,0,'+t.i+","+t.end+',"'+t.otag+" "+t.ctag+'")){t.rs(c,p,function(c,p,t){',e.walk(t.nodes,n),n.code+="});c.pop();}"},"^":function(t,n){n.code+="if(!t.s(t."+u(t.n)+'("'+c(t.n)+'",c,p,1),c,p,1,0,0,"")){',e.walk(t.nodes,n),n.code+="};"},">":d,"<":function(t,n){var i={partials:{},code:"",subs:{},inPartial:!0};e.walk(t.nodes,i);var r=n.partials[d(t,n)];r.subs=i.subs,r.partials=i.partials},$:function(t,n){var i={subs:{},code:"",partials:n.partials,prefix:t.n};e.walk(t.nodes,i),n.subs[t.n]=i.code,n.inPartial||(n.code+='t.sub("'+c(t.n)+'",c,p,i);')},"\n":function(e,t){t.code+=h('"\\n"'+(e.last?"":" + i"))},_v:function(e,t){t.code+="t.b(t.v(t."+u(e.n)+'("'+c(e.n)+'",c,p,0)));'},_t:function(e,t){t.code+=h('"'+c(e.text)+'"')},"{":f,"&":f},e.walk=function(t,n){for(var i,r=0,o=t.length;o>r;r++)i=e.codegen[t[r].tag],i&&i(t[r],n);return n},e.parse=function(e,t,n){return n=n||{},r(e,"",[],n.sectionTags||[])},e.cache={},e.cacheKey=function(e,t){return[e,!!t.asString,!!t.disableLambda,t.delimiters,!!t.modelGet].join("||")},e.compile=function(t,n){n=n||{};var i=e.cacheKey(t,n),r=this.cache[i];if(r){var o=r.partials;for(var a in o)delete o[a].instance;return r}return r=this.generate(this.parse(this.scan(t,n.delimiters),t,n),t,n),this.cache[i]=r}}(t)},function(e,t,n){!function(e){function t(e,t,n){var i;return t&&"object"==typeof t&&(void 0!==t[e]?i=t[e]:n&&t.get&&"function"==typeof t.get&&(i=t.get(e))),i}function n(e,t,n,i,r,o){function a(){}function s(){}a.prototype=e,s.prototype=e.subs;var l,c=new a;c.subs=new s,c.subsText={},c.buf="",i=i||{},c.stackSubs=i,c.subsText=o;for(l in t)i[l]||(i[l]=t[l]);for(l in i)c.subs[l]=i[l];r=r||{},c.stackPartials=r;for(l in n)r[l]||(r[l]=n[l]);for(l in r)c.partials[l]=r[l];return c}function i(e){return String(null===e||void 0===e?"":e)}function r(e){return e=i(e),u.test(e)?e.replace(o,"&amp;").replace(a,"&lt;").replace(s,"&gt;").replace(l,"&#39;").replace(c,"&quot;"):e}e.Template=function(e,t,n,i){e=e||{},this.r=e.code||this.r,this.c=n,this.options=i||{},this.text=t||"",this.partials=e.partials||{},this.subs=e.subs||{},this.buf=""},e.Template.prototype={r:function(e,t,n){return""},v:r,t:i,render:function(e,t,n){return this.ri([e],t||{},n)},ri:function(e,t,n){return this.r(e,t,n)},ep:function(e,t){var i=this.partials[e],r=t[i.name];if(i.instance&&i.base==r)return i.instance;if("string"==typeof r){if(!this.c)throw new Error("No compiler available.");r=this.c.compile(r,this.options)}if(!r)return null;if(this.partials[e].base=r,i.subs){t.stackText||(t.stackText={});for(key in i.subs)t.stackText[key]||(t.stackText[key]=void 0!==this.activeSub&&t.stackText[this.activeSub]?t.stackText[this.activeSub]:this.text);r=n(r,i.subs,i.partials,this.stackSubs,this.stackPartials,t.stackText)}return this.partials[e].instance=r,r},rp:function(e,t,n,i){var r=this.ep(e,n);return r?r.ri(t,n,i):""},rs:function(e,t,n){var i=e[e.length-1];if(!d(i))return void n(e,t,this);for(var r=0;r<i.length;r++)e.push(i[r]),n(e,t,this),e.pop()},s:function(e,t,n,i,r,o,a){var s;return d(e)&&0===e.length?!1:("function"==typeof e&&(e=this.ms(e,t,n,i,r,o,a)),s=!!e,!i&&s&&t&&t.push("object"==typeof e?e:t[t.length-1]),s)},d:function(e,n,i,r){var o,a=e.split("."),s=this.f(a[0],n,i,r),l=this.options.modelGet,c=null;if("."===e&&d(n[n.length-2]))s=n[n.length-1];else for(var u=1;u<a.length;u++)o=t(a[u],s,l),void 0!==o?(c=s,s=o):s="";return r&&!s?!1:(r||"function"!=typeof s||(n.push(c),s=this.mv(s,n,i),n.pop()),s)},f:function(e,n,i,r){for(var o=!1,a=null,s=!1,l=this.options.modelGet,c=n.length-1;c>=0;c--)if(a=n[c],o=t(e,a,l),void 0!==o){s=!0;break}return s?(r||"function"!=typeof o||(o=this.mv(o,n,i)),o):r?!1:""},ls:function(e,t,n,r,o){var a=this.options.delimiters;return this.options.delimiters=o,this.b(this.ct(i(e.call(t,r)),t,n)),this.options.delimiters=a,!1},ct:function(e,t,n){if(this.options.disableLambda)throw new Error("Lambda features disabled.");return this.c.compile(e,this.options).render(t,n)},b:function(e){this.buf+=e},fl:function(){var e=this.buf;return this.buf="",e},ms:function(e,t,n,i,r,o,a){var s,l=t[t.length-1],c=e.call(l);return"function"==typeof c?i?!0:(s=this.activeSub&&this.subsText&&this.subsText[this.activeSub]?this.subsText[this.activeSub]:this.text,this.ls(c,l,n,s.substring(r,o),a)):c},mv:function(e,t,n){var r=t[t.length-1],o=e.call(r);return"function"==typeof o?this.ct(i(o.call(r)),r,n):o},sub:function(e,t,n,i){var r=this.subs[e];r&&(this.activeSub=e,r(t,n,this,i),this.activeSub=!1)}};var o=/&/g,a=/</g,s=/>/g,l=/\'/g,c=/\"/g,u=/[&<>\"\']/,d=Array.isArray||function(e){return"[object Array]"===Object.prototype.toString.call(e)}}(t)},function(e,t,n){var i,r;!function(o){var a=function(e,t,n,i){if(!f(t)||p(t)||m(t)||g(t))return t;var r,o=0,s=0;if(h(t))for(r=[],s=t.length;s>o;o++)r.push(a(e,t[o],n,i));else{r={};for(var l in t)t.hasOwnProperty(l)&&(r[e(l,n,i)]=a(e,t[l],n,i))}return r},s=function(e,t,n){"undefined"==typeof t&&(t="_");var i=/([a-z])([A-Z0-9])/g;return n&&(i=/([a-z])([A-Z])/g),e.replace(i,"$1"+t+"$2")},l=function(e){return b(e)?e:(e=e.replace(/[\-_\s]+(.)?/g,function(e,t){return t?t.toUpperCase():""}),e.substr(0,1).toLowerCase()+e.substr(1))},c=function(e){var t=l(e);return t.substr(0,1).toUpperCase()+t.substr(1)},u=function(e,t,n){return s(e,t,n).toLowerCase()},d=Object.prototype.toString,f=function(e){return e===Object(e)},h=function(e){return"[object Array]"==d.call(e)},p=function(e){return"[object Date]"==d.call(e)},m=function(e){return"[object RegExp]"==d.call(e)},g=function(e){return"[object Boolean]"==d.call(e)},b=function(e){return e-=0,e===e},v={camelize:l,decamelize:u,pascalize:c,depascalize:u,camelizeKeys:function(e){return a(l,e)},decamelizeKeys:function(e,t,n){return a(u,e,t,n)},pascalizeKeys:function(e){return a(c,e)},depascalizeKeys:function(){return this.decamelizeKeys.apply(this,arguments)}};i=v,r="function"==typeof i?i.call(t,n,t,e):i,!(void 0!==r&&(e.exports=r))}(this)},function(e,t,n){var i,r,o;//! moment-timezone.js
-//! version : 0.5.0
-//! author : Tim Wood
-//! license : MIT
-//! github.com/moment/moment-timezone
-!function(a,s){"use strict";r=[n(4)],i=s,o="function"==typeof i?i.apply(t,r):i,!(void 0!==o&&(e.exports=o))}(this,function(e){"use strict";function t(e){return e>96?e-87:e>64?e-29:e-48}function n(e){var n,i=0,r=e.split("."),o=r[0],a=r[1]||"",s=1,l=0,c=1;for(45===e.charCodeAt(0)&&(i=1,c=-1),i;i<o.length;i++)n=t(o.charCodeAt(i)),l=60*l+n;for(i=0;i<a.length;i++)s/=60,n=t(a.charCodeAt(i)),l+=n*s;return l*c}function i(e){for(var t=0;t<e.length;t++)e[t]=n(e[t])}function r(e,t){for(var n=0;t>n;n++)e[n]=Math.round((e[n-1]||0)+6e4*e[n]);e[t-1]=1/0}function o(e,t){var n,i=[];for(n=0;n<t.length;n++)i[n]=e[t[n]];return i}function a(e){var t=e.split("|"),n=t[2].split(" "),a=t[3].split(""),s=t[4].split(" ");return i(n),i(a),i(s),r(s,a.length),{name:t[0],abbrs:o(t[1].split(" "),a),offsets:o(n,a),untils:s,population:0|t[5]}}function s(e){e&&this._set(a(e))}function l(e){var t=e.toTimeString(),n=t.match(/\(.+\)/);n=n&&n[0]?n[0].match(/[A-Z]/g).join(""):t.match(/[A-Z]{3,5}/g)[0],"GMT"===n&&(n=void 0),this.at=+e,this.abbr=n,this.offset=e.getTimezoneOffset()}function c(e){this.zone=e,this.offsetScore=0,this.abbrScore=0}function u(e,t){for(var n,i;i=6e4*((t.at-e.at)/12e4|0);)n=new l(new Date(e.at+i)),n.offset===e.offset?e=n:t=n;return e}function d(){var e,t,n,i=(new Date).getFullYear()-2,r=new l(new Date(i,0,1)),o=[r];for(n=1;48>n;n++)t=new l(new Date(i,n,1)),t.offset!==r.offset&&(e=u(r,t),o.push(e),o.push(new l(new Date(e.at+6e4)))),r=t;for(n=0;4>n;n++)o.push(new l(new Date(i+n,0,1))),o.push(new l(new Date(i+n,6,1)));return o}function f(e,t){return e.offsetScore!==t.offsetScore?e.offsetScore-t.offsetScore:e.abbrScore!==t.abbrScore?e.abbrScore-t.abbrScore:t.zone.population-e.zone.population}function h(e,t){var n,r;for(i(t),n=0;n<t.length;n++)r=t[n],R[r]=R[r]||{},R[r][e]=!0}function p(e){var t,n,i,r=e.length,o={},a=[];for(t=0;r>t;t++){i=R[e[t].offset]||{};for(n in i)i.hasOwnProperty(n)&&(o[n]=!0)}for(t in o)o.hasOwnProperty(t)&&a.push(L[t]);return a}function m(){var e,t,n,i=d(),r=i.length,o=p(i),a=[];for(t=0;t<o.length;t++){for(e=new c(y(o[t]),r),n=0;r>n;n++)e.scoreOffsetAt(i[n]);a.push(e)}return a.sort(f),a.length>0?a[0].zone.name:void 0}function g(e){return(!C||e)&&(C=m()),C}function b(e){return(e||"").toLowerCase().replace(/\//g,"_")}function v(e){var t,n,i,r;for("string"==typeof e&&(e=[e]),t=0;t<e.length;t++)i=e[t].split("|"),n=i[0],r=b(n),z[r]=e[t],L[r]=n,i[5]&&h(r,i[2].split(" "))}function y(e,t){e=b(e);var n,i=z[e];return i instanceof s?i:"string"==typeof i?(i=new s(i),z[e]=i,i):H[e]&&t!==y&&(n=y(H[e],y))?(i=z[e]=new s,i._set(n),i.name=L[e],i):null}function w(){var e,t=[];for(e in L)L.hasOwnProperty(e)&&(z[e]||z[H[e]])&&L[e]&&t.push(L[e]);return t.sort()}function A(e){var t,n,i,r;for("string"==typeof e&&(e=[e]),t=0;t<e.length;t++)n=e[t].split("|"),i=b(n[0]),r=b(n[1]),H[i]=r,L[i]=n[0],H[r]=i,L[r]=n[1]}function S(e){v(e.zones),A(e.links),E.dataVersion=e.version}function k(e){return k.didShowError||(k.didShowError=!0,x("moment.tz.zoneExists('"+e+"') has been deprecated in favor of !moment.tz.zone('"+e+"')")),!!y(e)}function T(e){return!(!e._a||void 0!==e._tzm)}function x(e){"undefined"!=typeof console&&"function"==typeof console.error&&console.error(e)}function E(t){var n=Array.prototype.slice.call(arguments,0,-1),i=arguments[arguments.length-1],r=y(i),o=e.utc.apply(null,n);return r&&!e.isMoment(t)&&T(o)&&o.add(r.parse(o),"minutes"),o.tz(i),o}function M(e){return function(){return this._z?this._z.abbr(this):e.call(this)}}function _(e){return function(){return this._z=null,e.apply(this,arguments)}}if(void 0!==e.tz)return x("Moment Timezone "+e.tz.version+" was already loaded "+(e.tz.dataVersion?"with data from ":"without any data")+e.tz.dataVersion),e;var C,D="0.5.0",z={},H={},L={},R={},O=e.version.split("."),P=+O[0],B=+O[1];(2>P||2===P&&6>B)&&x("Moment Timezone requires Moment.js >= 2.6.0. You are using Moment.js "+e.version+". See momentjs.com"),s.prototype={_set:function(e){this.name=e.name,this.abbrs=e.abbrs,this.untils=e.untils,this.offsets=e.offsets,this.population=e.population},_index:function(e){var t,n=+e,i=this.untils;for(t=0;t<i.length;t++)if(n<i[t])return t},parse:function(e){var t,n,i,r,o=+e,a=this.offsets,s=this.untils,l=s.length-1;for(r=0;l>r;r++)if(t=a[r],n=a[r+1],i=a[r?r-1:r],n>t&&E.moveAmbiguousForward?t=n:t>i&&E.moveInvalidForward&&(t=i),o<s[r]-6e4*t)return a[r];return a[l]},abbr:function(e){return this.abbrs[this._index(e)]},offset:function(e){return this.offsets[this._index(e)]}},c.prototype.scoreOffsetAt=function(e){this.offsetScore+=Math.abs(this.zone.offset(e.at)-e.offset),this.zone.abbr(e.at).match(/[A-Z]/g).join("")!==e.abbr&&this.abbrScore++},E.version=D,E.dataVersion="",E._zones=z,E._links=H,E._names=L,E.add=v,E.link=A,E.load=S,E.zone=y,E.zoneExists=k,E.guess=g,E.names=w,E.Zone=s,E.unpack=a,E.unpackBase60=n,E.needsOffset=T,E.moveInvalidForward=!0,E.moveAmbiguousForward=!1;var j=e.fn;e.tz=E,e.defaultZone=null,e.updateOffset=function(t,n){var i,r=e.defaultZone;void 0===t._z&&(r&&T(t)&&!t._isUTC&&(t._d=e.utc(t._a)._d,t.utc().add(r.parse(t),"minutes")),t._z=r),t._z&&(i=t._z.offset(t),Math.abs(i)<16&&(i/=60),void 0!==t.utcOffset?t.utcOffset(-i,n):t.zone(i,n))},j.tz=function(t){return t?(this._z=y(t),this._z?e.updateOffset(this):x("Moment Timezone has no data for "+t+". See http://momentjs.com/timezone/docs/#/data-loading/."),this):this._z?this._z.name:void 0},j.zoneName=M(j.zoneName),j.zoneAbbr=M(j.zoneAbbr),j.utc=_(j.utc),e.tz.setDefault=function(t){return(2>P||2===P&&9>B)&&x("Moment Timezone setDefault() requires Moment.js >= 2.9.0. You are using Moment.js "+e.version+"."),e.defaultZone=t?y(t):null,e};var Y=e.momentProperties;return"[object Array]"===Object.prototype.toString.call(Y)?(Y.push("_z"),Y.push("_a")):Y&&(Y._z=null),S({version:"2015g",zones:["Africa/Abidjan|GMT|0|0||48e5","Africa/Khartoum|EAT|-30|0||51e5","Africa/Algiers|CET|-10|0||26e5","Africa/Lagos|WAT|-10|0||17e6","Africa/Maputo|CAT|-20|0||26e5","Africa/Cairo|EET EEST|-20 -30|010101010|1Cby0 Fb0 c10 8n0 8Nd0 gL0 e10 mn0|15e6","Africa/Casablanca|WET WEST|0 -10|01010101010101010101010101010101010101010|1Cco0 Db0 1zd0 Lz0 1Nf0 wM0 co0 go0 1o00 s00 dA0 vc0 11A0 A00 e00 y00 11A0 uM0 e00 Dc0 11A0 s00 e00 IM0 WM0 mo0 gM0 LA0 WM0 jA0 e00 Rc0 11A0 e00 e00 U00 11A0 8o0 e00 11A0|32e5","Europe/Paris|CET CEST|-10 -20|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|11e6","Africa/Johannesburg|SAST|-20|0||84e5","Africa/Tripoli|EET CET CEST|-20 -10 -20|0120|1IlA0 TA0 1o00|11e5","Africa/Windhoek|WAST WAT|-20 -10|01010101010101010101010|1C1c0 11B0 1nX0 11B0 1nX0 11B0 1qL0 WN0 1qL0 11B0 1nX0 11B0 1nX0 11B0 1nX0 11B0 1nX0 11B0 1qL0 WN0 1qL0 11B0|32e4","America/Adak|HST HDT|a0 90|01010101010101010101010|1BR00 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|326","America/Anchorage|AKST AKDT|90 80|01010101010101010101010|1BQX0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|30e4","America/Santo_Domingo|AST|40|0||29e5","America/Araguaina|BRT BRST|30 20|010|1IdD0 Lz0|14e4","America/Argentina/Buenos_Aires|ART|30|0|","America/Asuncion|PYST PYT|30 40|01010101010101010101010|1C430 1a10 1fz0 1a10 1fz0 1cN0 17b0 1ip0 17b0 1ip0 17b0 1ip0 19X0 1fB0 19X0 1fB0 19X0 1ip0 17b0 1ip0 17b0 1ip0|28e5","America/Panama|EST|50|0||15e5","America/Bahia|BRT BRST|30 20|010|1FJf0 Rb0|27e5","America/Bahia_Banderas|MST CDT CST|70 50 60|01212121212121212121212|1C1l0 1nW0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0 14p0 1lb0 14p0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0|84e3","America/Fortaleza|BRT|30|0||34e5","America/Managua|CST|60|0||22e5","America/Manaus|AMT|40|0||19e5","America/Bogota|COT|50|0||90e5","America/Denver|MST MDT|70 60|01010101010101010101010|1BQV0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|26e5","America/Campo_Grande|AMST AMT|30 40|01010101010101010101010|1BIr0 1zd0 On0 1zd0 Rb0 1zd0 Lz0 1C10 Lz0 1C10 On0 1zd0 On0 1zd0 On0 1zd0 On0 1C10 Lz0 1C10 Lz0 1C10|77e4","America/Cancun|CST CDT EST|60 50 50|010101010102|1C1k0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0 Dd0|63e4","America/Caracas|VET|4u|0||29e5","America/Cayenne|GFT|30|0||58e3","America/Cayman|EST EDT|50 40|01010101010|1Qtj0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|58e3","America/Chicago|CST CDT|60 50|01010101010101010101010|1BQU0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|92e5","America/Chihuahua|MST MDT|70 60|01010101010101010101010|1C1l0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0 14p0 1lb0 14p0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0|81e4","America/Phoenix|MST|70|0||42e5","America/Los_Angeles|PST PDT|80 70|01010101010101010101010|1BQW0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|15e6","America/New_York|EST EDT|50 40|01010101010101010101010|1BQT0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|21e6","America/Rio_Branco|AMT ACT|40 50|01|1KLE0|31e4","America/Fort_Nelson|PST PDT MST|80 70 70|010101010102|1BQW0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0|39e2","America/Halifax|AST ADT|40 30|01010101010101010101010|1BQS0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|39e4","America/Godthab|WGT WGST|30 20|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|17e3","America/Goose_Bay|AST ADT|40 30|01010101010101010101010|1BQQ1 1zb0 Op0 1zcX Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|76e2","America/Grand_Turk|EST EDT AST|50 40 40|0101010101012|1BQT0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|37e2","America/Guayaquil|ECT|50|0||27e5","America/Guyana|GYT|40|0||80e4","America/Havana|CST CDT|50 40|01010101010101010101010|1BQR0 1wo0 U00 1zc0 U00 1qM0 Oo0 1zc0 Oo0 1zc0 Oo0 1zc0 Rc0 1zc0 Oo0 1zc0 Oo0 1zc0 Oo0 1zc0 Oo0 1zc0|21e5","America/La_Paz|BOT|40|0||19e5","America/Lima|PET|50|0||11e6","America/Mexico_City|CST CDT|60 50|01010101010101010101010|1C1k0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0 14p0 1lb0 14p0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0|20e6","America/Metlakatla|PST|80|0||14e2","America/Miquelon|PMST PMDT|30 20|01010101010101010101010|1BQR0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|61e2","America/Montevideo|UYST UYT|20 30|010101010101|1BQQ0 1ld0 14n0 1ld0 14n0 1o10 11z0 1o10 11z0 1o10 11z0|17e5","America/Noronha|FNT|20|0||30e2","America/North_Dakota/Beulah|MST MDT CST CDT|70 60 60 50|01232323232323232323232|1BQV0 1zb0 Oo0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0","America/Paramaribo|SRT|30|0||24e4","America/Port-au-Prince|EST EDT|50 40|0101010101010101010|1GI70 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|23e5","America/Santa_Isabel|PST PDT|80 70|01010101010101010101010|1C1m0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0 14p0 1lb0 14p0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0|23e3","America/Santiago|CLST CLT CLT|30 40 30|010101010102|1C1f0 1fB0 1nX0 G10 1EL0 Op0 1zb0 Rd0 1wn0 Rd0 1wn0|62e5","America/Sao_Paulo|BRST BRT|20 30|01010101010101010101010|1BIq0 1zd0 On0 1zd0 Rb0 1zd0 Lz0 1C10 Lz0 1C10 On0 1zd0 On0 1zd0 On0 1zd0 On0 1C10 Lz0 1C10 Lz0 1C10|20e6","America/Scoresbysund|EGT EGST|10 0|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|452","America/St_Johns|NST NDT|3u 2u|01010101010101010101010|1BQPv 1zb0 Op0 1zcX Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|11e4","Antarctica/Casey|CAST AWST|-b0 -80|0101|1BN30 40P0 KL0|10","Antarctica/Davis|DAVT DAVT|-50 -70|0101|1BPw0 3Wn0 KN0|70","Antarctica/DumontDUrville|DDUT|-a0|0||80","Antarctica/Macquarie|AEDT MIST|-b0 -b0|01|1C140|1","Antarctica/Mawson|MAWT|-50|0||60","Pacific/Auckland|NZDT NZST|-d0 -c0|01010101010101010101010|1C120 1a00 1fA0 1a00 1fA0 1cM0 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1cM0 1fA0 1a00 1fA0 1a00|14e5","Antarctica/Rothera|ROTT|30|0||130","Antarctica/Syowa|SYOT|-30|0||20","Antarctica/Troll|UTC CEST|0 -20|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|40","Antarctica/Vostok|VOST|-60|0||25","Asia/Baghdad|AST|-30|0||66e5","Asia/Almaty|ALMT|-60|0||15e5","Asia/Amman|EET EEST|-20 -30|010101010101010101010|1BVy0 1qM0 11A0 1o00 11A0 4bX0 Dd0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0|25e5","Asia/Anadyr|ANAT ANAST ANAT|-c0 -c0 -b0|0120|1BWe0 1qN0 WM0|13e3","Asia/Aqtobe|AQTT|-50|0||27e4","Asia/Ashgabat|TMT|-50|0||41e4","Asia/Baku|AZT AZST|-40 -50|01010101010101010101010|1BWo0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|27e5","Asia/Bangkok|ICT|-70|0||15e6","Asia/Beirut|EET EEST|-20 -30|01010101010101010101010|1BWm0 1qL0 WN0 1qL0 WN0 1qL0 11B0 1nX0 11B0 1nX0 11B0 1nX0 11B0 1qL0 WN0 1qL0 WN0 1qL0 11B0 1nX0 11B0 1nX0|22e5","Asia/Bishkek|KGT|-60|0||87e4","Asia/Brunei|BNT|-80|0||42e4","Asia/Kolkata|IST|-5u|0||15e6","Asia/Chita|YAKT YAKST YAKT IRKT|-90 -a0 -a0 -80|01023|1BWh0 1qM0 WM0 8Hz0|33e4","Asia/Choibalsan|CHOT CHOST|-80 -90|0101010101010|1O8G0 1cJ0 1cP0 1cJ0 1cP0 1fx0 1cP0 1cJ0 1cP0 1cJ0 1cP0 1cJ0|38e3","Asia/Shanghai|CST|-80|0||23e6","Asia/Dhaka|BDT|-60|0||16e6","Asia/Damascus|EET EEST|-20 -30|01010101010101010101010|1C0m0 1nX0 11B0 1nX0 11B0 1nX0 11B0 1nX0 11B0 1qL0 WN0 1qL0 WN0 1qL0 11B0 1nX0 11B0 1nX0 11B0 1nX0 11B0 1qL0|26e5","Asia/Dili|TLT|-90|0||19e4","Asia/Dubai|GST|-40|0||39e5","Asia/Dushanbe|TJT|-50|0||76e4","Asia/Gaza|EET EEST|-20 -30|01010101010101010101010|1BVW1 SKX 1xd1 MKX 1AN0 1a00 1fA0 1cL0 1cN0 1nX0 1210 1nz0 1210 1nz0 14N0 1nz0 1210 1nz0 1210 1nz0 1210 1nz0|18e5","Asia/Hebron|EET EEST|-20 -30|0101010101010101010101010|1BVy0 Tb0 1xd1 MKX bB0 cn0 1cN0 1a00 1fA0 1cL0 1cN0 1nX0 1210 1nz0 1210 1nz0 14N0 1nz0 1210 1nz0 1210 1nz0 1210 1nz0|25e4","Asia/Hong_Kong|HKT|-80|0||73e5","Asia/Hovd|HOVT HOVST|-70 -80|0101010101010|1O8H0 1cJ0 1cP0 1cJ0 1cP0 1fx0 1cP0 1cJ0 1cP0 1cJ0 1cP0 1cJ0|81e3","Asia/Irkutsk|IRKT IRKST IRKT|-80 -90 -90|01020|1BWi0 1qM0 WM0 8Hz0|60e4","Europe/Istanbul|EET EEST|-20 -30|01010101010101010101010|1BWp0 1qM0 Xc0 1qo0 WM0 1qM0 11A0 1o00 1200 1nA0 11A0 1tA0 U00 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|13e6","Asia/Jakarta|WIB|-70|0||31e6","Asia/Jayapura|WIT|-90|0||26e4","Asia/Jerusalem|IST IDT|-20 -30|01010101010101010101010|1BVA0 17X0 1kp0 1dz0 1c10 1aL0 1eN0 1oL0 10N0 1oL0 10N0 1oL0 10N0 1rz0 W10 1rz0 W10 1rz0 10N0 1oL0 10N0 1oL0|81e4","Asia/Kabul|AFT|-4u|0||46e5","Asia/Kamchatka|PETT PETST PETT|-c0 -c0 -b0|0120|1BWe0 1qN0 WM0|18e4","Asia/Karachi|PKT|-50|0||24e6","Asia/Urumqi|XJT|-60|0||32e5","Asia/Kathmandu|NPT|-5J|0||12e5","Asia/Khandyga|VLAT VLAST VLAT YAKT YAKT|-a0 -b0 -b0 -a0 -90|010234|1BWg0 1qM0 WM0 17V0 7zD0|66e2","Asia/Krasnoyarsk|KRAT KRAST KRAT|-70 -80 -80|01020|1BWj0 1qM0 WM0 8Hz0|10e5","Asia/Kuala_Lumpur|MYT|-80|0||71e5","Asia/Magadan|MAGT MAGST MAGT MAGT|-b0 -c0 -c0 -a0|01023|1BWf0 1qM0 WM0 8Hz0|95e3","Asia/Makassar|WITA|-80|0||15e5","Asia/Manila|PHT|-80|0||24e6","Europe/Athens|EET EEST|-20 -30|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|35e5","Asia/Novokuznetsk|KRAT NOVST NOVT NOVT|-70 -70 -60 -70|01230|1BWj0 1qN0 WM0 8Hz0|55e4","Asia/Novosibirsk|NOVT NOVST NOVT|-60 -70 -70|01020|1BWk0 1qM0 WM0 8Hz0|15e5","Asia/Omsk|OMST OMSST OMST|-60 -70 -70|01020|1BWk0 1qM0 WM0 8Hz0|12e5","Asia/Oral|ORAT|-50|0||27e4","Asia/Pyongyang|KST KST|-90 -8u|01|1P4D0|29e5","Asia/Qyzylorda|QYZT|-60|0||73e4","Asia/Rangoon|MMT|-6u|0||48e5","Asia/Sakhalin|SAKT SAKST SAKT|-a0 -b0 -b0|01020|1BWg0 1qM0 WM0 8Hz0|58e4","Asia/Tashkent|UZT|-50|0||23e5","Asia/Seoul|KST|-90|0||23e6","Asia/Singapore|SGT|-80|0||56e5","Asia/Srednekolymsk|MAGT MAGST MAGT SRET|-b0 -c0 -c0 -b0|01023|1BWf0 1qM0 WM0 8Hz0|35e2","Asia/Tbilisi|GET|-40|0||11e5","Asia/Tehran|IRST IRDT|-3u -4u|01010101010101010101010|1BTUu 1dz0 1cp0 1dz0 1cp0 1dz0 1cN0 1dz0 1cp0 1dz0 1cp0 1dz0 1cp0 1dz0 1cN0 1dz0 1cp0 1dz0 1cp0 1dz0 1cp0 1dz0|14e6","Asia/Thimphu|BTT|-60|0||79e3","Asia/Tokyo|JST|-90|0||38e6","Asia/Ulaanbaatar|ULAT ULAST|-80 -90|0101010101010|1O8G0 1cJ0 1cP0 1cJ0 1cP0 1fx0 1cP0 1cJ0 1cP0 1cJ0 1cP0 1cJ0|12e5","Asia/Ust-Nera|MAGT MAGST MAGT VLAT VLAT|-b0 -c0 -c0 -b0 -a0|010234|1BWf0 1qM0 WM0 17V0 7zD0|65e2","Asia/Vladivostok|VLAT VLAST VLAT|-a0 -b0 -b0|01020|1BWg0 1qM0 WM0 8Hz0|60e4","Asia/Yakutsk|YAKT YAKST YAKT|-90 -a0 -a0|01020|1BWh0 1qM0 WM0 8Hz0|28e4","Asia/Yekaterinburg|YEKT YEKST YEKT|-50 -60 -60|01020|1BWl0 1qM0 WM0 8Hz0|14e5","Asia/Yerevan|AMT AMST|-40 -50|01010|1BWm0 1qM0 WM0 1qM0|13e5","Atlantic/Azores|AZOT AZOST|10 0|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|25e4","Europe/Lisbon|WET WEST|0 -10|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|27e5","Atlantic/Cape_Verde|CVT|10|0||50e4","Atlantic/South_Georgia|GST|20|0||30","Atlantic/Stanley|FKST FKT|30 40|010|1C6R0 U10|21e2","Australia/Sydney|AEDT AEST|-b0 -a0|01010101010101010101010|1C140 1cM0 1cM0 1cM0 1cM0 1fA0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1fA0 1cM0 1cM0 1cM0 1cM0|40e5","Australia/Adelaide|ACDT ACST|-au -9u|01010101010101010101010|1C14u 1cM0 1cM0 1cM0 1cM0 1fA0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1fA0 1cM0 1cM0 1cM0 1cM0|11e5","Australia/Brisbane|AEST|-a0|0||20e5","Australia/Darwin|ACST|-9u|0||12e4","Australia/Eucla|ACWST|-8J|0||368","Australia/Lord_Howe|LHDT LHST|-b0 -au|01010101010101010101010|1C130 1cMu 1cLu 1cMu 1cLu 1fAu 1cLu 1cMu 1cLu 1cMu 1cLu 1cMu 1cLu 1cMu 1cLu 1cMu 1cLu 1fAu 1cLu 1cMu 1cLu 1cMu|347","Australia/Perth|AWST|-80|0||18e5","Pacific/Easter|EASST EAST EAST|50 60 50|010101010102|1C1f0 1fB0 1nX0 G10 1EL0 Op0 1zb0 Rd0 1wn0 Rd0 1wn0|30e2","Europe/Dublin|GMT IST|0 -10|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|12e5","Etc/GMT+1|GMT+1|10|0|","Etc/GMT+10|GMT+10|a0|0|","Etc/GMT+11|GMT+11|b0|0|","Etc/GMT+12|GMT+12|c0|0|","Etc/GMT+2|GMT+2|20|0|","Etc/GMT+3|GMT+3|30|0|","Etc/GMT+4|GMT+4|40|0|","Etc/GMT+5|GMT+5|50|0|","Etc/GMT+6|GMT+6|60|0|","Etc/GMT+7|GMT+7|70|0|","Etc/GMT+8|GMT+8|80|0|","Etc/GMT+9|GMT+9|90|0|","Etc/GMT-1|GMT-1|-10|0|","Etc/GMT-10|GMT-10|-a0|0|","Etc/GMT-11|GMT-11|-b0|0|","Etc/GMT-12|GMT-12|-c0|0|","Etc/GMT-13|GMT-13|-d0|0|","Etc/GMT-14|GMT-14|-e0|0|","Etc/GMT-2|GMT-2|-20|0|","Etc/GMT-3|GMT-3|-30|0|","Etc/GMT-4|GMT-4|-40|0|","Etc/GMT-5|GMT-5|-50|0|","Etc/GMT-6|GMT-6|-60|0|","Etc/GMT-7|GMT-7|-70|0|","Etc/GMT-8|GMT-8|-80|0|","Etc/GMT-9|GMT-9|-90|0|","Etc/UCT|UCT|0|0|","Etc/UTC|UTC|0|0|","Europe/London|GMT BST|0 -10|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|10e6","Europe/Chisinau|EET EEST|-20 -30|01010101010101010101010|1BWo0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|67e4","Europe/Kaliningrad|EET EEST FET|-20 -30 -30|01020|1BWo0 1qM0 WM0 8Hz0|44e4","Europe/Minsk|EET EEST FET MSK|-20 -30 -30 -30|01023|1BWo0 1qM0 WM0 8Hy0|19e5","Europe/Moscow|MSK MSD MSK|-30 -40 -40|01020|1BWn0 1qM0 WM0 8Hz0|16e6","Europe/Samara|SAMT SAMST SAMT|-40 -40 -30|0120|1BWm0 1qN0 WM0|12e5","Europe/Simferopol|EET EEST MSK MSK|-20 -30 -40 -30|01010101023|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11z0 1nW0|33e4","Pacific/Honolulu|HST|a0|0||37e4","Indian/Chagos|IOT|-60|0||30e2","Indian/Christmas|CXT|-70|0||21e2","Indian/Cocos|CCT|-6u|0||596","Indian/Kerguelen|TFT|-50|0||130","Indian/Mahe|SCT|-40|0||79e3","Indian/Maldives|MVT|-50|0||35e4","Indian/Mauritius|MUT|-40|0||15e4","Indian/Reunion|RET|-40|0||84e4","Pacific/Majuro|MHT|-c0|0||28e3","MET|MET MEST|-10 -20|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00","Pacific/Chatham|CHADT CHAST|-dJ -cJ|01010101010101010101010|1C120 1a00 1fA0 1a00 1fA0 1cM0 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1cM0 1fA0 1a00 1fA0 1a00|600","Pacific/Apia|SST SDT WSDT WSST|b0 a0 -e0 -d0|01012323232323232323232|1Dbn0 1ff0 1a00 CI0 AQ0 1cM0 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1cM0 1fA0 1a00 1fA0 1a00|37e3","Pacific/Bougainville|PGT BST|-a0 -b0|01|1NwE0|18e4","Pacific/Chuuk|CHUT|-a0|0||49e3","Pacific/Efate|VUT|-b0|0||66e3","Pacific/Enderbury|PHOT|-d0|0||1","Pacific/Fakaofo|TKT TKT|b0 -d0|01|1Gfn0|483","Pacific/Fiji|FJST FJT|-d0 -c0|01010101010101010101010|1BWe0 1o00 Rc0 1wo0 Ao0 1Nc0 Ao0 1Q00 xz0 1SN0 uM0 1SM0 uM0 1VA0 s00 1VA0 uM0 1SM0 uM0 1SM0 uM0 1SM0|88e4","Pacific/Funafuti|TVT|-c0|0||45e2","Pacific/Galapagos|GALT|60|0||25e3","Pacific/Gambier|GAMT|90|0||125","Pacific/Guadalcanal|SBT|-b0|0||11e4","Pacific/Guam|ChST|-a0|0||17e4","Pacific/Kiritimati|LINT|-e0|0||51e2","Pacific/Kosrae|KOST|-b0|0||66e2","Pacific/Marquesas|MART|9u|0||86e2","Pacific/Pago_Pago|SST|b0|0||37e2","Pacific/Nauru|NRT|-c0|0||10e3","Pacific/Niue|NUT|b0|0||12e2","Pacific/Norfolk|NFT NFT|-bu -b0|01|1PoCu|25e4","Pacific/Noumea|NCT|-b0|0||98e3","Pacific/Palau|PWT|-90|0||21e3","Pacific/Pohnpei|PONT|-b0|0||34e3","Pacific/Port_Moresby|PGT|-a0|0||25e4","Pacific/Rarotonga|CKT|a0|0||13e3","Pacific/Tahiti|TAHT|a0|0||18e4","Pacific/Tarawa|GILT|-c0|0||29e3","Pacific/Tongatapu|TOT|-d0|0||75e3","Pacific/Wake|WAKT|-c0|0||16e3","Pacific/Wallis|WFT|-c0|0||94"],links:["Africa/Abidjan|Africa/Accra","Africa/Abidjan|Africa/Bamako","Africa/Abidjan|Africa/Banjul","Africa/Abidjan|Africa/Bissau","Africa/Abidjan|Africa/Conakry","Africa/Abidjan|Africa/Dakar","Africa/Abidjan|Africa/Freetown","Africa/Abidjan|Africa/Lome","Africa/Abidjan|Africa/Monrovia","Africa/Abidjan|Africa/Nouakchott","Africa/Abidjan|Africa/Ouagadougou","Africa/Abidjan|Africa/Sao_Tome","Africa/Abidjan|Africa/Timbuktu","Africa/Abidjan|America/Danmarkshavn","Africa/Abidjan|Atlantic/Reykjavik","Africa/Abidjan|Atlantic/St_Helena","Africa/Abidjan|Etc/GMT","Africa/Abidjan|Etc/GMT+0","Africa/Abidjan|Etc/GMT-0","Africa/Abidjan|Etc/GMT0","Africa/Abidjan|Etc/Greenwich","Africa/Abidjan|GMT","Africa/Abidjan|GMT+0","Africa/Abidjan|GMT-0","Africa/Abidjan|GMT0","Africa/Abidjan|Greenwich","Africa/Abidjan|Iceland","Africa/Algiers|Africa/Tunis","Africa/Cairo|Egypt","Africa/Casablanca|Africa/El_Aaiun","Africa/Johannesburg|Africa/Maseru","Africa/Johannesburg|Africa/Mbabane","Africa/Khartoum|Africa/Addis_Ababa","Africa/Khartoum|Africa/Asmara","Africa/Khartoum|Africa/Asmera","Africa/Khartoum|Africa/Dar_es_Salaam","Africa/Khartoum|Africa/Djibouti","Africa/Khartoum|Africa/Juba","Africa/Khartoum|Africa/Kampala","Africa/Khartoum|Africa/Mogadishu","Africa/Khartoum|Africa/Nairobi","Africa/Khartoum|Indian/Antananarivo","Africa/Khartoum|Indian/Comoro","Africa/Khartoum|Indian/Mayotte","Africa/Lagos|Africa/Bangui","Africa/Lagos|Africa/Brazzaville","Africa/Lagos|Africa/Douala","Africa/Lagos|Africa/Kinshasa","Africa/Lagos|Africa/Libreville","Africa/Lagos|Africa/Luanda","Africa/Lagos|Africa/Malabo","Africa/Lagos|Africa/Ndjamena","Africa/Lagos|Africa/Niamey","Africa/Lagos|Africa/Porto-Novo","Africa/Maputo|Africa/Blantyre","Africa/Maputo|Africa/Bujumbura","Africa/Maputo|Africa/Gaborone","Africa/Maputo|Africa/Harare","Africa/Maputo|Africa/Kigali","Africa/Maputo|Africa/Lubumbashi","Africa/Maputo|Africa/Lusaka","Africa/Tripoli|Libya","America/Adak|America/Atka","America/Adak|US/Aleutian","America/Anchorage|America/Juneau","America/Anchorage|America/Nome","America/Anchorage|America/Sitka","America/Anchorage|America/Yakutat","America/Anchorage|US/Alaska","America/Argentina/Buenos_Aires|America/Argentina/Catamarca","America/Argentina/Buenos_Aires|America/Argentina/ComodRivadavia","America/Argentina/Buenos_Aires|America/Argentina/Cordoba","America/Argentina/Buenos_Aires|America/Argentina/Jujuy","America/Argentina/Buenos_Aires|America/Argentina/La_Rioja","America/Argentina/Buenos_Aires|America/Argentina/Mendoza","America/Argentina/Buenos_Aires|America/Argentina/Rio_Gallegos","America/Argentina/Buenos_Aires|America/Argentina/Salta","America/Argentina/Buenos_Aires|America/Argentina/San_Juan","America/Argentina/Buenos_Aires|America/Argentina/San_Luis","America/Argentina/Buenos_Aires|America/Argentina/Tucuman","America/Argentina/Buenos_Aires|America/Argentina/Ushuaia","America/Argentina/Buenos_Aires|America/Buenos_Aires","America/Argentina/Buenos_Aires|America/Catamarca","America/Argentina/Buenos_Aires|America/Cordoba","America/Argentina/Buenos_Aires|America/Jujuy","America/Argentina/Buenos_Aires|America/Mendoza","America/Argentina/Buenos_Aires|America/Rosario","America/Campo_Grande|America/Cuiaba","America/Chicago|America/Indiana/Knox","America/Chicago|America/Indiana/Tell_City","America/Chicago|America/Knox_IN","America/Chicago|America/Matamoros","America/Chicago|America/Menominee","America/Chicago|America/North_Dakota/Center","America/Chicago|America/North_Dakota/New_Salem","America/Chicago|America/Rainy_River","America/Chicago|America/Rankin_Inlet","America/Chicago|America/Resolute","America/Chicago|America/Winnipeg","America/Chicago|CST6CDT","America/Chicago|Canada/Central","America/Chicago|US/Central","America/Chicago|US/Indiana-Starke","America/Chihuahua|America/Mazatlan","America/Chihuahua|Mexico/BajaSur","America/Denver|America/Boise","America/Denver|America/Cambridge_Bay","America/Denver|America/Edmonton","America/Denver|America/Inuvik","America/Denver|America/Ojinaga","America/Denver|America/Shiprock","America/Denver|America/Yellowknife","America/Denver|Canada/Mountain","America/Denver|MST7MDT","America/Denver|Navajo","America/Denver|US/Mountain","America/Fortaleza|America/Belem","America/Fortaleza|America/Maceio","America/Fortaleza|America/Recife","America/Fortaleza|America/Santarem","America/Halifax|America/Glace_Bay","America/Halifax|America/Moncton","America/Halifax|America/Thule","America/Halifax|Atlantic/Bermuda","America/Halifax|Canada/Atlantic","America/Havana|Cuba","America/Los_Angeles|America/Dawson","America/Los_Angeles|America/Ensenada","America/Los_Angeles|America/Tijuana","America/Los_Angeles|America/Vancouver","America/Los_Angeles|America/Whitehorse","America/Los_Angeles|Canada/Pacific","America/Los_Angeles|Canada/Yukon","America/Los_Angeles|Mexico/BajaNorte","America/Los_Angeles|PST8PDT","America/Los_Angeles|US/Pacific","America/Los_Angeles|US/Pacific-New","America/Managua|America/Belize","America/Managua|America/Costa_Rica","America/Managua|America/El_Salvador","America/Managua|America/Guatemala","America/Managua|America/Regina","America/Managua|America/Swift_Current","America/Managua|America/Tegucigalpa","America/Managua|Canada/East-Saskatchewan","America/Managua|Canada/Saskatchewan","America/Manaus|America/Boa_Vista","America/Manaus|America/Porto_Velho","America/Manaus|Brazil/West","America/Metlakatla|Pacific/Pitcairn","America/Mexico_City|America/Merida","America/Mexico_City|America/Monterrey","America/Mexico_City|Mexico/General","America/New_York|America/Detroit","America/New_York|America/Fort_Wayne","America/New_York|America/Indiana/Indianapolis","America/New_York|America/Indiana/Marengo","America/New_York|America/Indiana/Petersburg","America/New_York|America/Indiana/Vevay","America/New_York|America/Indiana/Vincennes","America/New_York|America/Indiana/Winamac","America/New_York|America/Indianapolis","America/New_York|America/Iqaluit","America/New_York|America/Kentucky/Louisville","America/New_York|America/Kentucky/Monticello","America/New_York|America/Louisville","America/New_York|America/Montreal","America/New_York|America/Nassau","America/New_York|America/Nipigon","America/New_York|America/Pangnirtung","America/New_York|America/Thunder_Bay","America/New_York|America/Toronto","America/New_York|Canada/Eastern","America/New_York|EST5EDT","America/New_York|US/East-Indiana","America/New_York|US/Eastern","America/New_York|US/Michigan","America/Noronha|Brazil/DeNoronha","America/Panama|America/Atikokan","America/Panama|America/Coral_Harbour","America/Panama|America/Jamaica","America/Panama|EST","America/Panama|Jamaica","America/Phoenix|America/Creston","America/Phoenix|America/Dawson_Creek","America/Phoenix|America/Hermosillo","America/Phoenix|MST","America/Phoenix|US/Arizona","America/Rio_Branco|America/Eirunepe","America/Rio_Branco|America/Porto_Acre","America/Rio_Branco|Brazil/Acre","America/Santiago|Antarctica/Palmer","America/Santiago|Chile/Continental","America/Santo_Domingo|America/Anguilla","America/Santo_Domingo|America/Antigua","America/Santo_Domingo|America/Aruba","America/Santo_Domingo|America/Barbados","America/Santo_Domingo|America/Blanc-Sablon","America/Santo_Domingo|America/Curacao","America/Santo_Domingo|America/Dominica","America/Santo_Domingo|America/Grenada","America/Santo_Domingo|America/Guadeloupe","America/Santo_Domingo|America/Kralendijk","America/Santo_Domingo|America/Lower_Princes","America/Santo_Domingo|America/Marigot","America/Santo_Domingo|America/Martinique","America/Santo_Domingo|America/Montserrat","America/Santo_Domingo|America/Port_of_Spain","America/Santo_Domingo|America/Puerto_Rico","America/Santo_Domingo|America/St_Barthelemy","America/Santo_Domingo|America/St_Kitts","America/Santo_Domingo|America/St_Lucia","America/Santo_Domingo|America/St_Thomas","America/Santo_Domingo|America/St_Vincent","America/Santo_Domingo|America/Tortola","America/Santo_Domingo|America/Virgin","America/Sao_Paulo|Brazil/East","America/St_Johns|Canada/Newfoundland","Asia/Aqtobe|Asia/Aqtau","Asia/Ashgabat|Asia/Ashkhabad","Asia/Baghdad|Asia/Aden","Asia/Baghdad|Asia/Bahrain","Asia/Baghdad|Asia/Kuwait","Asia/Baghdad|Asia/Qatar","Asia/Baghdad|Asia/Riyadh","Asia/Bangkok|Asia/Ho_Chi_Minh","Asia/Bangkok|Asia/Phnom_Penh","Asia/Bangkok|Asia/Saigon","Asia/Bangkok|Asia/Vientiane","Asia/Dhaka|Asia/Dacca","Asia/Dubai|Asia/Muscat","Asia/Hong_Kong|Hongkong","Asia/Jakarta|Asia/Pontianak","Asia/Jerusalem|Asia/Tel_Aviv","Asia/Jerusalem|Israel","Asia/Kathmandu|Asia/Katmandu","Asia/Kolkata|Asia/Calcutta","Asia/Kolkata|Asia/Colombo","Asia/Kuala_Lumpur|Asia/Kuching","Asia/Makassar|Asia/Ujung_Pandang","Asia/Seoul|ROK","Asia/Shanghai|Asia/Chongqing","Asia/Shanghai|Asia/Chungking","Asia/Shanghai|Asia/Harbin","Asia/Shanghai|Asia/Macao","Asia/Shanghai|Asia/Macau","Asia/Shanghai|Asia/Taipei","Asia/Shanghai|PRC","Asia/Shanghai|ROC","Asia/Singapore|Singapore","Asia/Tashkent|Asia/Samarkand","Asia/Tehran|Iran","Asia/Thimphu|Asia/Thimbu","Asia/Tokyo|Japan","Asia/Ulaanbaatar|Asia/Ulan_Bator","Asia/Urumqi|Asia/Kashgar","Australia/Adelaide|Australia/Broken_Hill","Australia/Adelaide|Australia/South","Australia/Adelaide|Australia/Yancowinna","Australia/Brisbane|Australia/Lindeman","Australia/Brisbane|Australia/Queensland","Australia/Darwin|Australia/North","Australia/Lord_Howe|Australia/LHI","Australia/Perth|Australia/West","Australia/Sydney|Australia/ACT","Australia/Sydney|Australia/Canberra","Australia/Sydney|Australia/Currie","Australia/Sydney|Australia/Hobart","Australia/Sydney|Australia/Melbourne","Australia/Sydney|Australia/NSW","Australia/Sydney|Australia/Tasmania","Australia/Sydney|Australia/Victoria","Etc/UCT|UCT","Etc/UTC|Etc/Universal","Etc/UTC|Etc/Zulu","Etc/UTC|UTC","Etc/UTC|Universal","Etc/UTC|Zulu","Europe/Athens|Asia/Nicosia","Europe/Athens|EET","Europe/Athens|Europe/Bucharest","Europe/Athens|Europe/Helsinki","Europe/Athens|Europe/Kiev","Europe/Athens|Europe/Mariehamn","Europe/Athens|Europe/Nicosia","Europe/Athens|Europe/Riga","Europe/Athens|Europe/Sofia","Europe/Athens|Europe/Tallinn","Europe/Athens|Europe/Uzhgorod","Europe/Athens|Europe/Vilnius","Europe/Athens|Europe/Zaporozhye","Europe/Chisinau|Europe/Tiraspol","Europe/Dublin|Eire","Europe/Istanbul|Asia/Istanbul","Europe/Istanbul|Turkey","Europe/Lisbon|Atlantic/Canary","Europe/Lisbon|Atlantic/Faeroe","Europe/Lisbon|Atlantic/Faroe","Europe/Lisbon|Atlantic/Madeira","Europe/Lisbon|Portugal","Europe/Lisbon|WET","Europe/London|Europe/Belfast","Europe/London|Europe/Guernsey","Europe/London|Europe/Isle_of_Man","Europe/London|Europe/Jersey","Europe/London|GB","Europe/London|GB-Eire","Europe/Moscow|Europe/Volgograd","Europe/Moscow|W-SU","Europe/Paris|Africa/Ceuta","Europe/Paris|Arctic/Longyearbyen","Europe/Paris|Atlantic/Jan_Mayen","Europe/Paris|CET","Europe/Paris|Europe/Amsterdam","Europe/Paris|Europe/Andorra","Europe/Paris|Europe/Belgrade","Europe/Paris|Europe/Berlin","Europe/Paris|Europe/Bratislava","Europe/Paris|Europe/Brussels","Europe/Paris|Europe/Budapest","Europe/Paris|Europe/Busingen","Europe/Paris|Europe/Copenhagen","Europe/Paris|Europe/Gibraltar","Europe/Paris|Europe/Ljubljana","Europe/Paris|Europe/Luxembourg","Europe/Paris|Europe/Madrid","Europe/Paris|Europe/Malta","Europe/Paris|Europe/Monaco","Europe/Paris|Europe/Oslo","Europe/Paris|Europe/Podgorica","Europe/Paris|Europe/Prague","Europe/Paris|Europe/Rome","Europe/Paris|Europe/San_Marino","Europe/Paris|Europe/Sarajevo","Europe/Paris|Europe/Skopje","Europe/Paris|Europe/Stockholm","Europe/Paris|Europe/Tirane","Europe/Paris|Europe/Vaduz","Europe/Paris|Europe/Vatican","Europe/Paris|Europe/Vienna","Europe/Paris|Europe/Warsaw","Europe/Paris|Europe/Zagreb","Europe/Paris|Europe/Zurich","Europe/Paris|Poland","Pacific/Auckland|Antarctica/McMurdo","Pacific/Auckland|Antarctica/South_Pole","Pacific/Auckland|NZ","Pacific/Chatham|NZ-CHAT","Pacific/Chuuk|Pacific/Truk","Pacific/Chuuk|Pacific/Yap","Pacific/Easter|Chile/EasterIsland","Pacific/Guam|Pacific/Saipan","Pacific/Honolulu|HST","Pacific/Honolulu|Pacific/Johnston","Pacific/Honolulu|US/Hawaii","Pacific/Majuro|Kwajalein","Pacific/Majuro|Pacific/Kwajalein","Pacific/Pago_Pago|Pacific/Midway","Pacific/Pago_Pago|Pacific/Samoa","Pacific/Pago_Pago|US/Samoa","Pacific/Pohnpei|Pacific/Ponape"]
-}),e})},function(e,t,n){function i(e){return n(r(e))}function r(e){return o[e]||function(){throw new Error("Cannot find module '"+e+"'.")}()}var o={"./en-gb":11,"./en-gb.js":11};i.keys=function(){return Object.keys(o)},i.resolve=r,e.exports=i,i.id=37},function(e,t,n){var i=n(2);e.exports=function(){var e=new i.Template({code:function(e,t,n){var i=this;return i.b(n=n||""),i.b("\n"+n),i.b("<input"),i.b("\n"+n),i.b('  class="bookingjs-form-input input-name"'),i.b("\n"+n),i.b('  type="text"'),i.b("\n"+n),i.b('  name="name"'),i.b("\n"+n),i.b('  placeholder="'),i.b(i.v(i.d("fields.name.placeholder",e,t,0))),i.b('"'),i.b("\n"+n),i.b("  "),i.s(i.d("fields.name.prefilled",e,t,1),e,t,0,154,191,"{{ }}")&&(i.rs(e,t,function(e,t,n){n.b(' value="'),n.b(n.v(n.d("fields.name.prefilled",e,t,0))),n.b('" ')}),e.pop()),i.b("\n"+n),i.b("  "),i.s(i.d("fields.name.locked",e,t,1),e,t,0,247,257,"{{ }}")&&(i.rs(e,t,function(e,t,n){n.b(" readonly ")}),e.pop()),i.b("\n"+n),i.b("  required"),i.b("\n"+n),i.b("/>"),i.b("\n"),i.b("\n"+n),i.b("<input"),i.b("\n"+n),i.b('  class="bookingjs-form-input input-email"'),i.b("\n"+n),i.b('  type="email"'),i.b("\n"+n),i.b('  name="email"'),i.b("\n"+n),i.b('  placeholder="'),i.b(i.v(i.d("fields.email.placeholder",e,t,0))),i.b('"'),i.b("\n"+n),i.b("  "),i.s(i.d("fields.email.prefilled",e,t,1),e,t,0,456,494,"{{ }}")&&(i.rs(e,t,function(e,t,n){n.b(' value="'),n.b(n.v(n.d("fields.email.prefilled",e,t,0))),n.b('" ')}),e.pop()),i.b("\n"+n),i.b("  "),i.s(i.d("fields.email.locked",e,t,1),e,t,0,552,562,"{{ }}")&&(i.rs(e,t,function(e,t,n){n.b(" readonly ")}),e.pop()),i.b("\n"+n),i.b("  required"),i.b("\n"+n),i.b("/>"),i.b("\n"),i.b("\n"+n),i.s(i.d("fields.phone.enabled",e,t,1),e,t,0,631,1011,"{{ }}")&&(i.rs(e,t,function(e,t,i){i.b("  <input"),i.b("\n"+n),i.b('    class="bookingjs-form-input input-phone"'),i.b("\n"+n),i.b('    type="tel"'),i.b("\n"+n),i.b('    name="phone"'),i.b("\n"+n),i.b('    placeholder="'),i.b(i.v(i.d("fields.phone.placeholder",e,t,0))),i.b('"'),i.b("\n"+n),i.b("    "),i.s(i.d("fields.phone.prefilled",e,t,1),e,t,0,800,838,"{{ }}")&&(i.rs(e,t,function(e,t,n){n.b(' value="'),n.b(n.v(n.d("fields.phone.prefilled",e,t,0))),n.b('" ')}),e.pop()),i.b("\n"+n),i.b("    "),i.s(i.d("fields.phone.required",e,t,1),e,t,0,900,910,"{{ }}")&&(i.rs(e,t,function(e,t,n){n.b(" required ")}),e.pop()),i.b("\n"+n),i.b("    "),i.s(i.d("fields.phone.locked",e,t,1),e,t,0,969,979,"{{ }}")&&(i.rs(e,t,function(e,t,n){n.b(" readonly ")}),e.pop()),i.b("\n"+n),i.b("  />"),i.b("\n"+n)}),e.pop()),i.b("\n"+n),i.s(i.d("fields.voip.enabled",e,t,1),e,t,0,1066,1437,"{{ }}")&&(i.rs(e,t,function(e,t,i){i.b("  <input"),i.b("\n"+n),i.b('    class="bookingjs-form-input input-voip"'),i.b("\n"+n),i.b('    type="text"'),i.b("\n"+n),i.b('    name="voip"'),i.b("\n"+n),i.b('    placeholder="'),i.b(i.v(i.d("fields.voip.placeholder",e,t,0))),i.b('"'),i.b("\n"+n),i.b("    "),i.s(i.d("fields.voip.prefilled",e,t,1),e,t,0,1232,1269,"{{ }}")&&(i.rs(e,t,function(e,t,n){n.b(' value="'),n.b(n.v(n.d("fields.voip.prefilled",e,t,0))),n.b('" ')}),e.pop()),i.b("\n"+n),i.b("    "),i.s(i.d("fields.voip.required",e,t,1),e,t,0,1329,1339,"{{ }}")&&(i.rs(e,t,function(e,t,n){n.b(" required ")}),e.pop()),i.b("\n"+n),i.b("    "),i.s(i.d("fields.voip.locked",e,t,1),e,t,0,1396,1406,"{{ }}")&&(i.rs(e,t,function(e,t,n){n.b(" readonly ")}),e.pop()),i.b("\n"+n),i.b("  />"),i.b("\n"+n)}),e.pop()),i.b("\n"+n),i.s(i.d("fields.location.enabled",e,t,1),e,t,0,1495,1906,"{{ }}")&&(i.rs(e,t,function(e,t,i){i.b("  <input"),i.b("\n"+n),i.b('    class="bookingjs-form-input input-location"'),i.b("\n"+n),i.b('    type="text"'),i.b("\n"+n),i.b('    name="location"'),i.b("\n"+n),i.b('    placeholder="'),i.b(i.v(i.d("fields.location.placeholder",e,t,0))),i.b('"'),i.b("\n"+n),i.b("    "),i.s(i.d("fields.location.prefilled",e,t,1),e,t,0,1677,1718,"{{ }}")&&(i.rs(e,t,function(e,t,n){n.b(' value="'),n.b(n.v(n.d("fields.location.prefilled",e,t,0))),n.b('" ')}),e.pop()),i.b("\n"+n),i.b("    "),i.s(i.d("fields.location.required",e,t,1),e,t,0,1786,1796,"{{ }}")&&(i.rs(e,t,function(e,t,n){n.b(" required ")}),e.pop()),i.b("\n"+n),i.b("    "),i.s(i.d("fields.location.locked",e,t,1),e,t,0,1861,1871,"{{ }}")&&(i.rs(e,t,function(e,t,n){n.b(" readonly ")}),e.pop()),i.b("\n"+n),i.b("  />"),i.b("\n"+n)}),e.pop()),i.b("\n"+n),i.s(i.d("fields.comment.enabled",e,t,1),e,t,0,1967,2360,"{{ }}")&&(i.rs(e,t,function(e,t,i){i.b("  <textarea"),i.b("\n"+n),i.b('    class="bookingjs-form-input input-comment"'),i.b("\n"+n),i.b('    rows="3"'),i.b("\n"+n),i.b('    name="comment"'),i.b("\n"+n),i.b('    placeholder="'),i.b(i.v(i.d("fields.comment.placeholder",e,t,0))),i.b('"'),i.b("\n"+n),i.b("    "),i.s(i.d("fields.comment.required",e,t,1),e,t,0,2144,2154,"{{ }}")&&(i.rs(e,t,function(e,t,n){n.b(" required ")}),e.pop()),i.b("\n"+n),i.b("    "),i.s(i.d("fields.comment.locked",e,t,1),e,t,0,2217,2227,"{{ }}")&&(i.rs(e,t,function(e,t,n){n.b(" readonly ")}),e.pop()),i.b(">"),i.s(i.d("fields.comment.prefilled",e,t,1),e,t,0,2287,2317,"{{ }}")&&(i.rs(e,t,function(e,t,n){n.b(n.v(n.d("fields.comment.prefilled",e,t,0)))}),e.pop()),i.b("</textarea>"),i.b("\n"+n)}),e.pop()),i.fl()},partials:{},subs:{}},'\n<input\n  class="bookingjs-form-input input-name"\n  type="text"\n  name="name"\n  placeholder="{{ fields.name.placeholder }}"\n  {{# fields.name.prefilled }} value="{{ fields.name.prefilled }}" {{/ fields.name.prefilled }}\n  {{# fields.name.locked }} readonly {{/ fields.name.locked }}\n  required\n/>\n\n<input\n  class="bookingjs-form-input input-email"\n  type="email"\n  name="email"\n  placeholder="{{ fields.email.placeholder }}"\n  {{# fields.email.prefilled }} value="{{ fields.email.prefilled }}" {{/ fields.email.prefilled }}\n  {{# fields.email.locked }} readonly {{/ fields.email.locked }}\n  required\n/>\n\n{{# fields.phone.enabled }}\n  <input\n    class="bookingjs-form-input input-phone"\n    type="tel"\n    name="phone"\n    placeholder="{{ fields.phone.placeholder }}"\n    {{# fields.phone.prefilled }} value="{{ fields.phone.prefilled }}" {{/ fields.phone.prefilled }}\n    {{# fields.phone.required }} required {{/ fields.phone.required }}\n    {{# fields.phone.locked }} readonly {{/ fields.phone.locked }}\n  />\n{{/ fields.phone.enabled }}\n\n{{# fields.voip.enabled }}\n  <input\n    class="bookingjs-form-input input-voip"\n    type="text"\n    name="voip"\n    placeholder="{{ fields.voip.placeholder }}"\n    {{# fields.voip.prefilled }} value="{{ fields.voip.prefilled }}" {{/ fields.voip.prefilled }}\n    {{# fields.voip.required }} required {{/ fields.voip.required }}\n    {{# fields.voip.locked }} readonly {{/ fields.voip.locked }}\n  />\n{{/ fields.voip.enabled }}\n\n{{# fields.location.enabled }}\n  <input\n    class="bookingjs-form-input input-location"\n    type="text"\n    name="location"\n    placeholder="{{ fields.location.placeholder }}"\n    {{# fields.location.prefilled }} value="{{ fields.location.prefilled }}" {{/ fields.location.prefilled }}\n    {{# fields.location.required }} required {{/ fields.location.required }}\n    {{# fields.location.locked }} readonly {{/ fields.location.locked }}\n  />\n{{/ fields.location.enabled }}\n\n{{# fields.comment.enabled }}\n  <textarea\n    class="bookingjs-form-input input-comment"\n    rows="3"\n    name="comment"\n    placeholder="{{ fields.comment.placeholder }}"\n    {{# fields.comment.required }} required {{/ fields.comment.required }}\n    {{# fields.comment.locked }} readonly {{/ fields.comment.locked }}>{{# fields.comment.prefilled }}{{ fields.comment.prefilled }}{{/ fields.comment.prefilled }}</textarea>\n{{/ fields.comment.enabled }}\n',i);return e}()},function(e,t,n){var i=n(2);e.exports=function(){var e=new i.Template({code:function(e,t,n){var i=this;return i.b(n=n||""),i.b('<div class="bookingjs-bookpage">'),i.b("\n"+n),i.b('  <a class="bookingjs-bookpage-close" href="#">'),i.b(i.t(i.f("closeIcon",e,t,0))),i.b("</a>"),i.b("\n"+n),i.b('  <h2 class="bookingjs-bookpage-date">'),i.b(i.v(i.f("chosenDate",e,t,0))),i.b("</h2>"),i.b("\n"+n),i.b('  <h3 class="bookingjs-bookpage-time">'),i.b(i.v(i.f("chosenTime",e,t,0))),i.b("</h3>"),i.b("\n"+n),i.b('  <form class="bookingjs-form" action="#">'),i.b("\n"+n),i.b('    <div class="bookingjs-form-box">'),i.b("\n"+n),i.b('      <div class="bookingjs-form-success-message">'),i.b("\n"+n),i.b('        <div class="title">'),i.b(i.v(i.f("successMessageTitle",e,t,0))),i.b("</div>"),i.b("\n"+n),i.b('        <div class="body">'),i.b(i.t(i.f("successMessageBody",e,t,0))),i.b("</div>"),i.b("\n"+n),i.b("      </div>"),i.b("\n"+n),i.b('      <div class="bookingjs-form-fields">'),i.b("\n"+n),i.b('        <input class="bookingjs-form-input hidden" type="text" name="start" value="'),i.b(i.v(i.f("start",e,t,0))),i.b('" />'),i.b("\n"+n),i.b('        <input class="bookingjs-form-input hidden" type="text" name="end" value="'),i.b(i.v(i.f("end",e,t,0))),i.b('" />'),i.b("\n"+n),i.b(i.rp("<formFields0",e,t,"        ")),i.b("      </div>"),i.b("\n"+n),i.b("    </div>"),i.b("\n"+n),i.b('    <button class="bookingjs-form-button" type="submit">'),i.b("\n"+n),i.b('      <span class="inactive-text">'),i.b(i.v(i.f("submitText",e,t,0))),i.b("</span>"),i.b("\n"+n),i.b('      <span class="loading-text">'),i.b(i.t(i.f("loadingIcon",e,t,0))),i.b("</span>"),i.b("\n"+n),i.b('      <span class="error-text">'),i.b(i.t(i.f("errorIcon",e,t,0))),i.b("</span>"),i.b("\n"+n),i.b('      <span class="success-text">'),i.b(i.t(i.f("checkmarkIcon",e,t,0))),i.b("</span>"),i.b("\n"+n),i.b("    </button>"),i.b("\n"+n),i.b("  </form>"),i.b("\n"+n),i.b("</div>"),i.b("\n"),i.fl()},partials:{"<formFields0":{name:"formFields",partials:{},subs:{}}},subs:{}},'<div class="bookingjs-bookpage">\n  <a class="bookingjs-bookpage-close" href="#">{{& closeIcon }}</a>\n  <h2 class="bookingjs-bookpage-date">{{ chosenDate }}</h2>\n  <h3 class="bookingjs-bookpage-time">{{ chosenTime }}</h3>\n  <form class="bookingjs-form" action="#">\n    <div class="bookingjs-form-box">\n      <div class="bookingjs-form-success-message">\n        <div class="title">{{ successMessageTitle }}</div>\n        <div class="body">{{& successMessageBody }}</div>\n      </div>\n      <div class="bookingjs-form-fields">\n        <input class="bookingjs-form-input hidden" type="text" name="start" value="{{ start }}" />\n        <input class="bookingjs-form-input hidden" type="text" name="end" value="{{ end }}" />\n        {{> formFields }}\n      </div>\n    </div>\n    <button class="bookingjs-form-button" type="submit">\n      <span class="inactive-text">{{ submitText }}</span>\n      <span class="loading-text">{{& loadingIcon }}</span>\n      <span class="error-text">{{& errorIcon }}</span>\n      <span class="success-text">{{& checkmarkIcon }}</span>\n    </button>\n  </form>\n</div>\n',i);return e}()},function(e,t,n){var i=n(2);e.exports=function(){var e=new i.Template({code:function(e,t,n){var i=this;return i.b(n=n||""),i.b('<div class="bookingjs-poweredby">'),i.b("\n"+n),i.b('  <a href="http://booking.timekit.io" target="_blank">'),i.b("\n"+n),i.b("    "),i.b(i.t(i.f("timekitIcon",e,t,0))),i.b("\n"+n),i.b("    <span>Powered by Timekit</span>"),i.b("\n"+n),i.b("  </a>"),i.b("\n"+n),i.b("</div>"),i.b("\n"),i.fl()},partials:{},subs:{}},'<div class="bookingjs-poweredby">\n  <a href="http://booking.timekit.io" target="_blank">\n    {{& timekitIcon }}\n    <span>Powered by Timekit</span>\n  </a>\n</div>\n',i);return e}()},function(e,t,n){var i=n(2);e.exports=function(){var e=new i.Template({code:function(e,t,n){var i=this;return i.b(n=n||""),i.b('<div class="bookingjs-avatar">'),i.b("\n"+n),i.b('  <img src="'),i.b(i.t(i.f("image",e,t,0))),i.b('" />'),i.b("\n"+n),i.b("</div>"),i.b("\n"),i.fl()},partials:{},subs:{}},'<div class="bookingjs-avatar">\n  <img src="{{& image }}" />\n</div>\n',i);return e}()},function(e,t,n){var i=n(2);e.exports=function(){var e=new i.Template({code:function(e,t,n){var i=this;return i.b(n=n||""),i.b('<div class="bookingjs-displayname">'),i.b("\n"+n),i.b("  <span>"),i.b(i.v(i.f("name",e,t,0))),i.b("</span>"),i.b("\n"+n),i.b("</div>"),i.b("\n"),i.fl()},partials:{},subs:{}},'<div class="bookingjs-displayname">\n  <span>{{ name }}</span>\n</div>\n',i);return e}()},function(e,t,n){!function(e){function n(){var e=arguments[0],t=n.cache;return t[e]&&t.hasOwnProperty(e)||(t[e]=n.parse(e)),n.format.call(null,t[e],arguments)}function i(e){return Object.prototype.toString.call(e).slice(8,-1).toLowerCase()}function r(e,t){return Array(t+1).join(e)}var o={not_string:/[^s]/,number:/[diefg]/,json:/[j]/,not_json:/[^j]/,text:/^[^\x25]+/,modulo:/^\x25{2}/,placeholder:/^\x25(?:([1-9]\d*)\$|\(([^\)]+)\))?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-gijosuxX])/,key:/^([a-z_][a-z_\d]*)/i,key_access:/^\.([a-z_][a-z_\d]*)/i,index_access:/^\[(\d+)\]/,sign:/^[\+\-]/};n.format=function(e,t){var a,s,l,c,u,d,f,h=1,p=e.length,m="",g=[],b=!0,v="";for(s=0;p>s;s++)if(m=i(e[s]),"string"===m)g[g.length]=e[s];else if("array"===m){if(c=e[s],c[2])for(a=t[h],l=0;l<c[2].length;l++){if(!a.hasOwnProperty(c[2][l]))throw new Error(n("[sprintf] property '%s' does not exist",c[2][l]));a=a[c[2][l]]}else a=c[1]?t[c[1]]:t[h++];if("function"==i(a)&&(a=a()),o.not_string.test(c[8])&&o.not_json.test(c[8])&&"number"!=i(a)&&isNaN(a))throw new TypeError(n("[sprintf] expecting number but found %s",i(a)));switch(o.number.test(c[8])&&(b=a>=0),c[8]){case"b":a=a.toString(2);break;case"c":a=String.fromCharCode(a);break;case"d":case"i":a=parseInt(a,10);break;case"j":a=JSON.stringify(a,null,c[6]?parseInt(c[6]):0);break;case"e":a=c[7]?a.toExponential(c[7]):a.toExponential();break;case"f":a=c[7]?parseFloat(a).toFixed(c[7]):parseFloat(a);break;case"g":a=c[7]?parseFloat(a).toPrecision(c[7]):parseFloat(a);break;case"o":a=a.toString(8);break;case"s":a=(a=String(a))&&c[7]?a.substring(0,c[7]):a;break;case"u":a>>>=0;break;case"x":a=a.toString(16);break;case"X":a=a.toString(16).toUpperCase()}o.json.test(c[8])?g[g.length]=a:(!o.number.test(c[8])||b&&!c[3]?v="":(v=b?"+":"-",a=a.toString().replace(o.sign,"")),d=c[4]?"0"===c[4]?"0":c[4].charAt(1):" ",f=c[6]-(v+a).length,u=c[6]&&f>0?r(d,f):"",g[g.length]=c[5]?v+a+u:"0"===d?v+u+a:u+v+a)}return g.join("")},n.cache={},n.parse=function(e){for(var t=e,n=[],i=[],r=0;t;){if(null!==(n=o.text.exec(t)))i[i.length]=n[0];else if(null!==(n=o.modulo.exec(t)))i[i.length]="%";else{if(null===(n=o.placeholder.exec(t)))throw new SyntaxError("[sprintf] unexpected placeholder");if(n[2]){r|=1;var a=[],s=n[2],l=[];if(null===(l=o.key.exec(s)))throw new SyntaxError("[sprintf] failed to parse named argument key");for(a[a.length]=l[1];""!==(s=s.substring(l[0].length));)if(null!==(l=o.key_access.exec(s)))a[a.length]=l[1];else{if(null===(l=o.index_access.exec(s)))throw new SyntaxError("[sprintf] failed to parse named argument key");a[a.length]=l[1]}n[2]=a}else r|=2;if(3===r)throw new Error("[sprintf] mixing positional and named placeholders is not (yet) supported");i[i.length]=n}t=t.substring(n[0].length)}return i};var a=function(e,t,i){return i=(t||[]).slice(0),i.splice(0,0,e),n.apply(null,i)};t.sprintf=n,t.vsprintf=a}("undefined"==typeof window?this:window)},function(e,t,n){var i=n(27);"string"==typeof i&&(i=[[e.id,i,""]]);n(5)(i,{singleton:!0});i.locals&&(e.exports=i.locals)},function(e,t,n){var i=n(28);"string"==typeof i&&(i=[[e.id,i,""]]);n(5)(i,{singleton:!0});i.locals&&(e.exports=i.locals)},function(e,t,n){var i=n(29);"string"==typeof i&&(i=[[e.id,i,""]]);n(5)(i,{singleton:!0});i.locals&&(e.exports=i.locals)},function(e,t,n){var i=n(30);"string"==typeof i&&(i=[[e.id,i,""]]);n(5)(i,{singleton:!0});i.locals&&(e.exports=i.locals)},function(e,t){e.exports='<svg viewBox="0 0 38 26" x="0px" y="0px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"><path fill="#fff" d="M4.59255916,9.14153015 L4.59255916,9.14153015 L4.59255917,9.14153016 C3.61060488,8.15335155 2.0152224,8.15314806 1.03260582,9.1419932 L0.737322592,9.43914816 C-0.245558943,10.4282599 -0.245836003,12.0327396 0.736862454,13.0216671 L12.8967481,25.2586313 C13.4826504,25.8482474 14.3060779,26.1023412 15.1093609,25.9623831 L15.1946218,25.9520176 C15.7962843,25.9101633 16.3621851,25.6553951 16.7974015,25.21742 L37.2642739,4.6208133 C38.2456495,3.63321696 38.2453889,2.02851586 37.2626092,1.03950653 L36.967326,0.742351578 C35.9843771,-0.246827998 34.390543,-0.247513927 33.4085772,0.740676315 L15.4197831,18.8434968 L14.826599,19.4404409 L14.2334149,18.8434968 L4.59255916,9.14153015 Z" id="Path"></path></svg>'},function(e,t){e.exports='<svg class="bookingjs-closeicon" viewBox="0 0 90 90" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"><title>close-icon</title><desc>Created with Sketch.</desc><defs></defs><g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage"><g id="close-icon" sketch:type="MSLayerGroup" fill="#000000"><path d="M58,45 L87.2,15.8 C90.9,12.1 90.9,6.3 87.3,2.7 C83.7,-0.9 77.8,-0.8 74.2,2.8 L45,32 L15.8,2.8 C12.1,-0.9 6.3,-0.9 2.7,2.7 C-0.9,6.3 -0.8,12.2 2.8,15.8 L32,45 L2.8,74.2 C-0.9,77.9 -0.9,83.7 2.7,87.3 C6.3,90.9 12.2,90.8 15.8,87.2 L45,58 L74.2,87.2 C77.9,90.9 83.7,90.9 87.3,87.3 C90.9,83.7 90.8,77.8 87.2,74.2 L58,45 L58,45 Z" id="Shape" sketch:type="MSShapeGroup"></path></g></g></svg>'},function(e,t){e.exports='<svg class="bookingjs-closeicon" viewBox="0 0 90 90" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"><title>error-icon</title><desc>Created with Sketch.</desc><defs></defs><g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage"><g id="error-icon" sketch:type="MSLayerGroup" fill="#FFFFFF"><path d="M58,45 L87.2,15.8 C90.9,12.1 90.9,6.3 87.3,2.7 C83.7,-0.9 77.8,-0.8 74.2,2.8 L45,32 L15.8,2.8 C12.1,-0.9 6.3,-0.9 2.7,2.7 C-0.9,6.3 -0.8,12.2 2.8,15.8 L32,45 L2.8,74.2 C-0.9,77.9 -0.9,83.7 2.7,87.3 C6.3,90.9 12.2,90.8 15.8,87.2 L45,58 L74.2,87.2 C77.9,90.9 83.7,90.9 87.3,87.3 C90.9,83.7 90.8,77.8 87.2,74.2 L58,45 L58,45 Z" id="Shape" sketch:type="MSShapeGroup"></path></g></g></svg>'},function(e,t){e.exports='<svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 38 38" xml:space="preserve"><path fill="#fff" d="M38,19 C38,8.50658975 29.4934102,0 19,0 C8.50658975,0 0,8.50658975 0,19 L5,19 C5,11.2680135 11.2680135,5 19,5 C26.7319865,5 33,11.2680135 33,19 L38,19 Z" id="Oval-1" sketch:type="MSShapeGroup"></path></path></svg>'},function(e,t){e.exports='<svg class="bookingjs-timekiticon" viewBox="0 0 495 594" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"><title>Full vector path</title><desc>Created with Sketch.</desc><defs></defs><g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage"><g id="Artboard-8" sketch:type="MSArtboardGroup" transform="translate(-979.000000, -549.000000)" fill="#AEAEAE"><g id="Full-vector-path" sketch:type="MSLayerGroup" transform="translate(979.000000, 549.000000)"><path d="M32.6783606,348.314972 L81.9095347,309.666147 L178.242802,387.91348 C213.042282,416.179589 268.948833,417.207556 304.79022,390.230569 L411.868735,309.63503 L461.989416,351.164228 L294.687237,477.088734 C265.004826,499.430003 217.635083,498.547293 188.834846,475.15411 L32.6783606,348.314972 Z M19.2354438,359.039602 C-6.62593762,382.117664 -5.82713003,417.651408 21.8567615,440.137832 L188.814783,575.750588 C217.626101,599.152772 265.020127,600.031261 294.666324,577.71725 L471.933566,444.292269 C501.091173,422.346008 502.419289,385.92569 475.267328,362.197265 L304.79022,490.511467 C268.948833,517.488455 213.042282,516.460488 178.242802,488.194379 L19.2354438,359.039602 Z M95.4596929,299.028626 L198.50357,218.134257 C227.693194,195.219007 274.527519,195.836287 303.106573,219.516436 L398.57111,298.61683 L294.687237,376.807835 C265.004826,399.149104 217.635083,398.266394 188.834846,374.873211 L95.4596929,299.028626 Z" id="Base-layer" sketch:type="MSShapeGroup"></path><path d="M45.8421644,258.72646 L32.470588,247.865309 L198.50357,117.521482 C227.708304,94.5943704 274.527519,95.223512 303.106573,118.903661 L462.199296,250.725357 L448.401633,261.110541 L292.387775,131.839944 C269.89295,113.20109 231.857075,112.695864 208.877526,130.735908 L45.8421644,258.72646 Z M32.2967277,269.367817 L19.0412272,258.600949 C-6.62061571,281.684165 -5.74436993,317.105855 21.8366979,339.50876 L188.834846,475.15411 C217.635083,498.547293 265.004826,499.430003 294.687237,477.088734 L471.912654,343.695235 C501.008799,321.795234 502.426315,285.506694 475.470948,261.763118 L461.699258,272.12874 L463.151849,273.332334 C483.387128,290.098964 482.810002,314.466035 461.809671,330.272501 L284.584254,463.666001 C261.076006,481.360119 222.242635,480.64608 199.426891,462.113841 L32.4287426,326.468491 C12.2129453,310.048076 12.2096732,285.628236 32.2967277,269.367817 Z" id="Middle-layer" sketch:type="MSShapeGroup"></path><path d="M303.106573,18.6227621 L473.870647,160.115153 C502.470886,183.812855 501.573077,221.089616 471.912654,243.414336 L294.687237,376.807835 C265.004826,399.149104 217.635083,398.266394 188.834846,374.873211 L21.8366979,239.227861 C-6.94564818,215.84921 -6.64628574,178.293025 22.5453033,155.376233 L198.50357,17.2405832 C227.708304,-5.6865285 274.527519,-5.05738689 303.106573,18.6227621 Z M292.387775,31.5590447 C269.89295,12.9201909 231.857075,12.4149656 208.877526,30.4550095 L32.9192595,168.590659 C12.2117199,184.847067 12.006219,209.599262 32.4287426,226.187592 L199.426891,361.832942 C222.242635,380.365181 261.076006,381.07922 284.584254,363.385102 L461.809671,229.991603 C482.810002,214.185136 483.387128,189.818065 463.151849,173.051435 L292.387775,31.5590447 Z" id="Top-layer" sketch:type="MSShapeGroup"></path></g></g></g></svg>'},function(e,t){e.exports='<svg class="bookingjs-timezoneicon" viewBox="0 0 98 98" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"><title>Shape</title><desc>Created with Sketch.</desc><defs></defs><g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage"><g id="timezone-icon" sketch:type="MSLayerGroup" fill="#AEAEAE"><path d="M37.656,1.387 L39.381,2.516 L46.176,3.475 L49.313,2.778 L55.186,3.495 L56.364,5.065 L52.274,4.52 L48.092,6.262 L49.293,9.385 L53.613,11.348 L54.189,7.395 L58.285,7.133 L64.121,12.707 L65.775,14.887 L66.56,16.28 L62.029,18.067 L55.185,21.169 L54.624,24.206 L50.095,28.476 L50.271,32.572 L48.9,32.559 L48.353,29.086 L45.757,28.238 L38.294,28.631 L35.286,34.137 L37.901,37.274 L42.221,34.917 L42.516,38.755 L44.172,40.062 L47.131,43.46 L46.985,47.751 L52.448,49.034 L56.454,46.159 L58.284,46.768 L65.003,49.45 L74.433,52.985 L76.396,57.698 L83.111,60.968 L84.644,66.732 L80.062,71.857 L74.66,77.519 L68.933,80.482 L63.04,84.408 L55.185,89.515 L50.835,93.941 L49.292,92.263 L52.782,83.419 L53.663,73.167 L46.15,66.34 L46.199,60.596 L48.164,58.239 L50.471,51.415 L45.809,48.811 L42.664,43.706 L37.75,41.817 L30.047,37.667 L26.904,29.024 L25.334,33.344 L22.977,26.276 L23.762,15.671 L27.69,12.136 L26.512,9.779 L29.26,5.459 L23.905,6.99 C9.611,15.545 0.01,31.135 0.01,49.006 C0.01,76.062 21.945,98 49.006,98 C76.062,98 98,76.062 98,49.006 C98,21.947 76.062,0.012 49.006,0.012 C45.092,0.012 41.305,0.52 37.656,1.387 Z" id="Shape" sketch:type="MSShapeGroup"></path></g></g></svg>'},function(e,t,n){"use strict";function i(){var e,t,n=[],i=[],s={app:"demo",apiBaseUrl:"https://api.timekit.io/",apiVersion:"v2",convertResponseToCamelcase:!1},l=function(){return o.encode(e+":"+t)},c=function(e){return s.apiBaseUrl+s.apiVersion+e},u={};return u.makeRequest=function(o){o.url=c(o.url),o.headers=o.headers||i[0]||{},o.headers["Timekit-App"]=s.app,e&&t&&(o.headers.Authorization="Basic "+l()),s.inputTimestampFormat&&(o.headers["Timekit-InputTimestampFormat"]=s.inputTimestampFormat),s.outputTimestampFormat&&(o.headers["Timekit-OutputTimestampFormat"]=s.outputTimestampFormat),s.timezone&&(o.headers["Timekit-Timezone"]=s.timezone),i&&i.length>0&&(i=[]),n&&n.length>0&&(void 0===o.params&&(o.params={}),o.params.include=n.join(),n=[]),o.data&&(o.data=a.decamelizeKeys(o.data));var u=r.interceptors.response.use(function(e){return e.data&&e.data.data&&(e.data=e.data.data,s.convertResponseToCamelcase&&(e.data=a.camelizeKeys(e.data))),e},function(e){return Promise.reject(e)}),d=r(o);return r.interceptors.response.eject(u),d},u.configure=function(e){for(var t in e)s[t]=e[t];return s},u.getConfig=function(){return s},u.setUser=function(n,i){e=n,t=i},u.getUser=function(){return{email:e,apiToken:t}},u.include=function(){return n=Array.prototype.slice.call(arguments),this},u.headers=function(e){return i.push(e),this},u.getAccounts=function(){return u.makeRequest({url:"/accounts",method:"get"})},u.accountGoogleSignup=function(e,t){var n=c("/accounts/google/signup")+"?Timekit-App="+s.app+(e&&e.callback?"&callback="+e.callback:"");return t&&window?void(window.location.href=n):n},u.getAccountGoogleCalendars=function(){return u.makeRequest({url:"/accounts/google/calendars",method:"get"})},u.accountSync=function(){return u.makeRequest({url:"/accounts/sync",method:"get"})},u.auth=function(e){var t=u.makeRequest({url:"/auth",method:"post",data:e});return t.then(function(e){u.setUser(e.data.email,e.data.api_token)})["catch"](function(){u.setUser("","")}),t},u.getApps=function(){return u.makeRequest({url:"/apps",method:"get"})},u.getApp=function(e){return u.makeRequest({url:"/apps/"+e.slug,method:"get"})},u.createApp=function(e){return u.makeRequest({url:"/apps",method:"post",data:e})},u.updateApp=function(e){var t=e.slug;return delete e.slug,u.makeRequest({url:"/apps/"+t,method:"put",data:e})},u.deleteApp=function(e){return u.makeRequest({url:"/apps/"+e.slug,method:"delete"})},u.getCalendars=function(){return u.makeRequest({url:"/calendars",method:"get"})},u.getCalendar=function(e){return u.makeRequest({url:"/calendars/"+e.id,method:"get"})},u.createCalendar=function(e){return u.makeRequest({url:"/calendars/",method:"post",data:e})},u.deleteCalendar=function(e){return u.makeRequest({url:"/calendars/"+e.id,method:"delete"})},u.getContacts=function(){return u.makeRequest({url:"/contacts/",method:"get"})},u.getEvents=function(e){return u.makeRequest({url:"/events",method:"get",params:e})},u.getEvent=function(e){return u.makeRequest({url:"/events/"+e.id,method:"get"})},u.createEvent=function(e){return u.makeRequest({url:"/events",method:"post",data:e})},u.deleteEvent=function(e){return u.makeRequest({url:"/events/"+e.id,method:"delete"})},u.getAvailability=function(e){return u.makeRequest({url:"/events/availability",method:"get",params:e})},u.findTime=function(e){return u.makeRequest({url:"/findtime",method:"post",data:e})},u.findTimeBulk=function(e){return u.makeRequest({url:"/findtime/bulk",method:"post",data:e})},u.getMeetings=function(){return u.makeRequest({url:"/meetings",method:"get"})},u.getMeeting=function(e){return u.makeRequest({url:"/meetings/"+e.id,method:"get"})},u.createMeeting=function(e){return u.makeRequest({url:"/meetings",method:"post",data:e})},u.updateMeeting=function(e){var t=e.id;return delete e.id,u.makeRequest({url:"/meetings/"+t,method:"put",data:e})},u.setMeetingAvailability=function(e){return u.makeRequest({url:"/meetings/availability",method:"post",data:e})},u.bookMeeting=function(e){return u.makeRequest({url:"/meetings/book",method:"post",data:e})},u.inviteToMeeting=function(e){var t=e.id;return delete e.id,u.makeRequest({url:"/meetings/"+t+"/invite",method:"post",data:e})},u.createUser=function(e){return u.makeRequest({url:"/users",method:"post",data:e})},u.getUserInfo=function(){return u.makeRequest({url:"/users/me",method:"get"})},u.updateUser=function(e){return u.makeRequest({url:"/users/me",method:"put",data:e})},u.resetUserPassword=function(e){return u.makeRequest({url:"/users/resetpassword",method:"post",data:e})},u.getUserTimezone=function(e){return u.makeRequest({url:"/users/timezone/"+e.email,method:"get"})},u.getUserProperties=function(){return u.makeRequest({url:"/properties",method:"get"})},u.getUserProperty=function(e){return u.makeRequest({url:"/properties/"+e.key,method:"get"})},u.setUserProperties=function(e){return u.makeRequest({url:"/properties",method:"put",data:e})},u.getCredentials=function(){return u.makeRequest({url:"/credentials",method:"get"})},u.createCredential=function(e){return u.makeRequest({url:"/credentials",method:"post",data:e})},u.deleteCredential=function(e){return u.makeRequest({url:"/credentials/"+e.id,method:"delete"})},u.getBookings=function(){return u.makeRequest({url:"/bookings",method:"get"})},u.createBooking=function(e){return u.makeRequest({url:"/bookings",method:"post",data:e})},u.updateBooking=function(e){var t=e.id;delete e.id;var n=e.action;return delete e.action,u.makeRequest({url:"/bookings/"+t+"/"+n,method:"put",data:e})},u}/*!
-	 * Timekit JavaScript SDK
-	 * Version: 1.1.0
-	 * http://timekit.io
-	 *
-	 * Copyright 2015 Timekit, Inc.
-	 * The Timekit JavaScript SDK is freely distributable under the MIT license.
-	 *
+	
+	(function(factory) {
+		if (true) {
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(1), __webpack_require__(3) ], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		}
+		else if (typeof exports === 'object') { // Node/CommonJS
+			module.exports = factory(require('jquery'), require('moment'));
+		}
+		else {
+			factory(jQuery, moment);
+		}
+	})(function($, moment) {
+	
+	;;
+	
+	var FC = $.fullCalendar = {
+		version: "2.6.1",
+		internalApiVersion: 3
+	};
+	var fcViews = FC.views = {};
+	
+	
+	$.fn.fullCalendar = function(options) {
+		var args = Array.prototype.slice.call(arguments, 1); // for a possible method call
+		var res = this; // what this function will return (this jQuery object by default)
+	
+		this.each(function(i, _element) { // loop each DOM element involved
+			var element = $(_element);
+			var calendar = element.data('fullCalendar'); // get the existing calendar object (if any)
+			var singleRes; // the returned value of this single method call
+	
+			// a method call
+			if (typeof options === 'string') {
+				if (calendar && $.isFunction(calendar[options])) {
+					singleRes = calendar[options].apply(calendar, args);
+					if (!i) {
+						res = singleRes; // record the first method call result
+					}
+					if (options === 'destroy') { // for the destroy method, must remove Calendar object data
+						element.removeData('fullCalendar');
+					}
+				}
+			}
+			// a new calendar initialization
+			else if (!calendar) { // don't initialize twice
+				calendar = new Calendar(element, options);
+				element.data('fullCalendar', calendar);
+				calendar.render();
+			}
+		});
+		
+		return res;
+	};
+	
+	
+	var complexOptions = [ // names of options that are objects whose properties should be combined
+		'header',
+		'buttonText',
+		'buttonIcons',
+		'themeButtonIcons'
+	];
+	
+	
+	// Merges an array of option objects into a single object
+	function mergeOptions(optionObjs) {
+		return mergeProps(optionObjs, complexOptions);
+	}
+	
+	
+	// Given options specified for the calendar's constructor, massages any legacy options into a non-legacy form.
+	// Converts View-Option-Hashes into the View-Specific-Options format.
+	function massageOverrides(input) {
+		var overrides = { views: input.views || {} }; // the output. ensure a `views` hash
+		var subObj;
+	
+		// iterate through all option override properties (except `views`)
+		$.each(input, function(name, val) {
+			if (name != 'views') {
+	
+				// could the value be a legacy View-Option-Hash?
+				if (
+					$.isPlainObject(val) &&
+					!/(time|duration|interval)$/i.test(name) && // exclude duration options. might be given as objects
+					$.inArray(name, complexOptions) == -1 // complex options aren't allowed to be View-Option-Hashes
+				) {
+					subObj = null;
+	
+					// iterate through the properties of this possible View-Option-Hash value
+					$.each(val, function(subName, subVal) {
+	
+						// is the property targeting a view?
+						if (/^(month|week|day|default|basic(Week|Day)?|agenda(Week|Day)?)$/.test(subName)) {
+							if (!overrides.views[subName]) { // ensure the view-target entry exists
+								overrides.views[subName] = {};
+							}
+							overrides.views[subName][name] = subVal; // record the value in the `views` object
+						}
+						else { // a non-View-Option-Hash property
+							if (!subObj) {
+								subObj = {};
+							}
+							subObj[subName] = subVal; // accumulate these unrelated values for later
+						}
+					});
+	
+					if (subObj) { // non-View-Option-Hash properties? transfer them as-is
+						overrides[name] = subObj;
+					}
+				}
+				else {
+					overrides[name] = val; // transfer normal options as-is
+				}
+			}
+		});
+	
+		return overrides;
+	}
+	
+	;;
+	
+	// exports
+	FC.intersectRanges = intersectRanges;
+	FC.applyAll = applyAll;
+	FC.debounce = debounce;
+	FC.isInt = isInt;
+	FC.htmlEscape = htmlEscape;
+	FC.cssToStr = cssToStr;
+	FC.proxy = proxy;
+	FC.capitaliseFirstLetter = capitaliseFirstLetter;
+	
+	
+	/* FullCalendar-specific DOM Utilities
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	
+	// Given the scrollbar widths of some other container, create borders/margins on rowEls in order to match the left
+	// and right space that was offset by the scrollbars. A 1-pixel border first, then margin beyond that.
+	function compensateScroll(rowEls, scrollbarWidths) {
+		if (scrollbarWidths.left) {
+			rowEls.css({
+				'border-left-width': 1,
+				'margin-left': scrollbarWidths.left - 1
+			});
+		}
+		if (scrollbarWidths.right) {
+			rowEls.css({
+				'border-right-width': 1,
+				'margin-right': scrollbarWidths.right - 1
+			});
+		}
+	}
+	
+	
+	// Undoes compensateScroll and restores all borders/margins
+	function uncompensateScroll(rowEls) {
+		rowEls.css({
+			'margin-left': '',
+			'margin-right': '',
+			'border-left-width': '',
+			'border-right-width': ''
+		});
+	}
+	
+	
+	// Make the mouse cursor express that an event is not allowed in the current area
+	function disableCursor() {
+		$('body').addClass('fc-not-allowed');
+	}
+	
+	
+	// Returns the mouse cursor to its original look
+	function enableCursor() {
+		$('body').removeClass('fc-not-allowed');
+	}
+	
+	
+	// Given a total available height to fill, have `els` (essentially child rows) expand to accomodate.
+	// By default, all elements that are shorter than the recommended height are expanded uniformly, not considering
+	// any other els that are already too tall. if `shouldRedistribute` is on, it considers these tall rows and 
+	// reduces the available height.
+	function distributeHeight(els, availableHeight, shouldRedistribute) {
+	
+		// *FLOORING NOTE*: we floor in certain places because zoom can give inaccurate floating-point dimensions,
+		// and it is better to be shorter than taller, to avoid creating unnecessary scrollbars.
+	
+		var minOffset1 = Math.floor(availableHeight / els.length); // for non-last element
+		var minOffset2 = Math.floor(availableHeight - minOffset1 * (els.length - 1)); // for last element *FLOORING NOTE*
+		var flexEls = []; // elements that are allowed to expand. array of DOM nodes
+		var flexOffsets = []; // amount of vertical space it takes up
+		var flexHeights = []; // actual css height
+		var usedHeight = 0;
+	
+		undistributeHeight(els); // give all elements their natural height
+	
+		// find elements that are below the recommended height (expandable).
+		// important to query for heights in a single first pass (to avoid reflow oscillation).
+		els.each(function(i, el) {
+			var minOffset = i === els.length - 1 ? minOffset2 : minOffset1;
+			var naturalOffset = $(el).outerHeight(true);
+	
+			if (naturalOffset < minOffset) {
+				flexEls.push(el);
+				flexOffsets.push(naturalOffset);
+				flexHeights.push($(el).height());
+			}
+			else {
+				// this element stretches past recommended height (non-expandable). mark the space as occupied.
+				usedHeight += naturalOffset;
+			}
+		});
+	
+		// readjust the recommended height to only consider the height available to non-maxed-out rows.
+		if (shouldRedistribute) {
+			availableHeight -= usedHeight;
+			minOffset1 = Math.floor(availableHeight / flexEls.length);
+			minOffset2 = Math.floor(availableHeight - minOffset1 * (flexEls.length - 1)); // *FLOORING NOTE*
+		}
+	
+		// assign heights to all expandable elements
+		$(flexEls).each(function(i, el) {
+			var minOffset = i === flexEls.length - 1 ? minOffset2 : minOffset1;
+			var naturalOffset = flexOffsets[i];
+			var naturalHeight = flexHeights[i];
+			var newHeight = minOffset - (naturalOffset - naturalHeight); // subtract the margin/padding
+	
+			if (naturalOffset < minOffset) { // we check this again because redistribution might have changed things
+				$(el).height(newHeight);
+			}
+		});
+	}
+	
+	
+	// Undoes distrubuteHeight, restoring all els to their natural height
+	function undistributeHeight(els) {
+		els.height('');
+	}
+	
+	
+	// Given `els`, a jQuery set of <td> cells, find the cell with the largest natural width and set the widths of all the
+	// cells to be that width.
+	// PREREQUISITE: if you want a cell to take up width, it needs to have a single inner element w/ display:inline
+	function matchCellWidths(els) {
+		var maxInnerWidth = 0;
+	
+		els.find('> span').each(function(i, innerEl) {
+			var innerWidth = $(innerEl).outerWidth();
+			if (innerWidth > maxInnerWidth) {
+				maxInnerWidth = innerWidth;
+			}
+		});
+	
+		maxInnerWidth++; // sometimes not accurate of width the text needs to stay on one line. insurance
+	
+		els.width(maxInnerWidth);
+	
+		return maxInnerWidth;
+	}
+	
+	
+	// Turns a container element into a scroller if its contents is taller than the allotted height.
+	// Returns true if the element is now a scroller, false otherwise.
+	// NOTE: this method is best because it takes weird zooming dimensions into account
+	function setPotentialScroller(containerEl, height) {
+		containerEl.height(height).addClass('fc-scroller');
+	
+		// are scrollbars needed?
+		if (containerEl[0].scrollHeight - 1 > containerEl[0].clientHeight) { // !!! -1 because IE is often off-by-one :(
+			return true;
+		}
+	
+		unsetScroller(containerEl); // undo
+		return false;
+	}
+	
+	
+	// Takes an element that might have been a scroller, and turns it back into a normal element.
+	function unsetScroller(containerEl) {
+		containerEl.height('').removeClass('fc-scroller');
+	}
+	
+	
+	/* General DOM Utilities
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	FC.getOuterRect = getOuterRect;
+	FC.getClientRect = getClientRect;
+	FC.getContentRect = getContentRect;
+	FC.getScrollbarWidths = getScrollbarWidths;
+	
+	
+	// borrowed from https://github.com/jquery/jquery-ui/blob/1.11.0/ui/core.js#L51
+	function getScrollParent(el) {
+		var position = el.css('position'),
+			scrollParent = el.parents().filter(function() {
+				var parent = $(this);
+				return (/(auto|scroll)/).test(
+					parent.css('overflow') + parent.css('overflow-y') + parent.css('overflow-x')
+				);
+			}).eq(0);
+	
+		return position === 'fixed' || !scrollParent.length ? $(el[0].ownerDocument || document) : scrollParent;
+	}
+	
+	
+	// Queries the outer bounding area of a jQuery element.
+	// Returns a rectangle with absolute coordinates: left, right (exclusive), top, bottom (exclusive).
+	function getOuterRect(el) {
+		var offset = el.offset();
+	
+		return {
+			left: offset.left,
+			right: offset.left + el.outerWidth(),
+			top: offset.top,
+			bottom: offset.top + el.outerHeight()
+		};
+	}
+	
+	
+	// Queries the area within the margin/border/scrollbars of a jQuery element. Does not go within the padding.
+	// Returns a rectangle with absolute coordinates: left, right (exclusive), top, bottom (exclusive).
+	// NOTE: should use clientLeft/clientTop, but very unreliable cross-browser.
+	function getClientRect(el) {
+		var offset = el.offset();
+		var scrollbarWidths = getScrollbarWidths(el);
+		var left = offset.left + getCssFloat(el, 'border-left-width') + scrollbarWidths.left;
+		var top = offset.top + getCssFloat(el, 'border-top-width') + scrollbarWidths.top;
+	
+		return {
+			left: left,
+			right: left + el[0].clientWidth, // clientWidth includes padding but NOT scrollbars
+			top: top,
+			bottom: top + el[0].clientHeight // clientHeight includes padding but NOT scrollbars
+		};
+	}
+	
+	
+	// Queries the area within the margin/border/padding of a jQuery element. Assumed not to have scrollbars.
+	// Returns a rectangle with absolute coordinates: left, right (exclusive), top, bottom (exclusive).
+	function getContentRect(el) {
+		var offset = el.offset(); // just outside of border, margin not included
+		var left = offset.left + getCssFloat(el, 'border-left-width') + getCssFloat(el, 'padding-left');
+		var top = offset.top + getCssFloat(el, 'border-top-width') + getCssFloat(el, 'padding-top');
+	
+		return {
+			left: left,
+			right: left + el.width(),
+			top: top,
+			bottom: top + el.height()
+		};
+	}
+	
+	
+	// Returns the computed left/right/top/bottom scrollbar widths for the given jQuery element.
+	// NOTE: should use clientLeft/clientTop, but very unreliable cross-browser.
+	function getScrollbarWidths(el) {
+		var leftRightWidth = el.innerWidth() - el[0].clientWidth; // the paddings cancel out, leaving the scrollbars
+		var widths = {
+			left: 0,
+			right: 0,
+			top: 0,
+			bottom: el.innerHeight() - el[0].clientHeight // the paddings cancel out, leaving the bottom scrollbar
+		};
+	
+		if (getIsLeftRtlScrollbars() && el.css('direction') == 'rtl') { // is the scrollbar on the left side?
+			widths.left = leftRightWidth;
+		}
+		else {
+			widths.right = leftRightWidth;
+		}
+	
+		return widths;
+	}
+	
+	
+	// Logic for determining if, when the element is right-to-left, the scrollbar appears on the left side
+	
+	var _isLeftRtlScrollbars = null;
+	
+	function getIsLeftRtlScrollbars() { // responsible for caching the computation
+		if (_isLeftRtlScrollbars === null) {
+			_isLeftRtlScrollbars = computeIsLeftRtlScrollbars();
+		}
+		return _isLeftRtlScrollbars;
+	}
+	
+	function computeIsLeftRtlScrollbars() { // creates an offscreen test element, then removes it
+		var el = $('<div><div/></div>')
+			.css({
+				position: 'absolute',
+				top: -1000,
+				left: 0,
+				border: 0,
+				padding: 0,
+				overflow: 'scroll',
+				direction: 'rtl'
+			})
+			.appendTo('body');
+		var innerEl = el.children();
+		var res = innerEl.offset().left > el.offset().left; // is the inner div shifted to accommodate a left scrollbar?
+		el.remove();
+		return res;
+	}
+	
+	
+	// Retrieves a jQuery element's computed CSS value as a floating-point number.
+	// If the queried value is non-numeric (ex: IE can return "medium" for border width), will just return zero.
+	function getCssFloat(el, prop) {
+		return parseFloat(el.css(prop)) || 0;
+	}
+	
+	
+	// Returns a boolean whether this was a left mouse click and no ctrl key (which means right click on Mac)
+	function isPrimaryMouseButton(ev) {
+		return ev.which == 1 && !ev.ctrlKey;
+	}
+	
+	
+	/* Geometry
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	FC.intersectRects = intersectRects;
+	
+	// Returns a new rectangle that is the intersection of the two rectangles. If they don't intersect, returns false
+	function intersectRects(rect1, rect2) {
+		var res = {
+			left: Math.max(rect1.left, rect2.left),
+			right: Math.min(rect1.right, rect2.right),
+			top: Math.max(rect1.top, rect2.top),
+			bottom: Math.min(rect1.bottom, rect2.bottom)
+		};
+	
+		if (res.left < res.right && res.top < res.bottom) {
+			return res;
+		}
+		return false;
+	}
+	
+	
+	// Returns a new point that will have been moved to reside within the given rectangle
+	function constrainPoint(point, rect) {
+		return {
+			left: Math.min(Math.max(point.left, rect.left), rect.right),
+			top: Math.min(Math.max(point.top, rect.top), rect.bottom)
+		};
+	}
+	
+	
+	// Returns a point that is the center of the given rectangle
+	function getRectCenter(rect) {
+		return {
+			left: (rect.left + rect.right) / 2,
+			top: (rect.top + rect.bottom) / 2
+		};
+	}
+	
+	
+	// Subtracts point2's coordinates from point1's coordinates, returning a delta
+	function diffPoints(point1, point2) {
+		return {
+			left: point1.left - point2.left,
+			top: point1.top - point2.top
+		};
+	}
+	
+	
+	/* Object Ordering by Field
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	FC.parseFieldSpecs = parseFieldSpecs;
+	FC.compareByFieldSpecs = compareByFieldSpecs;
+	FC.compareByFieldSpec = compareByFieldSpec;
+	FC.flexibleCompare = flexibleCompare;
+	
+	
+	function parseFieldSpecs(input) {
+		var specs = [];
+		var tokens = [];
+		var i, token;
+	
+		if (typeof input === 'string') {
+			tokens = input.split(/\s*,\s*/);
+		}
+		else if (typeof input === 'function') {
+			tokens = [ input ];
+		}
+		else if ($.isArray(input)) {
+			tokens = input;
+		}
+	
+		for (i = 0; i < tokens.length; i++) {
+			token = tokens[i];
+	
+			if (typeof token === 'string') {
+				specs.push(
+					token.charAt(0) == '-' ?
+						{ field: token.substring(1), order: -1 } :
+						{ field: token, order: 1 }
+				);
+			}
+			else if (typeof token === 'function') {
+				specs.push({ func: token });
+			}
+		}
+	
+		return specs;
+	}
+	
+	
+	function compareByFieldSpecs(obj1, obj2, fieldSpecs) {
+		var i;
+		var cmp;
+	
+		for (i = 0; i < fieldSpecs.length; i++) {
+			cmp = compareByFieldSpec(obj1, obj2, fieldSpecs[i]);
+			if (cmp) {
+				return cmp;
+			}
+		}
+	
+		return 0;
+	}
+	
+	
+	function compareByFieldSpec(obj1, obj2, fieldSpec) {
+		if (fieldSpec.func) {
+			return fieldSpec.func(obj1, obj2);
+		}
+		return flexibleCompare(obj1[fieldSpec.field], obj2[fieldSpec.field]) *
+			(fieldSpec.order || 1);
+	}
+	
+	
+	function flexibleCompare(a, b) {
+		if (!a && !b) {
+			return 0;
+		}
+		if (b == null) {
+			return -1;
+		}
+		if (a == null) {
+			return 1;
+		}
+		if ($.type(a) === 'string' || $.type(b) === 'string') {
+			return String(a).localeCompare(String(b));
+		}
+		return a - b;
+	}
+	
+	
+	/* FullCalendar-specific Misc Utilities
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	
+	// Computes the intersection of the two ranges. Returns undefined if no intersection.
+	// Expects all dates to be normalized to the same timezone beforehand.
+	// TODO: move to date section?
+	function intersectRanges(subjectRange, constraintRange) {
+		var subjectStart = subjectRange.start;
+		var subjectEnd = subjectRange.end;
+		var constraintStart = constraintRange.start;
+		var constraintEnd = constraintRange.end;
+		var segStart, segEnd;
+		var isStart, isEnd;
+	
+		if (subjectEnd > constraintStart && subjectStart < constraintEnd) { // in bounds at all?
+	
+			if (subjectStart >= constraintStart) {
+				segStart = subjectStart.clone();
+				isStart = true;
+			}
+			else {
+				segStart = constraintStart.clone();
+				isStart =  false;
+			}
+	
+			if (subjectEnd <= constraintEnd) {
+				segEnd = subjectEnd.clone();
+				isEnd = true;
+			}
+			else {
+				segEnd = constraintEnd.clone();
+				isEnd = false;
+			}
+	
+			return {
+				start: segStart,
+				end: segEnd,
+				isStart: isStart,
+				isEnd: isEnd
+			};
+		}
+	}
+	
+	
+	/* Date Utilities
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	FC.computeIntervalUnit = computeIntervalUnit;
+	FC.divideRangeByDuration = divideRangeByDuration;
+	FC.divideDurationByDuration = divideDurationByDuration;
+	FC.multiplyDuration = multiplyDuration;
+	FC.durationHasTime = durationHasTime;
+	
+	var dayIDs = [ 'sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat' ];
+	var intervalUnits = [ 'year', 'month', 'week', 'day', 'hour', 'minute', 'second', 'millisecond' ];
+	
+	
+	// Diffs the two moments into a Duration where full-days are recorded first, then the remaining time.
+	// Moments will have their timezones normalized.
+	function diffDayTime(a, b) {
+		return moment.duration({
+			days: a.clone().stripTime().diff(b.clone().stripTime(), 'days'),
+			ms: a.time() - b.time() // time-of-day from day start. disregards timezone
+		});
+	}
+	
+	
+	// Diffs the two moments via their start-of-day (regardless of timezone). Produces whole-day durations.
+	function diffDay(a, b) {
+		return moment.duration({
+			days: a.clone().stripTime().diff(b.clone().stripTime(), 'days')
+		});
+	}
+	
+	
+	// Diffs two moments, producing a duration, made of a whole-unit-increment of the given unit. Uses rounding.
+	function diffByUnit(a, b, unit) {
+		return moment.duration(
+			Math.round(a.diff(b, unit, true)), // returnFloat=true
+			unit
+		);
+	}
+	
+	
+	// Computes the unit name of the largest whole-unit period of time.
+	// For example, 48 hours will be "days" whereas 49 hours will be "hours".
+	// Accepts start/end, a range object, or an original duration object.
+	function computeIntervalUnit(start, end) {
+		var i, unit;
+		var val;
+	
+		for (i = 0; i < intervalUnits.length; i++) {
+			unit = intervalUnits[i];
+			val = computeRangeAs(unit, start, end);
+	
+			if (val >= 1 && isInt(val)) {
+				break;
+			}
+		}
+	
+		return unit; // will be "milliseconds" if nothing else matches
+	}
+	
+	
+	// Computes the number of units (like "hours") in the given range.
+	// Range can be a {start,end} object, separate start/end args, or a Duration.
+	// Results are based on Moment's .as() and .diff() methods, so results can depend on internal handling
+	// of month-diffing logic (which tends to vary from version to version).
+	function computeRangeAs(unit, start, end) {
+	
+		if (end != null) { // given start, end
+			return end.diff(start, unit, true);
+		}
+		else if (moment.isDuration(start)) { // given duration
+			return start.as(unit);
+		}
+		else { // given { start, end } range object
+			return start.end.diff(start.start, unit, true);
+		}
+	}
+	
+	
+	// Intelligently divides a range (specified by a start/end params) by a duration
+	function divideRangeByDuration(start, end, dur) {
+		var months;
+	
+		if (durationHasTime(dur)) {
+			return (end - start) / dur;
+		}
+		months = dur.asMonths();
+		if (Math.abs(months) >= 1 && isInt(months)) {
+			return end.diff(start, 'months', true) / months;
+		}
+		return end.diff(start, 'days', true) / dur.asDays();
+	}
+	
+	
+	// Intelligently divides one duration by another
+	function divideDurationByDuration(dur1, dur2) {
+		var months1, months2;
+	
+		if (durationHasTime(dur1) || durationHasTime(dur2)) {
+			return dur1 / dur2;
+		}
+		months1 = dur1.asMonths();
+		months2 = dur2.asMonths();
+		if (
+			Math.abs(months1) >= 1 && isInt(months1) &&
+			Math.abs(months2) >= 1 && isInt(months2)
+		) {
+			return months1 / months2;
+		}
+		return dur1.asDays() / dur2.asDays();
+	}
+	
+	
+	// Intelligently multiplies a duration by a number
+	function multiplyDuration(dur, n) {
+		var months;
+	
+		if (durationHasTime(dur)) {
+			return moment.duration(dur * n);
+		}
+		months = dur.asMonths();
+		if (Math.abs(months) >= 1 && isInt(months)) {
+			return moment.duration({ months: months * n });
+		}
+		return moment.duration({ days: dur.asDays() * n });
+	}
+	
+	
+	// Returns a boolean about whether the given duration has any time parts (hours/minutes/seconds/ms)
+	function durationHasTime(dur) {
+		return Boolean(dur.hours() || dur.minutes() || dur.seconds() || dur.milliseconds());
+	}
+	
+	
+	function isNativeDate(input) {
+		return  Object.prototype.toString.call(input) === '[object Date]' || input instanceof Date;
+	}
+	
+	
+	// Returns a boolean about whether the given input is a time string, like "06:40:00" or "06:00"
+	function isTimeString(str) {
+		return /^\d+\:\d+(?:\:\d+\.?(?:\d{3})?)?$/.test(str);
+	}
+	
+	
+	/* Logging and Debug
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	FC.log = function() {
+		var console = window.console;
+	
+		if (console && console.log) {
+			return console.log.apply(console, arguments);
+		}
+	};
+	
+	FC.warn = function() {
+		var console = window.console;
+	
+		if (console && console.warn) {
+			return console.warn.apply(console, arguments);
+		}
+		else {
+			return FC.log.apply(FC, arguments);
+		}
+	};
+	
+	
+	/* General Utilities
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	var hasOwnPropMethod = {}.hasOwnProperty;
+	
+	
+	// Merges an array of objects into a single object.
+	// The second argument allows for an array of property names who's object values will be merged together.
+	function mergeProps(propObjs, complexProps) {
+		var dest = {};
+		var i, name;
+		var complexObjs;
+		var j, val;
+		var props;
+	
+		if (complexProps) {
+			for (i = 0; i < complexProps.length; i++) {
+				name = complexProps[i];
+				complexObjs = [];
+	
+				// collect the trailing object values, stopping when a non-object is discovered
+				for (j = propObjs.length - 1; j >= 0; j--) {
+					val = propObjs[j][name];
+	
+					if (typeof val === 'object') {
+						complexObjs.unshift(val);
+					}
+					else if (val !== undefined) {
+						dest[name] = val; // if there were no objects, this value will be used
+						break;
+					}
+				}
+	
+				// if the trailing values were objects, use the merged value
+				if (complexObjs.length) {
+					dest[name] = mergeProps(complexObjs);
+				}
+			}
+		}
+	
+		// copy values into the destination, going from last to first
+		for (i = propObjs.length - 1; i >= 0; i--) {
+			props = propObjs[i];
+	
+			for (name in props) {
+				if (!(name in dest)) { // if already assigned by previous props or complex props, don't reassign
+					dest[name] = props[name];
+				}
+			}
+		}
+	
+		return dest;
+	}
+	
+	
+	// Create an object that has the given prototype. Just like Object.create
+	function createObject(proto) {
+		var f = function() {};
+		f.prototype = proto;
+		return new f();
+	}
+	
+	
+	function copyOwnProps(src, dest) {
+		for (var name in src) {
+			if (hasOwnProp(src, name)) {
+				dest[name] = src[name];
+			}
+		}
+	}
+	
+	
+	// Copies over certain methods with the same names as Object.prototype methods. Overcomes an IE<=8 bug:
+	// https://developer.mozilla.org/en-US/docs/ECMAScript_DontEnum_attribute#JScript_DontEnum_Bug
+	function copyNativeMethods(src, dest) {
+		var names = [ 'constructor', 'toString', 'valueOf' ];
+		var i, name;
+	
+		for (i = 0; i < names.length; i++) {
+			name = names[i];
+	
+			if (src[name] !== Object.prototype[name]) {
+				dest[name] = src[name];
+			}
+		}
+	}
+	
+	
+	function hasOwnProp(obj, name) {
+		return hasOwnPropMethod.call(obj, name);
+	}
+	
+	
+	// Is the given value a non-object non-function value?
+	function isAtomic(val) {
+		return /undefined|null|boolean|number|string/.test($.type(val));
+	}
+	
+	
+	function applyAll(functions, thisObj, args) {
+		if ($.isFunction(functions)) {
+			functions = [ functions ];
+		}
+		if (functions) {
+			var i;
+			var ret;
+			for (i=0; i<functions.length; i++) {
+				ret = functions[i].apply(thisObj, args) || ret;
+			}
+			return ret;
+		}
+	}
+	
+	
+	function firstDefined() {
+		for (var i=0; i<arguments.length; i++) {
+			if (arguments[i] !== undefined) {
+				return arguments[i];
+			}
+		}
+	}
+	
+	
+	function htmlEscape(s) {
+		return (s + '').replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/'/g, '&#039;')
+			.replace(/"/g, '&quot;')
+			.replace(/\n/g, '<br />');
+	}
+	
+	
+	function stripHtmlEntities(text) {
+		return text.replace(/&.*?;/g, '');
+	}
+	
+	
+	// Given a hash of CSS properties, returns a string of CSS.
+	// Uses property names as-is (no camel-case conversion). Will not make statements for null/undefined values.
+	function cssToStr(cssProps) {
+		var statements = [];
+	
+		$.each(cssProps, function(name, val) {
+			if (val != null) {
+				statements.push(name + ':' + val);
+			}
+		});
+	
+		return statements.join(';');
+	}
+	
+	
+	function capitaliseFirstLetter(str) {
+		return str.charAt(0).toUpperCase() + str.slice(1);
+	}
+	
+	
+	function compareNumbers(a, b) { // for .sort()
+		return a - b;
+	}
+	
+	
+	function isInt(n) {
+		return n % 1 === 0;
+	}
+	
+	
+	// Returns a method bound to the given object context.
+	// Just like one of the jQuery.proxy signatures, but without the undesired behavior of treating the same method with
+	// different contexts as identical when binding/unbinding events.
+	function proxy(obj, methodName) {
+		var method = obj[methodName];
+	
+		return function() {
+			return method.apply(obj, arguments);
+		};
+	}
+	
+	
+	// Returns a function, that, as long as it continues to be invoked, will not
+	// be triggered. The function will be called after it stops being called for
+	// N milliseconds.
+	// https://github.com/jashkenas/underscore/blob/1.6.0/underscore.js#L714
+	function debounce(func, wait) {
+		var timeoutId;
+		var args;
+		var context;
+		var timestamp; // of most recent call
+		var later = function() {
+			var last = +new Date() - timestamp;
+			if (last < wait && last > 0) {
+				timeoutId = setTimeout(later, wait - last);
+			}
+			else {
+				timeoutId = null;
+				func.apply(context, args);
+				if (!timeoutId) {
+					context = args = null;
+				}
+			}
+		};
+	
+		return function() {
+			context = this;
+			args = arguments;
+			timestamp = +new Date();
+			if (!timeoutId) {
+				timeoutId = setTimeout(later, wait);
+			}
+		};
+	}
+	
+	;;
+	
+	var ambigDateOfMonthRegex = /^\s*\d{4}-\d\d$/;
+	var ambigTimeOrZoneRegex =
+		/^\s*\d{4}-(?:(\d\d-\d\d)|(W\d\d$)|(W\d\d-\d)|(\d\d\d))((T| )(\d\d(:\d\d(:\d\d(\.\d+)?)?)?)?)?$/;
+	var newMomentProto = moment.fn; // where we will attach our new methods
+	var oldMomentProto = $.extend({}, newMomentProto); // copy of original moment methods
+	var allowValueOptimization;
+	var setUTCValues; // function defined below
+	var setLocalValues; // function defined below
+	
+	
+	// Creating
+	// -------------------------------------------------------------------------------------------------
+	
+	// Creates a new moment, similar to the vanilla moment(...) constructor, but with
+	// extra features (ambiguous time, enhanced formatting). When given an existing moment,
+	// it will function as a clone (and retain the zone of the moment). Anything else will
+	// result in a moment in the local zone.
+	FC.moment = function() {
+		return makeMoment(arguments);
+	};
+	
+	// Sames as FC.moment, but forces the resulting moment to be in the UTC timezone.
+	FC.moment.utc = function() {
+		var mom = makeMoment(arguments, true);
+	
+		// Force it into UTC because makeMoment doesn't guarantee it
+		// (if given a pre-existing moment for example)
+		if (mom.hasTime()) { // don't give ambiguously-timed moments a UTC zone
+			mom.utc();
+		}
+	
+		return mom;
+	};
+	
+	// Same as FC.moment, but when given an ISO8601 string, the timezone offset is preserved.
+	// ISO8601 strings with no timezone offset will become ambiguously zoned.
+	FC.moment.parseZone = function() {
+		return makeMoment(arguments, true, true);
+	};
+	
+	// Builds an enhanced moment from args. When given an existing moment, it clones. When given a
+	// native Date, or called with no arguments (the current time), the resulting moment will be local.
+	// Anything else needs to be "parsed" (a string or an array), and will be affected by:
+	//    parseAsUTC - if there is no zone information, should we parse the input in UTC?
+	//    parseZone - if there is zone information, should we force the zone of the moment?
+	function makeMoment(args, parseAsUTC, parseZone) {
+		var input = args[0];
+		var isSingleString = args.length == 1 && typeof input === 'string';
+		var isAmbigTime;
+		var isAmbigZone;
+		var ambigMatch;
+		var mom;
+	
+		if (moment.isMoment(input)) {
+			mom = moment.apply(null, args); // clone it
+			transferAmbigs(input, mom); // the ambig flags weren't transfered with the clone
+		}
+		else if (isNativeDate(input) || input === undefined) {
+			mom = moment.apply(null, args); // will be local
+		}
+		else { // "parsing" is required
+			isAmbigTime = false;
+			isAmbigZone = false;
+	
+			if (isSingleString) {
+				if (ambigDateOfMonthRegex.test(input)) {
+					// accept strings like '2014-05', but convert to the first of the month
+					input += '-01';
+					args = [ input ]; // for when we pass it on to moment's constructor
+					isAmbigTime = true;
+					isAmbigZone = true;
+				}
+				else if ((ambigMatch = ambigTimeOrZoneRegex.exec(input))) {
+					isAmbigTime = !ambigMatch[5]; // no time part?
+					isAmbigZone = true;
+				}
+			}
+			else if ($.isArray(input)) {
+				// arrays have no timezone information, so assume ambiguous zone
+				isAmbigZone = true;
+			}
+			// otherwise, probably a string with a format
+	
+			if (parseAsUTC || isAmbigTime) {
+				mom = moment.utc.apply(moment, args);
+			}
+			else {
+				mom = moment.apply(null, args);
+			}
+	
+			if (isAmbigTime) {
+				mom._ambigTime = true;
+				mom._ambigZone = true; // ambiguous time always means ambiguous zone
+			}
+			else if (parseZone) { // let's record the inputted zone somehow
+				if (isAmbigZone) {
+					mom._ambigZone = true;
+				}
+				else if (isSingleString) {
+					if (mom.utcOffset) {
+						mom.utcOffset(input); // if not a valid zone, will assign UTC
+					}
+					else {
+						mom.zone(input); // for moment-pre-2.9
+					}
+				}
+			}
+		}
+	
+		mom._fullCalendar = true; // flag for extended functionality
+	
+		return mom;
+	}
+	
+	
+	// A clone method that works with the flags related to our enhanced functionality.
+	// In the future, use moment.momentProperties
+	newMomentProto.clone = function() {
+		var mom = oldMomentProto.clone.apply(this, arguments);
+	
+		// these flags weren't transfered with the clone
+		transferAmbigs(this, mom);
+		if (this._fullCalendar) {
+			mom._fullCalendar = true;
+		}
+	
+		return mom;
+	};
+	
+	
+	// Week Number
+	// -------------------------------------------------------------------------------------------------
+	
+	
+	// Returns the week number, considering the locale's custom week number calcuation
+	// `weeks` is an alias for `week`
+	newMomentProto.week = newMomentProto.weeks = function(input) {
+		var weekCalc = (this._locale || this._lang) // works pre-moment-2.8
+			._fullCalendar_weekCalc;
+	
+		if (input == null && typeof weekCalc === 'function') { // custom function only works for getter
+			return weekCalc(this);
+		}
+		else if (weekCalc === 'ISO') {
+			return oldMomentProto.isoWeek.apply(this, arguments); // ISO getter/setter
+		}
+	
+		return oldMomentProto.week.apply(this, arguments); // local getter/setter
+	};
+	
+	
+	// Time-of-day
+	// -------------------------------------------------------------------------------------------------
+	
+	// GETTER
+	// Returns a Duration with the hours/minutes/seconds/ms values of the moment.
+	// If the moment has an ambiguous time, a duration of 00:00 will be returned.
+	//
+	// SETTER
+	// You can supply a Duration, a Moment, or a Duration-like argument.
+	// When setting the time, and the moment has an ambiguous time, it then becomes unambiguous.
+	newMomentProto.time = function(time) {
+	
+		// Fallback to the original method (if there is one) if this moment wasn't created via FullCalendar.
+		// `time` is a generic enough method name where this precaution is necessary to avoid collisions w/ other plugins.
+		if (!this._fullCalendar) {
+			return oldMomentProto.time.apply(this, arguments);
+		}
+	
+		if (time == null) { // getter
+			return moment.duration({
+				hours: this.hours(),
+				minutes: this.minutes(),
+				seconds: this.seconds(),
+				milliseconds: this.milliseconds()
+			});
+		}
+		else { // setter
+	
+			this._ambigTime = false; // mark that the moment now has a time
+	
+			if (!moment.isDuration(time) && !moment.isMoment(time)) {
+				time = moment.duration(time);
+			}
+	
+			// The day value should cause overflow (so 24 hours becomes 00:00:00 of next day).
+			// Only for Duration times, not Moment times.
+			var dayHours = 0;
+			if (moment.isDuration(time)) {
+				dayHours = Math.floor(time.asDays()) * 24;
+			}
+	
+			// We need to set the individual fields.
+			// Can't use startOf('day') then add duration. In case of DST at start of day.
+			return this.hours(dayHours + time.hours())
+				.minutes(time.minutes())
+				.seconds(time.seconds())
+				.milliseconds(time.milliseconds());
+		}
+	};
+	
+	// Converts the moment to UTC, stripping out its time-of-day and timezone offset,
+	// but preserving its YMD. A moment with a stripped time will display no time
+	// nor timezone offset when .format() is called.
+	newMomentProto.stripTime = function() {
+		var a;
+	
+		if (!this._ambigTime) {
+	
+			// get the values before any conversion happens
+			a = this.toArray(); // array of y/m/d/h/m/s/ms
+	
+			// TODO: use keepLocalTime in the future
+			this.utc(); // set the internal UTC flag (will clear the ambig flags)
+			setUTCValues(this, a.slice(0, 3)); // set the year/month/date. time will be zero
+	
+			// Mark the time as ambiguous. This needs to happen after the .utc() call, which might call .utcOffset(),
+			// which clears all ambig flags. Same with setUTCValues with moment-timezone.
+			this._ambigTime = true;
+			this._ambigZone = true; // if ambiguous time, also ambiguous timezone offset
+		}
+	
+		return this; // for chaining
+	};
+	
+	// Returns if the moment has a non-ambiguous time (boolean)
+	newMomentProto.hasTime = function() {
+		return !this._ambigTime;
+	};
+	
+	
+	// Timezone
+	// -------------------------------------------------------------------------------------------------
+	
+	// Converts the moment to UTC, stripping out its timezone offset, but preserving its
+	// YMD and time-of-day. A moment with a stripped timezone offset will display no
+	// timezone offset when .format() is called.
+	// TODO: look into Moment's keepLocalTime functionality
+	newMomentProto.stripZone = function() {
+		var a, wasAmbigTime;
+	
+		if (!this._ambigZone) {
+	
+			// get the values before any conversion happens
+			a = this.toArray(); // array of y/m/d/h/m/s/ms
+			wasAmbigTime = this._ambigTime;
+	
+			this.utc(); // set the internal UTC flag (might clear the ambig flags, depending on Moment internals)
+			setUTCValues(this, a); // will set the year/month/date/hours/minutes/seconds/ms
+	
+			// the above call to .utc()/.utcOffset() unfortunately might clear the ambig flags, so restore
+			this._ambigTime = wasAmbigTime || false;
+	
+			// Mark the zone as ambiguous. This needs to happen after the .utc() call, which might call .utcOffset(),
+			// which clears the ambig flags. Same with setUTCValues with moment-timezone.
+			this._ambigZone = true;
+		}
+	
+		return this; // for chaining
+	};
+	
+	// Returns of the moment has a non-ambiguous timezone offset (boolean)
+	newMomentProto.hasZone = function() {
+		return !this._ambigZone;
+	};
+	
+	
+	// this method implicitly marks a zone
+	newMomentProto.local = function() {
+		var a = this.toArray(); // year,month,date,hours,minutes,seconds,ms as an array
+		var wasAmbigZone = this._ambigZone;
+	
+		oldMomentProto.local.apply(this, arguments);
+	
+		// ensure non-ambiguous
+		// this probably already happened via local() -> utcOffset(), but don't rely on Moment's internals
+		this._ambigTime = false;
+		this._ambigZone = false;
+	
+		if (wasAmbigZone) {
+			// If the moment was ambiguously zoned, the date fields were stored as UTC.
+			// We want to preserve these, but in local time.
+			// TODO: look into Moment's keepLocalTime functionality
+			setLocalValues(this, a);
+		}
+	
+		return this; // for chaining
+	};
+	
+	
+	// implicitly marks a zone
+	newMomentProto.utc = function() {
+		oldMomentProto.utc.apply(this, arguments);
+	
+		// ensure non-ambiguous
+		// this probably already happened via utc() -> utcOffset(), but don't rely on Moment's internals
+		this._ambigTime = false;
+		this._ambigZone = false;
+	
+		return this;
+	};
+	
+	
+	// methods for arbitrarily manipulating timezone offset.
+	// should clear time/zone ambiguity when called.
+	$.each([
+		'zone', // only in moment-pre-2.9. deprecated afterwards
+		'utcOffset'
+	], function(i, name) {
+		if (oldMomentProto[name]) { // original method exists?
+	
+			// this method implicitly marks a zone (will probably get called upon .utc() and .local())
+			newMomentProto[name] = function(tzo) {
+	
+				if (tzo != null) { // setter
+					// these assignments needs to happen before the original zone method is called.
+					// I forget why, something to do with a browser crash.
+					this._ambigTime = false;
+					this._ambigZone = false;
+				}
+	
+				return oldMomentProto[name].apply(this, arguments);
+			};
+		}
+	});
+	
+	
+	// Formatting
+	// -------------------------------------------------------------------------------------------------
+	
+	newMomentProto.format = function() {
+		if (this._fullCalendar && arguments[0]) { // an enhanced moment? and a format string provided?
+			return formatDate(this, arguments[0]); // our extended formatting
+		}
+		if (this._ambigTime) {
+			return oldMomentFormat(this, 'YYYY-MM-DD');
+		}
+		if (this._ambigZone) {
+			return oldMomentFormat(this, 'YYYY-MM-DD[T]HH:mm:ss');
+		}
+		return oldMomentProto.format.apply(this, arguments);
+	};
+	
+	newMomentProto.toISOString = function() {
+		if (this._ambigTime) {
+			return oldMomentFormat(this, 'YYYY-MM-DD');
+		}
+		if (this._ambigZone) {
+			return oldMomentFormat(this, 'YYYY-MM-DD[T]HH:mm:ss');
+		}
+		return oldMomentProto.toISOString.apply(this, arguments);
+	};
+	
+	
+	// Querying
+	// -------------------------------------------------------------------------------------------------
+	
+	// Is the moment within the specified range? `end` is exclusive.
+	// FYI, this method is not a standard Moment method, so always do our enhanced logic.
+	newMomentProto.isWithin = function(start, end) {
+		var a = commonlyAmbiguate([ this, start, end ]);
+		return a[0] >= a[1] && a[0] < a[2];
+	};
+	
+	// When isSame is called with units, timezone ambiguity is normalized before the comparison happens.
+	// If no units specified, the two moments must be identically the same, with matching ambig flags.
+	newMomentProto.isSame = function(input, units) {
+		var a;
+	
+		// only do custom logic if this is an enhanced moment
+		if (!this._fullCalendar) {
+			return oldMomentProto.isSame.apply(this, arguments);
+		}
+	
+		if (units) {
+			a = commonlyAmbiguate([ this, input ], true); // normalize timezones but don't erase times
+			return oldMomentProto.isSame.call(a[0], a[1], units);
+		}
+		else {
+			input = FC.moment.parseZone(input); // normalize input
+			return oldMomentProto.isSame.call(this, input) &&
+				Boolean(this._ambigTime) === Boolean(input._ambigTime) &&
+				Boolean(this._ambigZone) === Boolean(input._ambigZone);
+		}
+	};
+	
+	// Make these query methods work with ambiguous moments
+	$.each([
+		'isBefore',
+		'isAfter'
+	], function(i, methodName) {
+		newMomentProto[methodName] = function(input, units) {
+			var a;
+	
+			// only do custom logic if this is an enhanced moment
+			if (!this._fullCalendar) {
+				return oldMomentProto[methodName].apply(this, arguments);
+			}
+	
+			a = commonlyAmbiguate([ this, input ]);
+			return oldMomentProto[methodName].call(a[0], a[1], units);
+		};
+	});
+	
+	
+	// Misc Internals
+	// -------------------------------------------------------------------------------------------------
+	
+	// given an array of moment-like inputs, return a parallel array w/ moments similarly ambiguated.
+	// for example, of one moment has ambig time, but not others, all moments will have their time stripped.
+	// set `preserveTime` to `true` to keep times, but only normalize zone ambiguity.
+	// returns the original moments if no modifications are necessary.
+	function commonlyAmbiguate(inputs, preserveTime) {
+		var anyAmbigTime = false;
+		var anyAmbigZone = false;
+		var len = inputs.length;
+		var moms = [];
+		var i, mom;
+	
+		// parse inputs into real moments and query their ambig flags
+		for (i = 0; i < len; i++) {
+			mom = inputs[i];
+			if (!moment.isMoment(mom)) {
+				mom = FC.moment.parseZone(mom);
+			}
+			anyAmbigTime = anyAmbigTime || mom._ambigTime;
+			anyAmbigZone = anyAmbigZone || mom._ambigZone;
+			moms.push(mom);
+		}
+	
+		// strip each moment down to lowest common ambiguity
+		// use clones to avoid modifying the original moments
+		for (i = 0; i < len; i++) {
+			mom = moms[i];
+			if (!preserveTime && anyAmbigTime && !mom._ambigTime) {
+				moms[i] = mom.clone().stripTime();
+			}
+			else if (anyAmbigZone && !mom._ambigZone) {
+				moms[i] = mom.clone().stripZone();
+			}
+		}
+	
+		return moms;
+	}
+	
+	// Transfers all the flags related to ambiguous time/zone from the `src` moment to the `dest` moment
+	// TODO: look into moment.momentProperties for this.
+	function transferAmbigs(src, dest) {
+		if (src._ambigTime) {
+			dest._ambigTime = true;
+		}
+		else if (dest._ambigTime) {
+			dest._ambigTime = false;
+		}
+	
+		if (src._ambigZone) {
+			dest._ambigZone = true;
+		}
+		else if (dest._ambigZone) {
+			dest._ambigZone = false;
+		}
+	}
+	
+	
+	// Sets the year/month/date/etc values of the moment from the given array.
+	// Inefficient because it calls each individual setter.
+	function setMomentValues(mom, a) {
+		mom.year(a[0] || 0)
+			.month(a[1] || 0)
+			.date(a[2] || 0)
+			.hours(a[3] || 0)
+			.minutes(a[4] || 0)
+			.seconds(a[5] || 0)
+			.milliseconds(a[6] || 0);
+	}
+	
+	// Can we set the moment's internal date directly?
+	allowValueOptimization = '_d' in moment() && 'updateOffset' in moment;
+	
+	// Utility function. Accepts a moment and an array of the UTC year/month/date/etc values to set.
+	// Assumes the given moment is already in UTC mode.
+	setUTCValues = allowValueOptimization ? function(mom, a) {
+		// simlate what moment's accessors do
+		mom._d.setTime(Date.UTC.apply(Date, a));
+		moment.updateOffset(mom, false); // keepTime=false
+	} : setMomentValues;
+	
+	// Utility function. Accepts a moment and an array of the local year/month/date/etc values to set.
+	// Assumes the given moment is already in local mode.
+	setLocalValues = allowValueOptimization ? function(mom, a) {
+		// simlate what moment's accessors do
+		mom._d.setTime(+new Date( // FYI, there is now way to apply an array of args to a constructor
+			a[0] || 0,
+			a[1] || 0,
+			a[2] || 0,
+			a[3] || 0,
+			a[4] || 0,
+			a[5] || 0,
+			a[6] || 0
+		));
+		moment.updateOffset(mom, false); // keepTime=false
+	} : setMomentValues;
+	
+	;;
+	
+	// Single Date Formatting
+	// -------------------------------------------------------------------------------------------------
+	
+	
+	// call this if you want Moment's original format method to be used
+	function oldMomentFormat(mom, formatStr) {
+		return oldMomentProto.format.call(mom, formatStr); // oldMomentProto defined in moment-ext.js
+	}
+	
+	
+	// Formats `date` with a Moment formatting string, but allow our non-zero areas and
+	// additional token.
+	function formatDate(date, formatStr) {
+		return formatDateWithChunks(date, getFormatStringChunks(formatStr));
+	}
+	
+	
+	function formatDateWithChunks(date, chunks) {
+		var s = '';
+		var i;
+	
+		for (i=0; i<chunks.length; i++) {
+			s += formatDateWithChunk(date, chunks[i]);
+		}
+	
+		return s;
+	}
+	
+	
+	// addition formatting tokens we want recognized
+	var tokenOverrides = {
+		t: function(date) { // "a" or "p"
+			return oldMomentFormat(date, 'a').charAt(0);
+		},
+		T: function(date) { // "A" or "P"
+			return oldMomentFormat(date, 'A').charAt(0);
+		}
+	};
+	
+	
+	function formatDateWithChunk(date, chunk) {
+		var token;
+		var maybeStr;
+	
+		if (typeof chunk === 'string') { // a literal string
+			return chunk;
+		}
+		else if ((token = chunk.token)) { // a token, like "YYYY"
+			if (tokenOverrides[token]) {
+				return tokenOverrides[token](date); // use our custom token
+			}
+			return oldMomentFormat(date, token);
+		}
+		else if (chunk.maybe) { // a grouping of other chunks that must be non-zero
+			maybeStr = formatDateWithChunks(date, chunk.maybe);
+			if (maybeStr.match(/[1-9]/)) {
+				return maybeStr;
+			}
+		}
+	
+		return '';
+	}
+	
+	
+	// Date Range Formatting
+	// -------------------------------------------------------------------------------------------------
+	// TODO: make it work with timezone offset
+	
+	// Using a formatting string meant for a single date, generate a range string, like
+	// "Sep 2 - 9 2013", that intelligently inserts a separator where the dates differ.
+	// If the dates are the same as far as the format string is concerned, just return a single
+	// rendering of one date, without any separator.
+	function formatRange(date1, date2, formatStr, separator, isRTL) {
+		var localeData;
+	
+		date1 = FC.moment.parseZone(date1);
+		date2 = FC.moment.parseZone(date2);
+	
+		localeData = (date1.localeData || date1.lang).call(date1); // works with moment-pre-2.8
+	
+		// Expand localized format strings, like "LL" -> "MMMM D YYYY"
+		formatStr = localeData.longDateFormat(formatStr) || formatStr;
+		// BTW, this is not important for `formatDate` because it is impossible to put custom tokens
+		// or non-zero areas in Moment's localized format strings.
+	
+		separator = separator || ' - ';
+	
+		return formatRangeWithChunks(
+			date1,
+			date2,
+			getFormatStringChunks(formatStr),
+			separator,
+			isRTL
+		);
+	}
+	FC.formatRange = formatRange; // expose
+	
+	
+	function formatRangeWithChunks(date1, date2, chunks, separator, isRTL) {
+		var unzonedDate1 = date1.clone().stripZone(); // for formatSimilarChunk
+		var unzonedDate2 = date2.clone().stripZone(); // "
+		var chunkStr; // the rendering of the chunk
+		var leftI;
+		var leftStr = '';
+		var rightI;
+		var rightStr = '';
+		var middleI;
+		var middleStr1 = '';
+		var middleStr2 = '';
+		var middleStr = '';
+	
+		// Start at the leftmost side of the formatting string and continue until you hit a token
+		// that is not the same between dates.
+		for (leftI=0; leftI<chunks.length; leftI++) {
+			chunkStr = formatSimilarChunk(date1, date2, unzonedDate1, unzonedDate2, chunks[leftI]);
+			if (chunkStr === false) {
+				break;
+			}
+			leftStr += chunkStr;
+		}
+	
+		// Similarly, start at the rightmost side of the formatting string and move left
+		for (rightI=chunks.length-1; rightI>leftI; rightI--) {
+			chunkStr = formatSimilarChunk(date1, date2, unzonedDate1, unzonedDate2,  chunks[rightI]);
+			if (chunkStr === false) {
+				break;
+			}
+			rightStr = chunkStr + rightStr;
+		}
+	
+		// The area in the middle is different for both of the dates.
+		// Collect them distinctly so we can jam them together later.
+		for (middleI=leftI; middleI<=rightI; middleI++) {
+			middleStr1 += formatDateWithChunk(date1, chunks[middleI]);
+			middleStr2 += formatDateWithChunk(date2, chunks[middleI]);
+		}
+	
+		if (middleStr1 || middleStr2) {
+			if (isRTL) {
+				middleStr = middleStr2 + separator + middleStr1;
+			}
+			else {
+				middleStr = middleStr1 + separator + middleStr2;
+			}
+		}
+	
+		return leftStr + middleStr + rightStr;
+	}
+	
+	
+	var similarUnitMap = {
+		Y: 'year',
+		M: 'month',
+		D: 'day', // day of month
+		d: 'day', // day of week
+		// prevents a separator between anything time-related...
+		A: 'second', // AM/PM
+		a: 'second', // am/pm
+		T: 'second', // A/P
+		t: 'second', // a/p
+		H: 'second', // hour (24)
+		h: 'second', // hour (12)
+		m: 'second', // minute
+		s: 'second' // second
+	};
+	// TODO: week maybe?
+	
+	
+	// Given a formatting chunk, and given that both dates are similar in the regard the
+	// formatting chunk is concerned, format date1 against `chunk`. Otherwise, return `false`.
+	function formatSimilarChunk(date1, date2, unzonedDate1, unzonedDate2, chunk) {
+		var token;
+		var unit;
+	
+		if (typeof chunk === 'string') { // a literal string
+			return chunk;
+		}
+		else if ((token = chunk.token)) {
+			unit = similarUnitMap[token.charAt(0)];
+	
+			// are the dates the same for this unit of measurement?
+			// use the unzoned dates for this calculation because unreliable when near DST (bug #2396)
+			if (unit && unzonedDate1.isSame(unzonedDate2, unit)) {
+				return oldMomentFormat(date1, token); // would be the same if we used `date2`
+				// BTW, don't support custom tokens
+			}
+		}
+	
+		return false; // the chunk is NOT the same for the two dates
+		// BTW, don't support splitting on non-zero areas
+	}
+	
+	
+	// Chunking Utils
+	// -------------------------------------------------------------------------------------------------
+	
+	
+	var formatStringChunkCache = {};
+	
+	
+	function getFormatStringChunks(formatStr) {
+		if (formatStr in formatStringChunkCache) {
+			return formatStringChunkCache[formatStr];
+		}
+		return (formatStringChunkCache[formatStr] = chunkFormatString(formatStr));
+	}
+	
+	
+	// Break the formatting string into an array of chunks
+	function chunkFormatString(formatStr) {
+		var chunks = [];
+		var chunker = /\[([^\]]*)\]|\(([^\)]*)\)|(LTS|LT|(\w)\4*o?)|([^\w\[\(]+)/g; // TODO: more descrimination
+		var match;
+	
+		while ((match = chunker.exec(formatStr))) {
+			if (match[1]) { // a literal string inside [ ... ]
+				chunks.push(match[1]);
+			}
+			else if (match[2]) { // non-zero formatting inside ( ... )
+				chunks.push({ maybe: chunkFormatString(match[2]) });
+			}
+			else if (match[3]) { // a formatting token
+				chunks.push({ token: match[3] });
+			}
+			else if (match[5]) { // an unenclosed literal string
+				chunks.push(match[5]);
+			}
+		}
+	
+		return chunks;
+	}
+	
+	;;
+	
+	FC.Class = Class; // export
+	
+	// Class that all other classes will inherit from
+	function Class() { }
+	
+	
+	// Called on a class to create a subclass.
+	// Last argument contains instance methods. Any argument before the last are considered mixins.
+	Class.extend = function() {
+		var len = arguments.length;
+		var i;
+		var members;
+	
+		for (i = 0; i < len; i++) {
+			members = arguments[i];
+			if (i < len - 1) { // not the last argument?
+				mixIntoClass(this, members);
+			}
+		}
+	
+		return extendClass(this, members || {}); // members will be undefined if no arguments
+	};
+	
+	
+	// Adds new member variables/methods to the class's prototype.
+	// Can be called with another class, or a plain object hash containing new members.
+	Class.mixin = function(members) {
+		mixIntoClass(this, members);
+	};
+	
+	
+	function extendClass(superClass, members) {
+		var subClass;
+	
+		// ensure a constructor for the subclass, forwarding all arguments to the super-constructor if it doesn't exist
+		if (hasOwnProp(members, 'constructor')) {
+			subClass = members.constructor;
+		}
+		if (typeof subClass !== 'function') {
+			subClass = members.constructor = function() {
+				superClass.apply(this, arguments);
+			};
+		}
+	
+		// build the base prototype for the subclass, which is an new object chained to the superclass's prototype
+		subClass.prototype = createObject(superClass.prototype);
+	
+		// copy each member variable/method onto the the subclass's prototype
+		copyOwnProps(members, subClass.prototype);
+		copyNativeMethods(members, subClass.prototype); // hack for IE8
+	
+		// copy over all class variables/methods to the subclass, such as `extend` and `mixin`
+		copyOwnProps(superClass, subClass);
+	
+		return subClass;
+	}
+	
+	
+	function mixIntoClass(theClass, members) {
+		copyOwnProps(members.prototype || members, theClass.prototype); // TODO: copyNativeMethods?
+	}
+	;;
+	
+	var Emitter = FC.Emitter = Class.extend({
+	
+		callbackHash: null,
+	
+	
+		on: function(name, callback) {
+			this.getCallbacks(name).add(callback);
+			return this; // for chaining
+		},
+	
+	
+		off: function(name, callback) {
+			this.getCallbacks(name).remove(callback);
+			return this; // for chaining
+		},
+	
+	
+		trigger: function(name) { // args...
+			var args = Array.prototype.slice.call(arguments, 1);
+	
+			this.triggerWith(name, this, args);
+	
+			return this; // for chaining
+		},
+	
+	
+		triggerWith: function(name, context, args) {
+			var callbacks = this.getCallbacks(name);
+	
+			callbacks.fireWith(context, args);
+	
+			return this; // for chaining
+		},
+	
+	
+		getCallbacks: function(name) {
+			var callbacks;
+	
+			if (!this.callbackHash) {
+				this.callbackHash = {};
+			}
+	
+			callbacks = this.callbackHash[name];
+			if (!callbacks) {
+				callbacks = this.callbackHash[name] = $.Callbacks();
+			}
+	
+			return callbacks;
+		}
+	
+	});
+	;;
+	
+	/* A rectangular panel that is absolutely positioned over other content
+	------------------------------------------------------------------------------------------------------------------------
+	Options:
+		- className (string)
+		- content (HTML string or jQuery element set)
+		- parentEl
+		- top
+		- left
+		- right (the x coord of where the right edge should be. not a "CSS" right)
+		- autoHide (boolean)
+		- show (callback)
+		- hide (callback)
+	*/
+	
+	var Popover = Class.extend({
+	
+		isHidden: true,
+		options: null,
+		el: null, // the container element for the popover. generated by this object
+		documentMousedownProxy: null, // document mousedown handler bound to `this`
+		margin: 10, // the space required between the popover and the edges of the scroll container
+	
+	
+		constructor: function(options) {
+			this.options = options || {};
+		},
+	
+	
+		// Shows the popover on the specified position. Renders it if not already
+		show: function() {
+			if (this.isHidden) {
+				if (!this.el) {
+					this.render();
+				}
+				this.el.show();
+				this.position();
+				this.isHidden = false;
+				this.trigger('show');
+			}
+		},
+	
+	
+		// Hides the popover, through CSS, but does not remove it from the DOM
+		hide: function() {
+			if (!this.isHidden) {
+				this.el.hide();
+				this.isHidden = true;
+				this.trigger('hide');
+			}
+		},
+	
+	
+		// Creates `this.el` and renders content inside of it
+		render: function() {
+			var _this = this;
+			var options = this.options;
+	
+			this.el = $('<div class="fc-popover"/>')
+				.addClass(options.className || '')
+				.css({
+					// position initially to the top left to avoid creating scrollbars
+					top: 0,
+					left: 0
+				})
+				.append(options.content)
+				.appendTo(options.parentEl);
+	
+			// when a click happens on anything inside with a 'fc-close' className, hide the popover
+			this.el.on('click', '.fc-close', function() {
+				_this.hide();
+			});
+	
+			if (options.autoHide) {
+				$(document).on('mousedown', this.documentMousedownProxy = proxy(this, 'documentMousedown'));
+			}
+		},
+	
+	
+		// Triggered when the user clicks *anywhere* in the document, for the autoHide feature
+		documentMousedown: function(ev) {
+			// only hide the popover if the click happened outside the popover
+			if (this.el && !$(ev.target).closest(this.el).length) {
+				this.hide();
+			}
+		},
+	
+	
+		// Hides and unregisters any handlers
+		removeElement: function() {
+			this.hide();
+	
+			if (this.el) {
+				this.el.remove();
+				this.el = null;
+			}
+	
+			$(document).off('mousedown', this.documentMousedownProxy);
+		},
+	
+	
+		// Positions the popover optimally, using the top/left/right options
+		position: function() {
+			var options = this.options;
+			var origin = this.el.offsetParent().offset();
+			var width = this.el.outerWidth();
+			var height = this.el.outerHeight();
+			var windowEl = $(window);
+			var viewportEl = getScrollParent(this.el);
+			var viewportTop;
+			var viewportLeft;
+			var viewportOffset;
+			var top; // the "position" (not "offset") values for the popover
+			var left; //
+	
+			// compute top and left
+			top = options.top || 0;
+			if (options.left !== undefined) {
+				left = options.left;
+			}
+			else if (options.right !== undefined) {
+				left = options.right - width; // derive the left value from the right value
+			}
+			else {
+				left = 0;
+			}
+	
+			if (viewportEl.is(window) || viewportEl.is(document)) { // normalize getScrollParent's result
+				viewportEl = windowEl;
+				viewportTop = 0; // the window is always at the top left
+				viewportLeft = 0; // (and .offset() won't work if called here)
+			}
+			else {
+				viewportOffset = viewportEl.offset();
+				viewportTop = viewportOffset.top;
+				viewportLeft = viewportOffset.left;
+			}
+	
+			// if the window is scrolled, it causes the visible area to be further down
+			viewportTop += windowEl.scrollTop();
+			viewportLeft += windowEl.scrollLeft();
+	
+			// constrain to the view port. if constrained by two edges, give precedence to top/left
+			if (options.viewportConstrain !== false) {
+				top = Math.min(top, viewportTop + viewportEl.outerHeight() - height - this.margin);
+				top = Math.max(top, viewportTop + this.margin);
+				left = Math.min(left, viewportLeft + viewportEl.outerWidth() - width - this.margin);
+				left = Math.max(left, viewportLeft + this.margin);
+			}
+	
+			this.el.css({
+				top: top - origin.top,
+				left: left - origin.left
+			});
+		},
+	
+	
+		// Triggers a callback. Calls a function in the option hash of the same name.
+		// Arguments beyond the first `name` are forwarded on.
+		// TODO: better code reuse for this. Repeat code
+		trigger: function(name) {
+			if (this.options[name]) {
+				this.options[name].apply(this, Array.prototype.slice.call(arguments, 1));
+			}
+		}
+	
+	});
+	
+	;;
+	
+	/*
+	A cache for the left/right/top/bottom/width/height values for one or more elements.
+	Works with both offset (from topleft document) and position (from offsetParent).
+	
+	options:
+	- els
+	- isHorizontal
+	- isVertical
+	*/
+	var CoordCache = FC.CoordCache = Class.extend({
+	
+		els: null, // jQuery set (assumed to be siblings)
+		forcedOffsetParentEl: null, // options can override the natural offsetParent
+		origin: null, // {left,top} position of offsetParent of els
+		boundingRect: null, // constrain cordinates to this rectangle. {left,right,top,bottom} or null
+		isHorizontal: false, // whether to query for left/right/width
+		isVertical: false, // whether to query for top/bottom/height
+	
+		// arrays of coordinates (offsets from topleft of document)
+		lefts: null,
+		rights: null,
+		tops: null,
+		bottoms: null,
+	
+	
+		constructor: function(options) {
+			this.els = $(options.els);
+			this.isHorizontal = options.isHorizontal;
+			this.isVertical = options.isVertical;
+			this.forcedOffsetParentEl = options.offsetParent ? $(options.offsetParent) : null;
+		},
+	
+	
+		// Queries the els for coordinates and stores them.
+		// Call this method before using and of the get* methods below.
+		build: function() {
+			var offsetParentEl = this.forcedOffsetParentEl || this.els.eq(0).offsetParent();
+	
+			this.origin = offsetParentEl.offset();
+			this.boundingRect = this.queryBoundingRect();
+	
+			if (this.isHorizontal) {
+				this.buildElHorizontals();
+			}
+			if (this.isVertical) {
+				this.buildElVerticals();
+			}
+		},
+	
+	
+		// Destroys all internal data about coordinates, freeing memory
+		clear: function() {
+			this.origin = null;
+			this.boundingRect = null;
+			this.lefts = null;
+			this.rights = null;
+			this.tops = null;
+			this.bottoms = null;
+		},
+	
+	
+		// When called, if coord caches aren't built, builds them
+		ensureBuilt: function() {
+			if (!this.origin) {
+				this.build();
+			}
+		},
+	
+	
+		// Compute and return what the elements' bounding rectangle is, from the user's perspective.
+		// Right now, only returns a rectangle if constrained by an overflow:scroll element.
+		queryBoundingRect: function() {
+			var scrollParentEl = getScrollParent(this.els.eq(0));
+	
+			if (!scrollParentEl.is(document)) {
+				return getClientRect(scrollParentEl);
+			}
+		},
+	
+	
+		// Populates the left/right internal coordinate arrays
+		buildElHorizontals: function() {
+			var lefts = [];
+			var rights = [];
+	
+			this.els.each(function(i, node) {
+				var el = $(node);
+				var left = el.offset().left;
+				var width = el.outerWidth();
+	
+				lefts.push(left);
+				rights.push(left + width);
+			});
+	
+			this.lefts = lefts;
+			this.rights = rights;
+		},
+	
+	
+		// Populates the top/bottom internal coordinate arrays
+		buildElVerticals: function() {
+			var tops = [];
+			var bottoms = [];
+	
+			this.els.each(function(i, node) {
+				var el = $(node);
+				var top = el.offset().top;
+				var height = el.outerHeight();
+	
+				tops.push(top);
+				bottoms.push(top + height);
+			});
+	
+			this.tops = tops;
+			this.bottoms = bottoms;
+		},
+	
+	
+		// Given a left offset (from document left), returns the index of the el that it horizontally intersects.
+		// If no intersection is made, or outside of the boundingRect, returns undefined.
+		getHorizontalIndex: function(leftOffset) {
+			this.ensureBuilt();
+	
+			var boundingRect = this.boundingRect;
+			var lefts = this.lefts;
+			var rights = this.rights;
+			var len = lefts.length;
+			var i;
+	
+			if (!boundingRect || (leftOffset >= boundingRect.left && leftOffset < boundingRect.right)) {
+				for (i = 0; i < len; i++) {
+					if (leftOffset >= lefts[i] && leftOffset < rights[i]) {
+						return i;
+					}
+				}
+			}
+		},
+	
+	
+		// Given a top offset (from document top), returns the index of the el that it vertically intersects.
+		// If no intersection is made, or outside of the boundingRect, returns undefined.
+		getVerticalIndex: function(topOffset) {
+			this.ensureBuilt();
+	
+			var boundingRect = this.boundingRect;
+			var tops = this.tops;
+			var bottoms = this.bottoms;
+			var len = tops.length;
+			var i;
+	
+			if (!boundingRect || (topOffset >= boundingRect.top && topOffset < boundingRect.bottom)) {
+				for (i = 0; i < len; i++) {
+					if (topOffset >= tops[i] && topOffset < bottoms[i]) {
+						return i;
+					}
+				}
+			}
+		},
+	
+	
+		// Gets the left offset (from document left) of the element at the given index
+		getLeftOffset: function(leftIndex) {
+			this.ensureBuilt();
+			return this.lefts[leftIndex];
+		},
+	
+	
+		// Gets the left position (from offsetParent left) of the element at the given index
+		getLeftPosition: function(leftIndex) {
+			this.ensureBuilt();
+			return this.lefts[leftIndex] - this.origin.left;
+		},
+	
+	
+		// Gets the right offset (from document left) of the element at the given index.
+		// This value is NOT relative to the document's right edge, like the CSS concept of "right" would be.
+		getRightOffset: function(leftIndex) {
+			this.ensureBuilt();
+			return this.rights[leftIndex];
+		},
+	
+	
+		// Gets the right position (from offsetParent left) of the element at the given index.
+		// This value is NOT relative to the offsetParent's right edge, like the CSS concept of "right" would be.
+		getRightPosition: function(leftIndex) {
+			this.ensureBuilt();
+			return this.rights[leftIndex] - this.origin.left;
+		},
+	
+	
+		// Gets the width of the element at the given index
+		getWidth: function(leftIndex) {
+			this.ensureBuilt();
+			return this.rights[leftIndex] - this.lefts[leftIndex];
+		},
+	
+	
+		// Gets the top offset (from document top) of the element at the given index
+		getTopOffset: function(topIndex) {
+			this.ensureBuilt();
+			return this.tops[topIndex];
+		},
+	
+	
+		// Gets the top position (from offsetParent top) of the element at the given position
+		getTopPosition: function(topIndex) {
+			this.ensureBuilt();
+			return this.tops[topIndex] - this.origin.top;
+		},
+	
+		// Gets the bottom offset (from the document top) of the element at the given index.
+		// This value is NOT relative to the offsetParent's bottom edge, like the CSS concept of "bottom" would be.
+		getBottomOffset: function(topIndex) {
+			this.ensureBuilt();
+			return this.bottoms[topIndex];
+		},
+	
+	
+		// Gets the bottom position (from the offsetParent top) of the element at the given index.
+		// This value is NOT relative to the offsetParent's bottom edge, like the CSS concept of "bottom" would be.
+		getBottomPosition: function(topIndex) {
+			this.ensureBuilt();
+			return this.bottoms[topIndex] - this.origin.top;
+		},
+	
+	
+		// Gets the height of the element at the given index
+		getHeight: function(topIndex) {
+			this.ensureBuilt();
+			return this.bottoms[topIndex] - this.tops[topIndex];
+		}
+	
+	});
+	
+	;;
+	
+	/* Tracks a drag's mouse movement, firing various handlers
+	----------------------------------------------------------------------------------------------------------------------*/
+	// TODO: use Emitter
+	
+	var DragListener = FC.DragListener = Class.extend({
+	
+		options: null,
+	
+		isListening: false,
+		isDragging: false,
+	
+		// coordinates of the initial mousedown
+		originX: null,
+		originY: null,
+	
+		// handler attached to the document, bound to the DragListener's `this`
+		mousemoveProxy: null,
+		mouseupProxy: null,
+	
+		// for IE8 bug-fighting behavior, for now
+		subjectEl: null, // the element being draged. optional
+		subjectHref: null,
+	
+		scrollEl: null,
+		scrollBounds: null, // { top, bottom, left, right }
+		scrollTopVel: null, // pixels per second
+		scrollLeftVel: null, // pixels per second
+		scrollIntervalId: null, // ID of setTimeout for scrolling animation loop
+		scrollHandlerProxy: null, // this-scoped function for handling when scrollEl is scrolled
+	
+		scrollSensitivity: 30, // pixels from edge for scrolling to start
+		scrollSpeed: 200, // pixels per second, at maximum speed
+		scrollIntervalMs: 50, // millisecond wait between scroll increment
+	
+	
+		constructor: function(options) {
+			options = options || {};
+			this.options = options;
+			this.subjectEl = options.subjectEl;
+		},
+	
+	
+		// Call this when the user does a mousedown. Will probably lead to startListening
+		mousedown: function(ev) {
+			if (isPrimaryMouseButton(ev)) {
+	
+				ev.preventDefault(); // prevents native selection in most browsers
+	
+				this.startListening(ev);
+	
+				// start the drag immediately if there is no minimum distance for a drag start
+				if (!this.options.distance) {
+					this.startDrag(ev);
+				}
+			}
+		},
+	
+	
+		// Call this to start tracking mouse movements
+		startListening: function(ev) {
+			var scrollParent;
+	
+			if (!this.isListening) {
+	
+				// grab scroll container and attach handler
+				if (ev && this.options.scroll) {
+					scrollParent = getScrollParent($(ev.target));
+					if (!scrollParent.is(window) && !scrollParent.is(document)) {
+						this.scrollEl = scrollParent;
+	
+						// scope to `this`, and use `debounce` to make sure rapid calls don't happen
+						this.scrollHandlerProxy = debounce(proxy(this, 'scrollHandler'), 100);
+						this.scrollEl.on('scroll', this.scrollHandlerProxy);
+					}
+				}
+	
+				$(document)
+					.on('mousemove', this.mousemoveProxy = proxy(this, 'mousemove'))
+					.on('mouseup', this.mouseupProxy = proxy(this, 'mouseup'))
+					.on('selectstart', this.preventDefault); // prevents native selection in IE<=8
+	
+				if (ev) {
+					this.originX = ev.pageX;
+					this.originY = ev.pageY;
+				}
+				else {
+					// if no starting information was given, origin will be the topleft corner of the screen.
+					// if so, dx/dy in the future will be the absolute coordinates.
+					this.originX = 0;
+					this.originY = 0;
+				}
+	
+				this.isListening = true;
+				this.listenStart(ev);
+			}
+		},
+	
+	
+		// Called when drag listening has started (but a real drag has not necessarily began)
+		listenStart: function(ev) {
+			this.trigger('listenStart', ev);
+		},
+	
+	
+		// Called when the user moves the mouse
+		mousemove: function(ev) {
+			var dx = ev.pageX - this.originX;
+			var dy = ev.pageY - this.originY;
+			var minDistance;
+			var distanceSq; // current distance from the origin, squared
+	
+			if (!this.isDragging) { // if not already dragging...
+				// then start the drag if the minimum distance criteria is met
+				minDistance = this.options.distance || 1;
+				distanceSq = dx * dx + dy * dy;
+				if (distanceSq >= minDistance * minDistance) { // use pythagorean theorem
+					this.startDrag(ev);
+				}
+			}
+	
+			if (this.isDragging) {
+				this.drag(dx, dy, ev); // report a drag, even if this mousemove initiated the drag
+			}
+		},
+	
+	
+		// Call this to initiate a legitimate drag.
+		// This function is called internally from this class, but can also be called explicitly from outside
+		startDrag: function(ev) {
+	
+			if (!this.isListening) { // startDrag must have manually initiated
+				this.startListening();
+			}
+	
+			if (!this.isDragging) {
+				this.isDragging = true;
+				this.dragStart(ev);
+			}
+		},
+	
+	
+		// Called when the actual drag has started (went beyond minDistance)
+		dragStart: function(ev) {
+			var subjectEl = this.subjectEl;
+	
+			this.trigger('dragStart', ev);
+	
+			// remove a mousedown'd <a>'s href so it is not visited (IE8 bug)
+			if ((this.subjectHref = subjectEl ? subjectEl.attr('href') : null)) {
+				subjectEl.removeAttr('href');
+			}
+		},
+	
+	
+		// Called while the mouse is being moved and when we know a legitimate drag is taking place
+		drag: function(dx, dy, ev) {
+			this.trigger('drag', dx, dy, ev);
+			this.updateScroll(ev); // will possibly cause scrolling
+		},
+	
+	
+		// Called when the user does a mouseup
+		mouseup: function(ev) {
+			this.stopListening(ev);
+		},
+	
+	
+		// Called when the drag is over. Will not cause listening to stop however.
+		// A concluding 'cellOut' event will NOT be triggered.
+		stopDrag: function(ev) {
+			if (this.isDragging) {
+				this.stopScrolling();
+				this.dragStop(ev);
+				this.isDragging = false;
+			}
+		},
+	
+	
+		// Called when dragging has been stopped
+		dragStop: function(ev) {
+			var _this = this;
+	
+			this.trigger('dragStop', ev);
+	
+			// restore a mousedown'd <a>'s href (for IE8 bug)
+			setTimeout(function() { // must be outside of the click's execution
+				if (_this.subjectHref) {
+					_this.subjectEl.attr('href', _this.subjectHref);
+				}
+			}, 0);
+		},
+	
+	
+		// Call this to stop listening to the user's mouse events
+		stopListening: function(ev) {
+			this.stopDrag(ev); // if there's a current drag, kill it
+	
+			if (this.isListening) {
+	
+				// remove the scroll handler if there is a scrollEl
+				if (this.scrollEl) {
+					this.scrollEl.off('scroll', this.scrollHandlerProxy);
+					this.scrollHandlerProxy = null;
+				}
+	
+				$(document)
+					.off('mousemove', this.mousemoveProxy)
+					.off('mouseup', this.mouseupProxy)
+					.off('selectstart', this.preventDefault);
+	
+				this.mousemoveProxy = null;
+				this.mouseupProxy = null;
+	
+				this.isListening = false;
+				this.listenStop(ev);
+			}
+		},
+	
+	
+		// Called when drag listening has stopped
+		listenStop: function(ev) {
+			this.trigger('listenStop', ev);
+		},
+	
+	
+		// Triggers a callback. Calls a function in the option hash of the same name.
+		// Arguments beyond the first `name` are forwarded on.
+		trigger: function(name) {
+			if (this.options[name]) {
+				this.options[name].apply(this, Array.prototype.slice.call(arguments, 1));
+			}
+		},
+	
+	
+		// Stops a given mouse event from doing it's native browser action. In our case, text selection.
+		preventDefault: function(ev) {
+			ev.preventDefault();
+		},
+	
+	
+		/* Scrolling
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Computes and stores the bounding rectangle of scrollEl
+		computeScrollBounds: function() {
+			var el = this.scrollEl;
+	
+			this.scrollBounds = el ? getOuterRect(el) : null;
+				// TODO: use getClientRect in future. but prevents auto scrolling when on top of scrollbars
+		},
+	
+	
+		// Called when the dragging is in progress and scrolling should be updated
+		updateScroll: function(ev) {
+			var sensitivity = this.scrollSensitivity;
+			var bounds = this.scrollBounds;
+			var topCloseness, bottomCloseness;
+			var leftCloseness, rightCloseness;
+			var topVel = 0;
+			var leftVel = 0;
+	
+			if (bounds) { // only scroll if scrollEl exists
+	
+				// compute closeness to edges. valid range is from 0.0 - 1.0
+				topCloseness = (sensitivity - (ev.pageY - bounds.top)) / sensitivity;
+				bottomCloseness = (sensitivity - (bounds.bottom - ev.pageY)) / sensitivity;
+				leftCloseness = (sensitivity - (ev.pageX - bounds.left)) / sensitivity;
+				rightCloseness = (sensitivity - (bounds.right - ev.pageX)) / sensitivity;
+	
+				// translate vertical closeness into velocity.
+				// mouse must be completely in bounds for velocity to happen.
+				if (topCloseness >= 0 && topCloseness <= 1) {
+					topVel = topCloseness * this.scrollSpeed * -1; // negative. for scrolling up
+				}
+				else if (bottomCloseness >= 0 && bottomCloseness <= 1) {
+					topVel = bottomCloseness * this.scrollSpeed;
+				}
+	
+				// translate horizontal closeness into velocity
+				if (leftCloseness >= 0 && leftCloseness <= 1) {
+					leftVel = leftCloseness * this.scrollSpeed * -1; // negative. for scrolling left
+				}
+				else if (rightCloseness >= 0 && rightCloseness <= 1) {
+					leftVel = rightCloseness * this.scrollSpeed;
+				}
+			}
+	
+			this.setScrollVel(topVel, leftVel);
+		},
+	
+	
+		// Sets the speed-of-scrolling for the scrollEl
+		setScrollVel: function(topVel, leftVel) {
+	
+			this.scrollTopVel = topVel;
+			this.scrollLeftVel = leftVel;
+	
+			this.constrainScrollVel(); // massages into realistic values
+	
+			// if there is non-zero velocity, and an animation loop hasn't already started, then START
+			if ((this.scrollTopVel || this.scrollLeftVel) && !this.scrollIntervalId) {
+				this.scrollIntervalId = setInterval(
+					proxy(this, 'scrollIntervalFunc'), // scope to `this`
+					this.scrollIntervalMs
+				);
+			}
+		},
+	
+	
+		// Forces scrollTopVel and scrollLeftVel to be zero if scrolling has already gone all the way
+		constrainScrollVel: function() {
+			var el = this.scrollEl;
+	
+			if (this.scrollTopVel < 0) { // scrolling up?
+				if (el.scrollTop() <= 0) { // already scrolled all the way up?
+					this.scrollTopVel = 0;
+				}
+			}
+			else if (this.scrollTopVel > 0) { // scrolling down?
+				if (el.scrollTop() + el[0].clientHeight >= el[0].scrollHeight) { // already scrolled all the way down?
+					this.scrollTopVel = 0;
+				}
+			}
+	
+			if (this.scrollLeftVel < 0) { // scrolling left?
+				if (el.scrollLeft() <= 0) { // already scrolled all the left?
+					this.scrollLeftVel = 0;
+				}
+			}
+			else if (this.scrollLeftVel > 0) { // scrolling right?
+				if (el.scrollLeft() + el[0].clientWidth >= el[0].scrollWidth) { // already scrolled all the way right?
+					this.scrollLeftVel = 0;
+				}
+			}
+		},
+	
+	
+		// This function gets called during every iteration of the scrolling animation loop
+		scrollIntervalFunc: function() {
+			var el = this.scrollEl;
+			var frac = this.scrollIntervalMs / 1000; // considering animation frequency, what the vel should be mult'd by
+	
+			// change the value of scrollEl's scroll
+			if (this.scrollTopVel) {
+				el.scrollTop(el.scrollTop() + this.scrollTopVel * frac);
+			}
+			if (this.scrollLeftVel) {
+				el.scrollLeft(el.scrollLeft() + this.scrollLeftVel * frac);
+			}
+	
+			this.constrainScrollVel(); // since the scroll values changed, recompute the velocities
+	
+			// if scrolled all the way, which causes the vels to be zero, stop the animation loop
+			if (!this.scrollTopVel && !this.scrollLeftVel) {
+				this.stopScrolling();
+			}
+		},
+	
+	
+		// Kills any existing scrolling animation loop
+		stopScrolling: function() {
+			if (this.scrollIntervalId) {
+				clearInterval(this.scrollIntervalId);
+				this.scrollIntervalId = null;
+	
+				// when all done with scrolling, recompute positions since they probably changed
+				this.scrollStop();
+			}
+		},
+	
+	
+		// Get called when the scrollEl is scrolled (NOTE: this is delayed via debounce)
+		scrollHandler: function() {
+			// recompute all coordinates, but *only* if this is *not* part of our scrolling animation
+			if (!this.scrollIntervalId) {
+				this.scrollStop();
+			}
+		},
+	
+	
+		// Called when scrolling has stopped, whether through auto scroll, or the user scrolling
+		scrollStop: function() {
+		}
+	
+	});
+	
+	;;
+	
+	/* Tracks mouse movements over a component and raises events about which hit the mouse is over.
+	------------------------------------------------------------------------------------------------------------------------
+	options:
+	- subjectEl
+	- subjectCenter
+	*/
+	
+	var HitDragListener = DragListener.extend({
+	
+		component: null, // converts coordinates to hits
+			// methods: prepareHits, releaseHits, queryHit
+	
+		origHit: null, // the hit the mouse was over when listening started
+		hit: null, // the hit the mouse is over
+		coordAdjust: null, // delta that will be added to the mouse coordinates when computing collisions
+	
+	
+		constructor: function(component, options) {
+			DragListener.call(this, options); // call the super-constructor
+	
+			this.component = component;
+		},
+	
+	
+		// Called when drag listening starts (but a real drag has not necessarily began).
+		// ev might be undefined if dragging was started manually.
+		listenStart: function(ev) {
+			var subjectEl = this.subjectEl;
+			var subjectRect;
+			var origPoint;
+			var point;
+	
+			DragListener.prototype.listenStart.apply(this, arguments); // call the super-method
+	
+			this.computeCoords();
+	
+			if (ev) {
+				origPoint = { left: ev.pageX, top: ev.pageY };
+				point = origPoint;
+	
+				// constrain the point to bounds of the element being dragged
+				if (subjectEl) {
+					subjectRect = getOuterRect(subjectEl); // used for centering as well
+					point = constrainPoint(point, subjectRect);
+				}
+	
+				this.origHit = this.queryHit(point.left, point.top);
+	
+				// treat the center of the subject as the collision point?
+				if (subjectEl && this.options.subjectCenter) {
+	
+					// only consider the area the subject overlaps the hit. best for large subjects.
+					// TODO: skip this if hit didn't supply left/right/top/bottom
+					if (this.origHit) {
+						subjectRect = intersectRects(this.origHit, subjectRect) ||
+							subjectRect; // in case there is no intersection
+					}
+	
+					point = getRectCenter(subjectRect);
+				}
+	
+				this.coordAdjust = diffPoints(point, origPoint); // point - origPoint
+			}
+			else {
+				this.origHit = null;
+				this.coordAdjust = null;
+			}
+		},
+	
+	
+		// Recomputes the drag-critical positions of elements
+		computeCoords: function() {
+			this.component.prepareHits();
+			this.computeScrollBounds(); // why is this here???
+		},
+	
+	
+		// Called when the actual drag has started
+		dragStart: function(ev) {
+			var hit;
+	
+			DragListener.prototype.dragStart.apply(this, arguments); // call the super-method
+	
+			// might be different from this.origHit if the min-distance is large
+			hit = this.queryHit(ev.pageX, ev.pageY);
+	
+			// report the initial hit the mouse is over
+			// especially important if no min-distance and drag starts immediately
+			if (hit) {
+				this.hitOver(hit);
+			}
+		},
+	
+	
+		// Called when the drag moves
+		drag: function(dx, dy, ev) {
+			var hit;
+	
+			DragListener.prototype.drag.apply(this, arguments); // call the super-method
+	
+			hit = this.queryHit(ev.pageX, ev.pageY);
+	
+			if (!isHitsEqual(hit, this.hit)) { // a different hit than before?
+				if (this.hit) {
+					this.hitOut();
+				}
+				if (hit) {
+					this.hitOver(hit);
+				}
+			}
+		},
+	
+	
+		// Called when dragging has been stopped
+		dragStop: function() {
+			this.hitDone();
+			DragListener.prototype.dragStop.apply(this, arguments); // call the super-method
+		},
+	
+	
+		// Called when a the mouse has just moved over a new hit
+		hitOver: function(hit) {
+			var isOrig = isHitsEqual(hit, this.origHit);
+	
+			this.hit = hit;
+	
+			this.trigger('hitOver', this.hit, isOrig, this.origHit);
+		},
+	
+	
+		// Called when the mouse has just moved out of a hit
+		hitOut: function() {
+			if (this.hit) {
+				this.trigger('hitOut', this.hit);
+				this.hitDone();
+				this.hit = null;
+			}
+		},
+	
+	
+		// Called after a hitOut. Also called before a dragStop
+		hitDone: function() {
+			if (this.hit) {
+				this.trigger('hitDone', this.hit);
+			}
+		},
+	
+	
+		// Called when drag listening has stopped
+		listenStop: function() {
+			DragListener.prototype.listenStop.apply(this, arguments); // call the super-method
+	
+			this.origHit = null;
+			this.hit = null;
+	
+			this.component.releaseHits();
+		},
+	
+	
+		// Called when scrolling has stopped, whether through auto scroll, or the user scrolling
+		scrollStop: function() {
+			DragListener.prototype.scrollStop.apply(this, arguments); // call the super-method
+	
+			this.computeCoords(); // hits' absolute positions will be in new places. recompute
+		},
+	
+	
+		// Gets the hit underneath the coordinates for the given mouse event
+		queryHit: function(left, top) {
+	
+			if (this.coordAdjust) {
+				left += this.coordAdjust.left;
+				top += this.coordAdjust.top;
+			}
+	
+			return this.component.queryHit(left, top);
+		}
+	
+	});
+	
+	
+	// Returns `true` if the hits are identically equal. `false` otherwise. Must be from the same component.
+	// Two null values will be considered equal, as two "out of the component" states are the same.
+	function isHitsEqual(hit0, hit1) {
+	
+		if (!hit0 && !hit1) {
+			return true;
+		}
+	
+		if (hit0 && hit1) {
+			return hit0.component === hit1.component &&
+				isHitPropsWithin(hit0, hit1) &&
+				isHitPropsWithin(hit1, hit0); // ensures all props are identical
+		}
+	
+		return false;
+	}
+	
+	
+	// Returns true if all of subHit's non-standard properties are within superHit
+	function isHitPropsWithin(subHit, superHit) {
+		for (var propName in subHit) {
+			if (!/^(component|left|right|top|bottom)$/.test(propName)) {
+				if (subHit[propName] !== superHit[propName]) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	;;
+	
+	/* Creates a clone of an element and lets it track the mouse as it moves
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	var MouseFollower = Class.extend({
+	
+		options: null,
+	
+		sourceEl: null, // the element that will be cloned and made to look like it is dragging
+		el: null, // the clone of `sourceEl` that will track the mouse
+		parentEl: null, // the element that `el` (the clone) will be attached to
+	
+		// the initial position of el, relative to the offset parent. made to match the initial offset of sourceEl
+		top0: null,
+		left0: null,
+	
+		// the initial position of the mouse
+		mouseY0: null,
+		mouseX0: null,
+	
+		// the number of pixels the mouse has moved from its initial position
+		topDelta: null,
+		leftDelta: null,
+	
+		mousemoveProxy: null, // document mousemove handler, bound to the MouseFollower's `this`
+	
+		isFollowing: false,
+		isHidden: false,
+		isAnimating: false, // doing the revert animation?
+	
+		constructor: function(sourceEl, options) {
+			this.options = options = options || {};
+			this.sourceEl = sourceEl;
+			this.parentEl = options.parentEl ? $(options.parentEl) : sourceEl.parent(); // default to sourceEl's parent
+		},
+	
+	
+		// Causes the element to start following the mouse
+		start: function(ev) {
+			if (!this.isFollowing) {
+				this.isFollowing = true;
+	
+				this.mouseY0 = ev.pageY;
+				this.mouseX0 = ev.pageX;
+				this.topDelta = 0;
+				this.leftDelta = 0;
+	
+				if (!this.isHidden) {
+					this.updatePosition();
+				}
+	
+				$(document).on('mousemove', this.mousemoveProxy = proxy(this, 'mousemove'));
+			}
+		},
+	
+	
+		// Causes the element to stop following the mouse. If shouldRevert is true, will animate back to original position.
+		// `callback` gets invoked when the animation is complete. If no animation, it is invoked immediately.
+		stop: function(shouldRevert, callback) {
+			var _this = this;
+			var revertDuration = this.options.revertDuration;
+	
+			function complete() {
+				this.isAnimating = false;
+				_this.removeElement();
+	
+				this.top0 = this.left0 = null; // reset state for future updatePosition calls
+	
+				if (callback) {
+					callback();
+				}
+			}
+	
+			if (this.isFollowing && !this.isAnimating) { // disallow more than one stop animation at a time
+				this.isFollowing = false;
+	
+				$(document).off('mousemove', this.mousemoveProxy);
+	
+				if (shouldRevert && revertDuration && !this.isHidden) { // do a revert animation?
+					this.isAnimating = true;
+					this.el.animate({
+						top: this.top0,
+						left: this.left0
+					}, {
+						duration: revertDuration,
+						complete: complete
+					});
+				}
+				else {
+					complete();
+				}
+			}
+		},
+	
+	
+		// Gets the tracking element. Create it if necessary
+		getEl: function() {
+			var el = this.el;
+	
+			if (!el) {
+				this.sourceEl.width(); // hack to force IE8 to compute correct bounding box
+				el = this.el = this.sourceEl.clone()
+					.css({
+						position: 'absolute',
+						visibility: '', // in case original element was hidden (commonly through hideEvents())
+						display: this.isHidden ? 'none' : '', // for when initially hidden
+						margin: 0,
+						right: 'auto', // erase and set width instead
+						bottom: 'auto', // erase and set height instead
+						width: this.sourceEl.width(), // explicit height in case there was a 'right' value
+						height: this.sourceEl.height(), // explicit width in case there was a 'bottom' value
+						opacity: this.options.opacity || '',
+						zIndex: this.options.zIndex
+					})
+					.appendTo(this.parentEl);
+			}
+	
+			return el;
+		},
+	
+	
+		// Removes the tracking element if it has already been created
+		removeElement: function() {
+			if (this.el) {
+				this.el.remove();
+				this.el = null;
+			}
+		},
+	
+	
+		// Update the CSS position of the tracking element
+		updatePosition: function() {
+			var sourceOffset;
+			var origin;
+	
+			this.getEl(); // ensure this.el
+	
+			// make sure origin info was computed
+			if (this.top0 === null) {
+				this.sourceEl.width(); // hack to force IE8 to compute correct bounding box
+				sourceOffset = this.sourceEl.offset();
+				origin = this.el.offsetParent().offset();
+				this.top0 = sourceOffset.top - origin.top;
+				this.left0 = sourceOffset.left - origin.left;
+			}
+	
+			this.el.css({
+				top: this.top0 + this.topDelta,
+				left: this.left0 + this.leftDelta
+			});
+		},
+	
+	
+		// Gets called when the user moves the mouse
+		mousemove: function(ev) {
+			this.topDelta = ev.pageY - this.mouseY0;
+			this.leftDelta = ev.pageX - this.mouseX0;
+	
+			if (!this.isHidden) {
+				this.updatePosition();
+			}
+		},
+	
+	
+		// Temporarily makes the tracking element invisible. Can be called before following starts
+		hide: function() {
+			if (!this.isHidden) {
+				this.isHidden = true;
+				if (this.el) {
+					this.el.hide();
+				}
+			}
+		},
+	
+	
+		// Show the tracking element after it has been temporarily hidden
+		show: function() {
+			if (this.isHidden) {
+				this.isHidden = false;
+				this.updatePosition();
+				this.getEl().show();
+			}
+		}
+	
+	});
+	
+	;;
+	
+	/* An abstract class comprised of a "grid" of areas that each represent a specific datetime
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	var Grid = FC.Grid = Class.extend({
+	
+		view: null, // a View object
+		isRTL: null, // shortcut to the view's isRTL option
+	
+		start: null,
+		end: null,
+	
+		el: null, // the containing element
+		elsByFill: null, // a hash of jQuery element sets used for rendering each fill. Keyed by fill name.
+	
+		externalDragStartProxy: null, // binds the Grid's scope to externalDragStart (in DayGrid.events)
+	
+		// derived from options
+		eventTimeFormat: null,
+		displayEventTime: null,
+		displayEventEnd: null,
+	
+		minResizeDuration: null, // TODO: hack. set by subclasses. minumum event resize duration
+	
+		// if defined, holds the unit identified (ex: "year" or "month") that determines the level of granularity
+		// of the date areas. if not defined, assumes to be day and time granularity.
+		// TODO: port isTimeScale into same system?
+		largeUnit: null,
+	
+	
+		constructor: function(view) {
+			this.view = view;
+			this.isRTL = view.opt('isRTL');
+	
+			this.elsByFill = {};
+			this.externalDragStartProxy = proxy(this, 'externalDragStart');
+		},
+	
+	
+		/* Options
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Generates the format string used for event time text, if not explicitly defined by 'timeFormat'
+		computeEventTimeFormat: function() {
+			return this.view.opt('smallTimeFormat');
+		},
+	
+	
+		// Determines whether events should have their end times displayed, if not explicitly defined by 'displayEventTime'.
+		// Only applies to non-all-day events.
+		computeDisplayEventTime: function() {
+			return true;
+		},
+	
+	
+		// Determines whether events should have their end times displayed, if not explicitly defined by 'displayEventEnd'
+		computeDisplayEventEnd: function() {
+			return true;
+		},
+	
+	
+		/* Dates
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Tells the grid about what period of time to display.
+		// Any date-related internal data should be generated.
+		setRange: function(range) {
+			this.start = range.start.clone();
+			this.end = range.end.clone();
+	
+			this.rangeUpdated();
+			this.processRangeOptions();
+		},
+	
+	
+		// Called when internal variables that rely on the range should be updated
+		rangeUpdated: function() {
+		},
+	
+	
+		// Updates values that rely on options and also relate to range
+		processRangeOptions: function() {
+			var view = this.view;
+			var displayEventTime;
+			var displayEventEnd;
+	
+			this.eventTimeFormat =
+				view.opt('eventTimeFormat') ||
+				view.opt('timeFormat') || // deprecated
+				this.computeEventTimeFormat();
+	
+			displayEventTime = view.opt('displayEventTime');
+			if (displayEventTime == null) {
+				displayEventTime = this.computeDisplayEventTime(); // might be based off of range
+			}
+	
+			displayEventEnd = view.opt('displayEventEnd');
+			if (displayEventEnd == null) {
+				displayEventEnd = this.computeDisplayEventEnd(); // might be based off of range
+			}
+	
+			this.displayEventTime = displayEventTime;
+			this.displayEventEnd = displayEventEnd;
+		},
+	
+	
+		// Converts a span (has unzoned start/end and any other grid-specific location information)
+		// into an array of segments (pieces of events whose format is decided by the grid).
+		spanToSegs: function(span) {
+			// subclasses must implement
+		},
+	
+	
+		// Diffs the two dates, returning a duration, based on granularity of the grid
+		// TODO: port isTimeScale into this system?
+		diffDates: function(a, b) {
+			if (this.largeUnit) {
+				return diffByUnit(a, b, this.largeUnit);
+			}
+			else {
+				return diffDayTime(a, b);
+			}
+		},
+	
+	
+		/* Hit Area
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Called before one or more queryHit calls might happen. Should prepare any cached coordinates for queryHit
+		prepareHits: function() {
+		},
+	
+	
+		// Called when queryHit calls have subsided. Good place to clear any coordinate caches.
+		releaseHits: function() {
+		},
+	
+	
+		// Given coordinates from the topleft of the document, return data about the date-related area underneath.
+		// Can return an object with arbitrary properties (although top/right/left/bottom are encouraged).
+		// Must have a `grid` property, a reference to this current grid. TODO: avoid this
+		// The returned object will be processed by getHitSpan and getHitEl.
+		queryHit: function(leftOffset, topOffset) {
+		},
+	
+	
+		// Given position-level information about a date-related area within the grid,
+		// should return an object with at least a start/end date. Can provide other information as well.
+		getHitSpan: function(hit) {
+		},
+	
+	
+		// Given position-level information about a date-related area within the grid,
+		// should return a jQuery element that best represents it. passed to dayClick callback.
+		getHitEl: function(hit) {
+		},
+	
+	
+		/* Rendering
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Sets the container element that the grid should render inside of.
+		// Does other DOM-related initializations.
+		setElement: function(el) {
+			var _this = this;
+	
+			this.el = el;
+	
+			// attach a handler to the grid's root element.
+			// jQuery will take care of unregistering them when removeElement gets called.
+			el.on('mousedown', function(ev) {
+				if (
+					!$(ev.target).is('.fc-event-container *, .fc-more') && // not an an event element, or "more.." link
+					!$(ev.target).closest('.fc-popover').length // not on a popover (like the "more.." events one)
+				) {
+					_this.dayMousedown(ev);
+				}
+			});
+	
+			// attach event-element-related handlers. in Grid.events
+			// same garbage collection note as above.
+			this.bindSegHandlers();
+	
+			this.bindGlobalHandlers();
+		},
+	
+	
+		// Removes the grid's container element from the DOM. Undoes any other DOM-related attachments.
+		// DOES NOT remove any content beforehand (doesn't clear events or call unrenderDates), unlike View
+		removeElement: function() {
+			this.unbindGlobalHandlers();
+	
+			this.el.remove();
+	
+			// NOTE: we don't null-out this.el for the same reasons we don't do it within View::removeElement
+		},
+	
+	
+		// Renders the basic structure of grid view before any content is rendered
+		renderSkeleton: function() {
+			// subclasses should implement
+		},
+	
+	
+		// Renders the grid's date-related content (like areas that represent days/times).
+		// Assumes setRange has already been called and the skeleton has already been rendered.
+		renderDates: function() {
+			// subclasses should implement
+		},
+	
+	
+		// Unrenders the grid's date-related content
+		unrenderDates: function() {
+			// subclasses should implement
+		},
+	
+	
+		/* Handlers
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Binds DOM handlers to elements that reside outside the grid, such as the document
+		bindGlobalHandlers: function() {
+			$(document).on('dragstart sortstart', this.externalDragStartProxy); // jqui
+		},
+	
+	
+		// Unbinds DOM handlers from elements that reside outside the grid
+		unbindGlobalHandlers: function() {
+			$(document).off('dragstart sortstart', this.externalDragStartProxy); // jqui
+		},
+	
+	
+		// Process a mousedown on an element that represents a day. For day clicking and selecting.
+		dayMousedown: function(ev) {
+			var _this = this;
+			var view = this.view;
+			var isSelectable = view.opt('selectable');
+			var dayClickHit; // null if invalid dayClick
+			var selectionSpan; // null if invalid selection
+	
+			// this listener tracks a mousedown on a day element, and a subsequent drag.
+			// if the drag ends on the same day, it is a 'dayClick'.
+			// if 'selectable' is enabled, this listener also detects selections.
+			var dragListener = new HitDragListener(this, {
+				//distance: 5, // needs more work if we want dayClick to fire correctly
+				scroll: view.opt('dragScroll'),
+				dragStart: function() {
+					view.unselect(); // since we could be rendering a new selection, we want to clear any old one
+				},
+				hitOver: function(hit, isOrig, origHit) {
+					if (origHit) { // click needs to have started on a hit
+						dayClickHit = isOrig ? hit : null; // single-hit selection is a day click
+						if (isSelectable) {
+							selectionSpan = _this.computeSelection(
+								_this.getHitSpan(origHit),
+								_this.getHitSpan(hit)
+							);
+							if (selectionSpan) {
+								_this.renderSelection(selectionSpan);
+							}
+							else if (selectionSpan === false) {
+								disableCursor();
+							}
+						}
+					}
+				},
+				hitOut: function() {
+					dayClickHit = null;
+					selectionSpan = null;
+					_this.unrenderSelection();
+					enableCursor();
+				},
+				listenStop: function(ev) {
+					if (dayClickHit) {
+						view.triggerDayClick(
+							_this.getHitSpan(dayClickHit),
+							_this.getHitEl(dayClickHit),
+							ev
+						);
+					}
+					if (selectionSpan) {
+						// the selection will already have been rendered. just report it
+						view.reportSelection(selectionSpan, ev);
+					}
+					enableCursor();
+				}
+			});
+	
+			dragListener.mousedown(ev); // start listening, which will eventually initiate a dragStart
+		},
+	
+	
+		/* Event Helper
+		------------------------------------------------------------------------------------------------------------------*/
+		// TODO: should probably move this to Grid.events, like we did event dragging / resizing
+	
+	
+		// Renders a mock event at the given event location, which contains zoned start/end properties.
+		renderEventLocationHelper: function(eventLocation, sourceSeg) {
+			var fakeEvent = this.fabricateHelperEvent(eventLocation, sourceSeg);
+	
+			this.renderHelper(fakeEvent, sourceSeg); // do the actual rendering
+		},
+	
+	
+		// Builds a fake event given zoned event date properties and a segment is should be inspired from.
+		// The range's end can be null, in which case the mock event that is rendered will have a null end time.
+		// `sourceSeg` is the internal segment object involved in the drag. If null, something external is dragging.
+		fabricateHelperEvent: function(eventLocation, sourceSeg) {
+			var fakeEvent = sourceSeg ? createObject(sourceSeg.event) : {}; // mask the original event object if possible
+	
+			fakeEvent.start = eventLocation.start.clone();
+			fakeEvent.end = eventLocation.end ? eventLocation.end.clone() : null;
+			fakeEvent.allDay = null; // force it to be freshly computed by normalizeEventDates
+			this.view.calendar.normalizeEventDates(fakeEvent);
+	
+			// this extra className will be useful for differentiating real events from mock events in CSS
+			fakeEvent.className = (fakeEvent.className || []).concat('fc-helper');
+	
+			// if something external is being dragged in, don't render a resizer
+			if (!sourceSeg) {
+				fakeEvent.editable = false;
+			}
+	
+			return fakeEvent;
+		},
+	
+	
+		// Renders a mock event. Given zoned event date properties.
+		renderHelper: function(eventLocation, sourceSeg) {
+			// subclasses must implement
+		},
+	
+	
+		// Unrenders a mock event
+		unrenderHelper: function() {
+			// subclasses must implement
+		},
+	
+	
+		/* Selection
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders a visual indication of a selection. Will highlight by default but can be overridden by subclasses.
+		// Given a span (unzoned start/end and other misc data)
+		renderSelection: function(span) {
+			this.renderHighlight(span);
+		},
+	
+	
+		// Unrenders any visual indications of a selection. Will unrender a highlight by default.
+		unrenderSelection: function() {
+			this.unrenderHighlight();
+		},
+	
+	
+		// Given the first and last date-spans of a selection, returns another date-span object.
+		// Subclasses can override and provide additional data in the span object. Will be passed to renderSelection().
+		// Will return false if the selection is invalid and this should be indicated to the user.
+		// Will return null/undefined if a selection invalid but no error should be reported.
+		computeSelection: function(span0, span1) {
+			var span = this.computeSelectionSpan(span0, span1);
+	
+			if (span && !this.view.calendar.isSelectionSpanAllowed(span)) {
+				return false;
+			}
+	
+			return span;
+		},
+	
+	
+		// Given two spans, must return the combination of the two.
+		// TODO: do this separation of concerns (combining VS validation) for event dnd/resize too.
+		computeSelectionSpan: function(span0, span1) {
+			var dates = [ span0.start, span0.end, span1.start, span1.end ];
+	
+			dates.sort(compareNumbers); // sorts chronologically. works with Moments
+	
+			return { start: dates[0].clone(), end: dates[3].clone() };
+		},
+	
+	
+		/* Highlight
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders an emphasis on the given date range. Given a span (unzoned start/end and other misc data)
+		renderHighlight: function(span) {
+			this.renderFill('highlight', this.spanToSegs(span));
+		},
+	
+	
+		// Unrenders the emphasis on a date range
+		unrenderHighlight: function() {
+			this.unrenderFill('highlight');
+		},
+	
+	
+		// Generates an array of classNames for rendering the highlight. Used by the fill system.
+		highlightSegClasses: function() {
+			return [ 'fc-highlight' ];
+		},
+	
+	
+		/* Business Hours
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		renderBusinessHours: function() {
+		},
+	
+	
+		unrenderBusinessHours: function() {
+		},
+	
+	
+		/* Now Indicator
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		getNowIndicatorUnit: function() {
+		},
+	
+	
+		renderNowIndicator: function(date) {
+		},
+	
+	
+		unrenderNowIndicator: function() {
+		},
+	
+	
+		/* Fill System (highlight, background events, business hours)
+		--------------------------------------------------------------------------------------------------------------------
+		TODO: remove this system. like we did in TimeGrid
+		*/
+	
+	
+		// Renders a set of rectangles over the given segments of time.
+		// MUST RETURN a subset of segs, the segs that were actually rendered.
+		// Responsible for populating this.elsByFill. TODO: better API for expressing this requirement
+		renderFill: function(type, segs) {
+			// subclasses must implement
+		},
+	
+	
+		// Unrenders a specific type of fill that is currently rendered on the grid
+		unrenderFill: function(type) {
+			var el = this.elsByFill[type];
+	
+			if (el) {
+				el.remove();
+				delete this.elsByFill[type];
+			}
+		},
+	
+	
+		// Renders and assigns an `el` property for each fill segment. Generic enough to work with different types.
+		// Only returns segments that successfully rendered.
+		// To be harnessed by renderFill (implemented by subclasses).
+		// Analagous to renderFgSegEls.
+		renderFillSegEls: function(type, segs) {
+			var _this = this;
+			var segElMethod = this[type + 'SegEl'];
+			var html = '';
+			var renderedSegs = [];
+			var i;
+	
+			if (segs.length) {
+	
+				// build a large concatenation of segment HTML
+				for (i = 0; i < segs.length; i++) {
+					html += this.fillSegHtml(type, segs[i]);
+				}
+	
+				// Grab individual elements from the combined HTML string. Use each as the default rendering.
+				// Then, compute the 'el' for each segment.
+				$(html).each(function(i, node) {
+					var seg = segs[i];
+					var el = $(node);
+	
+					// allow custom filter methods per-type
+					if (segElMethod) {
+						el = segElMethod.call(_this, seg, el);
+					}
+	
+					if (el) { // custom filters did not cancel the render
+						el = $(el); // allow custom filter to return raw DOM node
+	
+						// correct element type? (would be bad if a non-TD were inserted into a table for example)
+						if (el.is(_this.fillSegTag)) {
+							seg.el = el;
+							renderedSegs.push(seg);
+						}
+					}
+				});
+			}
+	
+			return renderedSegs;
+		},
+	
+	
+		fillSegTag: 'div', // subclasses can override
+	
+	
+		// Builds the HTML needed for one fill segment. Generic enought o work with different types.
+		fillSegHtml: function(type, seg) {
+	
+			// custom hooks per-type
+			var classesMethod = this[type + 'SegClasses'];
+			var cssMethod = this[type + 'SegCss'];
+	
+			var classes = classesMethod ? classesMethod.call(this, seg) : [];
+			var css = cssToStr(cssMethod ? cssMethod.call(this, seg) : {});
+	
+			return '<' + this.fillSegTag +
+				(classes.length ? ' class="' + classes.join(' ') + '"' : '') +
+				(css ? ' style="' + css + '"' : '') +
+				' />';
+		},
+	
+	
+	
+		/* Generic rendering utilities for subclasses
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Computes HTML classNames for a single-day element
+		getDayClasses: function(date) {
+			var view = this.view;
+			var today = view.calendar.getNow();
+			var classes = [ 'fc-' + dayIDs[date.day()] ];
+	
+			if (
+				view.intervalDuration.as('months') == 1 &&
+				date.month() != view.intervalStart.month()
+			) {
+				classes.push('fc-other-month');
+			}
+	
+			if (date.isSame(today, 'day')) {
+				classes.push(
+					'fc-today',
+					view.highlightStateClass
+				);
+			}
+			else if (date < today) {
+				classes.push('fc-past');
+			}
+			else {
+				classes.push('fc-future');
+			}
+	
+			return classes;
+		}
+	
+	});
+	
+	;;
+	
+	/* Event-rendering and event-interaction methods for the abstract Grid class
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	Grid.mixin({
+	
+		mousedOverSeg: null, // the segment object the user's mouse is over. null if over nothing
+		isDraggingSeg: false, // is a segment being dragged? boolean
+		isResizingSeg: false, // is a segment being resized? boolean
+		isDraggingExternal: false, // jqui-dragging an external element? boolean
+		segs: null, // the *event* segments currently rendered in the grid. TODO: rename to `eventSegs`
+	
+	
+		// Renders the given events onto the grid
+		renderEvents: function(events) {
+			var bgEvents = [];
+			var fgEvents = [];
+			var i;
+	
+			for (i = 0; i < events.length; i++) {
+				(isBgEvent(events[i]) ? bgEvents : fgEvents).push(events[i]);
+			}
+	
+			this.segs = [].concat( // record all segs
+				this.renderBgEvents(bgEvents),
+				this.renderFgEvents(fgEvents)
+			);
+		},
+	
+	
+		renderBgEvents: function(events) {
+			var segs = this.eventsToSegs(events);
+	
+			// renderBgSegs might return a subset of segs, segs that were actually rendered
+			return this.renderBgSegs(segs) || segs;
+		},
+	
+	
+		renderFgEvents: function(events) {
+			var segs = this.eventsToSegs(events);
+	
+			// renderFgSegs might return a subset of segs, segs that were actually rendered
+			return this.renderFgSegs(segs) || segs;
+		},
+	
+	
+		// Unrenders all events currently rendered on the grid
+		unrenderEvents: function() {
+			this.triggerSegMouseout(); // trigger an eventMouseout if user's mouse is over an event
+	
+			this.unrenderFgSegs();
+			this.unrenderBgSegs();
+	
+			this.segs = null;
+		},
+	
+	
+		// Retrieves all rendered segment objects currently rendered on the grid
+		getEventSegs: function() {
+			return this.segs || [];
+		},
+	
+	
+		/* Foreground Segment Rendering
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders foreground event segments onto the grid. May return a subset of segs that were rendered.
+		renderFgSegs: function(segs) {
+			// subclasses must implement
+		},
+	
+	
+		// Unrenders all currently rendered foreground segments
+		unrenderFgSegs: function() {
+			// subclasses must implement
+		},
+	
+	
+		// Renders and assigns an `el` property for each foreground event segment.
+		// Only returns segments that successfully rendered.
+		// A utility that subclasses may use.
+		renderFgSegEls: function(segs, disableResizing) {
+			var view = this.view;
+			var html = '';
+			var renderedSegs = [];
+			var i;
+	
+			if (segs.length) { // don't build an empty html string
+	
+				// build a large concatenation of event segment HTML
+				for (i = 0; i < segs.length; i++) {
+					html += this.fgSegHtml(segs[i], disableResizing);
+				}
+	
+				// Grab individual elements from the combined HTML string. Use each as the default rendering.
+				// Then, compute the 'el' for each segment. An el might be null if the eventRender callback returned false.
+				$(html).each(function(i, node) {
+					var seg = segs[i];
+					var el = view.resolveEventEl(seg.event, $(node));
+	
+					if (el) {
+						el.data('fc-seg', seg); // used by handlers
+						seg.el = el;
+						renderedSegs.push(seg);
+					}
+				});
+			}
+	
+			return renderedSegs;
+		},
+	
+	
+		// Generates the HTML for the default rendering of a foreground event segment. Used by renderFgSegEls()
+		fgSegHtml: function(seg, disableResizing) {
+			// subclasses should implement
+		},
+	
+	
+		/* Background Segment Rendering
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders the given background event segments onto the grid.
+		// Returns a subset of the segs that were actually rendered.
+		renderBgSegs: function(segs) {
+			return this.renderFill('bgEvent', segs);
+		},
+	
+	
+		// Unrenders all the currently rendered background event segments
+		unrenderBgSegs: function() {
+			this.unrenderFill('bgEvent');
+		},
+	
+	
+		// Renders a background event element, given the default rendering. Called by the fill system.
+		bgEventSegEl: function(seg, el) {
+			return this.view.resolveEventEl(seg.event, el); // will filter through eventRender
+		},
+	
+	
+		// Generates an array of classNames to be used for the default rendering of a background event.
+		// Called by the fill system.
+		bgEventSegClasses: function(seg) {
+			var event = seg.event;
+			var source = event.source || {};
+	
+			return [ 'fc-bgevent' ].concat(
+				event.className,
+				source.className || []
+			);
+		},
+	
+	
+		// Generates a semicolon-separated CSS string to be used for the default rendering of a background event.
+		// Called by the fill system.
+		bgEventSegCss: function(seg) {
+			return {
+				'background-color': this.getSegSkinCss(seg)['background-color']
+			};
+		},
+	
+	
+		// Generates an array of classNames to be used for the rendering business hours overlay. Called by the fill system.
+		businessHoursSegClasses: function(seg) {
+			return [ 'fc-nonbusiness', 'fc-bgevent' ];
+		},
+	
+	
+		/* Handlers
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Attaches event-element-related handlers to the container element and leverage bubbling
+		bindSegHandlers: function() {
+			var _this = this;
+			var view = this.view;
+	
+			$.each(
+				{
+					mouseenter: function(seg, ev) {
+						_this.triggerSegMouseover(seg, ev);
+					},
+					mouseleave: function(seg, ev) {
+						_this.triggerSegMouseout(seg, ev);
+					},
+					click: function(seg, ev) {
+						return view.trigger('eventClick', this, seg.event, ev); // can return `false` to cancel
+					},
+					mousedown: function(seg, ev) {
+						if ($(ev.target).is('.fc-resizer') && view.isEventResizable(seg.event)) {
+							_this.segResizeMousedown(seg, ev, $(ev.target).is('.fc-start-resizer'));
+						}
+						else if (view.isEventDraggable(seg.event)) {
+							_this.segDragMousedown(seg, ev);
+						}
+					}
+				},
+				function(name, func) {
+					// attach the handler to the container element and only listen for real event elements via bubbling
+					_this.el.on(name, '.fc-event-container > *', function(ev) {
+						var seg = $(this).data('fc-seg'); // grab segment data. put there by View::renderEvents
+	
+						// only call the handlers if there is not a drag/resize in progress
+						if (seg && !_this.isDraggingSeg && !_this.isResizingSeg) {
+							return func.call(this, seg, ev); // `this` will be the event element
+						}
+					});
+				}
+			);
+		},
+	
+	
+		// Updates internal state and triggers handlers for when an event element is moused over
+		triggerSegMouseover: function(seg, ev) {
+			if (!this.mousedOverSeg) {
+				this.mousedOverSeg = seg;
+				this.view.trigger('eventMouseover', seg.el[0], seg.event, ev);
+			}
+		},
+	
+	
+		// Updates internal state and triggers handlers for when an event element is moused out.
+		// Can be given no arguments, in which case it will mouseout the segment that was previously moused over.
+		triggerSegMouseout: function(seg, ev) {
+			ev = ev || {}; // if given no args, make a mock mouse event
+	
+			if (this.mousedOverSeg) {
+				seg = seg || this.mousedOverSeg; // if given no args, use the currently moused-over segment
+				this.mousedOverSeg = null;
+				this.view.trigger('eventMouseout', seg.el[0], seg.event, ev);
+			}
+		},
+	
+	
+		/* Event Dragging
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Called when the user does a mousedown on an event, which might lead to dragging.
+		// Generic enough to work with any type of Grid.
+		segDragMousedown: function(seg, ev) {
+			var _this = this;
+			var view = this.view;
+			var calendar = view.calendar;
+			var el = seg.el;
+			var event = seg.event;
+			var dropLocation; // zoned event date properties
+	
+			// A clone of the original element that will move with the mouse
+			var mouseFollower = new MouseFollower(seg.el, {
+				parentEl: view.el,
+				opacity: view.opt('dragOpacity'),
+				revertDuration: view.opt('dragRevertDuration'),
+				zIndex: 2 // one above the .fc-view
+			});
+	
+			// Tracks mouse movement over the *view's* coordinate map. Allows dragging and dropping between subcomponents
+			// of the view.
+			var dragListener = new HitDragListener(view, {
+				distance: 5,
+				scroll: view.opt('dragScroll'),
+				subjectEl: el,
+				subjectCenter: true,
+				listenStart: function(ev) {
+					mouseFollower.hide(); // don't show until we know this is a real drag
+					mouseFollower.start(ev);
+				},
+				dragStart: function(ev) {
+					_this.triggerSegMouseout(seg, ev); // ensure a mouseout on the manipulated event has been reported
+					_this.segDragStart(seg, ev);
+					view.hideEvent(event); // hide all event segments. our mouseFollower will take over
+				},
+				hitOver: function(hit, isOrig, origHit) {
+	
+					// starting hit could be forced (DayGrid.limit)
+					if (seg.hit) {
+						origHit = seg.hit;
+					}
+	
+					// since we are querying the parent view, might not belong to this grid
+					dropLocation = _this.computeEventDrop(
+						origHit.component.getHitSpan(origHit),
+						hit.component.getHitSpan(hit),
+						event
+					);
+	
+					if (dropLocation && !calendar.isEventSpanAllowed(_this.eventToSpan(dropLocation), event)) {
+						disableCursor();
+						dropLocation = null;
+					}
+	
+					// if a valid drop location, have the subclass render a visual indication
+					if (dropLocation && view.renderDrag(dropLocation, seg)) {
+						mouseFollower.hide(); // if the subclass is already using a mock event "helper", hide our own
+					}
+					else {
+						mouseFollower.show(); // otherwise, have the helper follow the mouse (no snapping)
+					}
+	
+					if (isOrig) {
+						dropLocation = null; // needs to have moved hits to be a valid drop
+					}
+				},
+				hitOut: function() { // called before mouse moves to a different hit OR moved out of all hits
+					view.unrenderDrag(); // unrender whatever was done in renderDrag
+					mouseFollower.show(); // show in case we are moving out of all hits
+					dropLocation = null;
+				},
+				hitDone: function() { // Called after a hitOut OR before a dragStop
+					enableCursor();
+				},
+				dragStop: function(ev) {
+					// do revert animation if hasn't changed. calls a callback when finished (whether animation or not)
+					mouseFollower.stop(!dropLocation, function() {
+						view.unrenderDrag();
+						view.showEvent(event);
+						_this.segDragStop(seg, ev);
+	
+						if (dropLocation) {
+							view.reportEventDrop(event, dropLocation, this.largeUnit, el, ev);
+						}
+					});
+				},
+				listenStop: function() {
+					mouseFollower.stop(); // put in listenStop in case there was a mousedown but the drag never started
+				}
+			});
+	
+			dragListener.mousedown(ev); // start listening, which will eventually lead to a dragStart
+		},
+	
+	
+		// Called before event segment dragging starts
+		segDragStart: function(seg, ev) {
+			this.isDraggingSeg = true;
+			this.view.trigger('eventDragStart', seg.el[0], seg.event, ev, {}); // last argument is jqui dummy
+		},
+	
+	
+		// Called after event segment dragging stops
+		segDragStop: function(seg, ev) {
+			this.isDraggingSeg = false;
+			this.view.trigger('eventDragStop', seg.el[0], seg.event, ev, {}); // last argument is jqui dummy
+		},
+	
+	
+		// Given the spans an event drag began, and the span event was dropped, calculates the new zoned start/end/allDay
+		// values for the event. Subclasses may override and set additional properties to be used by renderDrag.
+		// A falsy returned value indicates an invalid drop.
+		// DOES NOT consider overlap/constraint.
+		computeEventDrop: function(startSpan, endSpan, event) {
+			var calendar = this.view.calendar;
+			var dragStart = startSpan.start;
+			var dragEnd = endSpan.start;
+			var delta;
+			var dropLocation; // zoned event date properties
+	
+			if (dragStart.hasTime() === dragEnd.hasTime()) {
+				delta = this.diffDates(dragEnd, dragStart);
+	
+				// if an all-day event was in a timed area and it was dragged to a different time,
+				// guarantee an end and adjust start/end to have times
+				if (event.allDay && durationHasTime(delta)) {
+					dropLocation = {
+						start: event.start.clone(),
+						end: calendar.getEventEnd(event), // will be an ambig day
+						allDay: false // for normalizeEventTimes
+					};
+					calendar.normalizeEventTimes(dropLocation);
+				}
+				// othewise, work off existing values
+				else {
+					dropLocation = {
+						start: event.start.clone(),
+						end: event.end ? event.end.clone() : null,
+						allDay: event.allDay // keep it the same
+					};
+				}
+	
+				dropLocation.start.add(delta);
+				if (dropLocation.end) {
+					dropLocation.end.add(delta);
+				}
+			}
+			else {
+				// if switching from day <-> timed, start should be reset to the dropped date, and the end cleared
+				dropLocation = {
+					start: dragEnd.clone(),
+					end: null, // end should be cleared
+					allDay: !dragEnd.hasTime()
+				};
+			}
+	
+			return dropLocation;
+		},
+	
+	
+		// Utility for apply dragOpacity to a jQuery set
+		applyDragOpacity: function(els) {
+			var opacity = this.view.opt('dragOpacity');
+	
+			if (opacity != null) {
+				els.each(function(i, node) {
+					// Don't use jQuery (will set an IE filter), do it the old fashioned way.
+					// In IE8, a helper element will disappears if there's a filter.
+					node.style.opacity = opacity;
+				});
+			}
+		},
+	
+	
+		/* External Element Dragging
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Called when a jQuery UI drag is initiated anywhere in the DOM
+		externalDragStart: function(ev, ui) {
+			var view = this.view;
+			var el;
+			var accept;
+	
+			if (view.opt('droppable')) { // only listen if this setting is on
+				el = $((ui ? ui.item : null) || ev.target);
+	
+				// Test that the dragged element passes the dropAccept selector or filter function.
+				// FYI, the default is "*" (matches all)
+				accept = view.opt('dropAccept');
+				if ($.isFunction(accept) ? accept.call(el[0], el) : el.is(accept)) {
+					if (!this.isDraggingExternal) { // prevent double-listening if fired twice
+						this.listenToExternalDrag(el, ev, ui);
+					}
+				}
+			}
+		},
+	
+	
+		// Called when a jQuery UI drag starts and it needs to be monitored for dropping
+		listenToExternalDrag: function(el, ev, ui) {
+			var _this = this;
+			var calendar = this.view.calendar;
+			var meta = getDraggedElMeta(el); // extra data about event drop, including possible event to create
+			var dropLocation; // a null value signals an unsuccessful drag
+	
+			// listener that tracks mouse movement over date-associated pixel regions
+			var dragListener = new HitDragListener(this, {
+				listenStart: function() {
+					_this.isDraggingExternal = true;
+				},
+				hitOver: function(hit) {
+					dropLocation = _this.computeExternalDrop(
+						hit.component.getHitSpan(hit), // since we are querying the parent view, might not belong to this grid
+						meta
+					);
+	
+					if ( // invalid hit?
+						dropLocation &&
+						!calendar.isExternalSpanAllowed(_this.eventToSpan(dropLocation), dropLocation, meta.eventProps)
+					) {
+						disableCursor();
+						dropLocation = null;
+					}
+	
+					if (dropLocation) {
+						_this.renderDrag(dropLocation); // called without a seg parameter
+					}
+				},
+				hitOut: function() {
+					dropLocation = null; // signal unsuccessful
+				},
+				hitDone: function() { // Called after a hitOut OR before a dragStop
+					enableCursor();
+					_this.unrenderDrag();
+				},
+				dragStop: function() {
+					if (dropLocation) { // element was dropped on a valid hit
+						_this.view.reportExternalDrop(meta, dropLocation, el, ev, ui);
+					}
+				},
+				listenStop: function() {
+					_this.isDraggingExternal = false;
+				}
+			});
+	
+			dragListener.startDrag(ev); // start listening immediately
+		},
+	
+	
+		// Given a hit to be dropped upon, and misc data associated with the jqui drag (guaranteed to be a plain object),
+		// returns the zoned start/end dates for the event that would result from the hypothetical drop. end might be null.
+		// Returning a null value signals an invalid drop hit.
+		// DOES NOT consider overlap/constraint.
+		computeExternalDrop: function(span, meta) {
+			var calendar = this.view.calendar;
+			var dropLocation = {
+				start: calendar.applyTimezone(span.start), // simulate a zoned event start date
+				end: null
+			};
+	
+			// if dropped on an all-day span, and element's metadata specified a time, set it
+			if (meta.startTime && !dropLocation.start.hasTime()) {
+				dropLocation.start.time(meta.startTime);
+			}
+	
+			if (meta.duration) {
+				dropLocation.end = dropLocation.start.clone().add(meta.duration);
+			}
+	
+			return dropLocation;
+		},
+	
+	
+	
+		/* Drag Rendering (for both events and an external elements)
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders a visual indication of an event or external element being dragged.
+		// `dropLocation` contains hypothetical start/end/allDay values the event would have if dropped. end can be null.
+		// `seg` is the internal segment object that is being dragged. If dragging an external element, `seg` is null.
+		// A truthy returned value indicates this method has rendered a helper element.
+		renderDrag: function(dropLocation, seg) {
+			// subclasses must implement
+		},
+	
+	
+		// Unrenders a visual indication of an event or external element being dragged
+		unrenderDrag: function() {
+			// subclasses must implement
+		},
+	
+	
+		/* Resizing
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Called when the user does a mousedown on an event's resizer, which might lead to resizing.
+		// Generic enough to work with any type of Grid.
+		segResizeMousedown: function(seg, ev, isStart) {
+			var _this = this;
+			var view = this.view;
+			var calendar = view.calendar;
+			var el = seg.el;
+			var event = seg.event;
+			var eventEnd = calendar.getEventEnd(event);
+			var resizeLocation; // zoned event date properties. falsy if invalid resize
+	
+			// Tracks mouse movement over the *grid's* coordinate map
+			var dragListener = new HitDragListener(this, {
+				distance: 5,
+				scroll: view.opt('dragScroll'),
+				subjectEl: el,
+				dragStart: function(ev) {
+					_this.triggerSegMouseout(seg, ev); // ensure a mouseout on the manipulated event has been reported
+					_this.segResizeStart(seg, ev);
+				},
+				hitOver: function(hit, isOrig, origHit) {
+					var origHitSpan = _this.getHitSpan(origHit);
+					var hitSpan = _this.getHitSpan(hit);
+	
+					resizeLocation = isStart ?
+						_this.computeEventStartResize(origHitSpan, hitSpan, event) :
+						_this.computeEventEndResize(origHitSpan, hitSpan, event);
+	
+					if (resizeLocation) {
+						if (!calendar.isEventSpanAllowed(_this.eventToSpan(resizeLocation), event)) {
+							disableCursor();
+							resizeLocation = null;
+						}
+						// no change? (TODO: how does this work with timezones?)
+						else if (resizeLocation.start.isSame(event.start) && resizeLocation.end.isSame(eventEnd)) {
+							resizeLocation = null;
+						}
+					}
+	
+					if (resizeLocation) {
+						view.hideEvent(event);
+						_this.renderEventResize(resizeLocation, seg);
+					}
+				},
+				hitOut: function() { // called before mouse moves to a different hit OR moved out of all hits
+					resizeLocation = null;
+				},
+				hitDone: function() { // resets the rendering to show the original event
+					_this.unrenderEventResize();
+					view.showEvent(event);
+					enableCursor();
+				},
+				dragStop: function(ev) {
+					_this.segResizeStop(seg, ev);
+	
+					if (resizeLocation) { // valid date to resize to?
+						view.reportEventResize(event, resizeLocation, this.largeUnit, el, ev);
+					}
+				}
+			});
+	
+			dragListener.mousedown(ev); // start listening, which will eventually lead to a dragStart
+		},
+	
+	
+		// Called before event segment resizing starts
+		segResizeStart: function(seg, ev) {
+			this.isResizingSeg = true;
+			this.view.trigger('eventResizeStart', seg.el[0], seg.event, ev, {}); // last argument is jqui dummy
+		},
+	
+	
+		// Called after event segment resizing stops
+		segResizeStop: function(seg, ev) {
+			this.isResizingSeg = false;
+			this.view.trigger('eventResizeStop', seg.el[0], seg.event, ev, {}); // last argument is jqui dummy
+		},
+	
+	
+		// Returns new date-information for an event segment being resized from its start
+		computeEventStartResize: function(startSpan, endSpan, event) {
+			return this.computeEventResize('start', startSpan, endSpan, event);
+		},
+	
+	
+		// Returns new date-information for an event segment being resized from its end
+		computeEventEndResize: function(startSpan, endSpan, event) {
+			return this.computeEventResize('end', startSpan, endSpan, event);
+		},
+	
+	
+		// Returns new zoned date information for an event segment being resized from its start OR end
+		// `type` is either 'start' or 'end'.
+		// DOES NOT consider overlap/constraint.
+		computeEventResize: function(type, startSpan, endSpan, event) {
+			var calendar = this.view.calendar;
+			var delta = this.diffDates(endSpan[type], startSpan[type]);
+			var resizeLocation; // zoned event date properties
+			var defaultDuration;
+	
+			// build original values to work from, guaranteeing a start and end
+			resizeLocation = {
+				start: event.start.clone(),
+				end: calendar.getEventEnd(event),
+				allDay: event.allDay
+			};
+	
+			// if an all-day event was in a timed area and was resized to a time, adjust start/end to have times
+			if (resizeLocation.allDay && durationHasTime(delta)) {
+				resizeLocation.allDay = false;
+				calendar.normalizeEventTimes(resizeLocation);
+			}
+	
+			resizeLocation[type].add(delta); // apply delta to start or end
+	
+			// if the event was compressed too small, find a new reasonable duration for it
+			if (!resizeLocation.start.isBefore(resizeLocation.end)) {
+	
+				defaultDuration =
+					this.minResizeDuration || // TODO: hack
+					(event.allDay ?
+						calendar.defaultAllDayEventDuration :
+						calendar.defaultTimedEventDuration);
+	
+				if (type == 'start') { // resizing the start?
+					resizeLocation.start = resizeLocation.end.clone().subtract(defaultDuration);
+				}
+				else { // resizing the end?
+					resizeLocation.end = resizeLocation.start.clone().add(defaultDuration);
+				}
+			}
+	
+			return resizeLocation;
+		},
+	
+	
+		// Renders a visual indication of an event being resized.
+		// `range` has the updated dates of the event. `seg` is the original segment object involved in the drag.
+		renderEventResize: function(range, seg) {
+			// subclasses must implement
+		},
+	
+	
+		// Unrenders a visual indication of an event being resized.
+		unrenderEventResize: function() {
+			// subclasses must implement
+		},
+	
+	
+		/* Rendering Utils
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Compute the text that should be displayed on an event's element.
+		// `range` can be the Event object itself, or something range-like, with at least a `start`.
+		// If event times are disabled, or the event has no time, will return a blank string.
+		// If not specified, formatStr will default to the eventTimeFormat setting,
+		// and displayEnd will default to the displayEventEnd setting.
+		getEventTimeText: function(range, formatStr, displayEnd) {
+	
+			if (formatStr == null) {
+				formatStr = this.eventTimeFormat;
+			}
+	
+			if (displayEnd == null) {
+				displayEnd = this.displayEventEnd;
+			}
+	
+			if (this.displayEventTime && range.start.hasTime()) {
+				if (displayEnd && range.end) {
+					return this.view.formatRange(range, formatStr);
+				}
+				else {
+					return range.start.format(formatStr);
+				}
+			}
+	
+			return '';
+		},
+	
+	
+		// Generic utility for generating the HTML classNames for an event segment's element
+		getSegClasses: function(seg, isDraggable, isResizable) {
+			var event = seg.event;
+			var classes = [
+				'fc-event',
+				seg.isStart ? 'fc-start' : 'fc-not-start',
+				seg.isEnd ? 'fc-end' : 'fc-not-end'
+			].concat(
+				event.className,
+				event.source ? event.source.className : []
+			);
+	
+			if (isDraggable) {
+				classes.push('fc-draggable');
+			}
+			if (isResizable) {
+				classes.push('fc-resizable');
+			}
+	
+			return classes;
+		},
+	
+	
+		// Utility for generating event skin-related CSS properties
+		getSegSkinCss: function(seg) {
+			var event = seg.event;
+			var view = this.view;
+			var source = event.source || {};
+			var eventColor = event.color;
+			var sourceColor = source.color;
+			var optionColor = view.opt('eventColor');
+	
+			return {
+				'background-color':
+					event.backgroundColor ||
+					eventColor ||
+					source.backgroundColor ||
+					sourceColor ||
+					view.opt('eventBackgroundColor') ||
+					optionColor,
+				'border-color':
+					event.borderColor ||
+					eventColor ||
+					source.borderColor ||
+					sourceColor ||
+					view.opt('eventBorderColor') ||
+					optionColor,
+				color:
+					event.textColor ||
+					source.textColor ||
+					view.opt('eventTextColor')
+			};
+		},
+	
+	
+		/* Converting events -> eventRange -> eventSpan -> eventSegs
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Generates an array of segments for the given single event
+		// Can accept an event "location" as well (which only has start/end and no allDay)
+		eventToSegs: function(event) {
+			return this.eventsToSegs([ event ]);
+		},
+	
+	
+		eventToSpan: function(event) {
+			return this.eventToSpans(event)[0];
+		},
+	
+	
+		// Generates spans (always unzoned) for the given event.
+		// Does not do any inverting for inverse-background events.
+		// Can accept an event "location" as well (which only has start/end and no allDay)
+		eventToSpans: function(event) {
+			var range = this.eventToRange(event);
+			return this.eventRangeToSpans(range, event);
+		},
+	
+	
+	
+		// Converts an array of event objects into an array of event segment objects.
+		// A custom `segSliceFunc` may be given for arbitrarily slicing up events.
+		// Doesn't guarantee an order for the resulting array.
+		eventsToSegs: function(allEvents, segSliceFunc) {
+			var _this = this;
+			var eventsById = groupEventsById(allEvents);
+			var segs = [];
+	
+			$.each(eventsById, function(id, events) {
+				var ranges = [];
+				var i;
+	
+				for (i = 0; i < events.length; i++) {
+					ranges.push(_this.eventToRange(events[i]));
+				}
+	
+				// inverse-background events (utilize only the first event in calculations)
+				if (isInverseBgEvent(events[0])) {
+					ranges = _this.invertRanges(ranges);
+	
+					for (i = 0; i < ranges.length; i++) {
+						segs.push.apply(segs, // append to
+							_this.eventRangeToSegs(ranges[i], events[0], segSliceFunc));
+					}
+				}
+				// normal event ranges
+				else {
+					for (i = 0; i < ranges.length; i++) {
+						segs.push.apply(segs, // append to
+							_this.eventRangeToSegs(ranges[i], events[i], segSliceFunc));
+					}
+				}
+			});
+	
+			return segs;
+		},
+	
+	
+		// Generates the unzoned start/end dates an event appears to occupy
+		// Can accept an event "location" as well (which only has start/end and no allDay)
+		eventToRange: function(event) {
+			return {
+				start: event.start.clone().stripZone(),
+				end: (
+					event.end ?
+						event.end.clone() :
+						// derive the end from the start and allDay. compute allDay if necessary
+						this.view.calendar.getDefaultEventEnd(
+							event.allDay != null ?
+								event.allDay :
+								!event.start.hasTime(),
+							event.start
+						)
+				).stripZone()
+			};
+		},
+	
+	
+		// Given an event's range (unzoned start/end), and the event itself,
+		// slice into segments (using the segSliceFunc function if specified)
+		eventRangeToSegs: function(range, event, segSliceFunc) {
+			var spans = this.eventRangeToSpans(range, event);
+			var segs = [];
+			var i;
+	
+			for (i = 0; i < spans.length; i++) {
+				segs.push.apply(segs, // append to
+					this.eventSpanToSegs(spans[i], event, segSliceFunc));
+			}
+	
+			return segs;
+		},
+	
+	
+		// Given an event's unzoned date range, return an array of "span" objects.
+		// Subclasses can override.
+		eventRangeToSpans: function(range, event) {
+			return [ $.extend({}, range) ]; // copy into a single-item array
+		},
+	
+	
+		// Given an event's span (unzoned start/end and other misc data), and the event itself,
+		// slices into segments and attaches event-derived properties to them.
+		eventSpanToSegs: function(span, event, segSliceFunc) {
+			var segs = segSliceFunc ? segSliceFunc(span) : this.spanToSegs(span);
+			var i, seg;
+	
+			for (i = 0; i < segs.length; i++) {
+				seg = segs[i];
+				seg.event = event;
+				seg.eventStartMS = +span.start; // TODO: not the best name after making spans unzoned
+				seg.eventDurationMS = span.end - span.start;
+			}
+	
+			return segs;
+		},
+	
+	
+		// Produces a new array of range objects that will cover all the time NOT covered by the given ranges.
+		// SIDE EFFECT: will mutate the given array and will use its date references.
+		invertRanges: function(ranges) {
+			var view = this.view;
+			var viewStart = view.start.clone(); // need a copy
+			var viewEnd = view.end.clone(); // need a copy
+			var inverseRanges = [];
+			var start = viewStart; // the end of the previous range. the start of the new range
+			var i, range;
+	
+			// ranges need to be in order. required for our date-walking algorithm
+			ranges.sort(compareRanges);
+	
+			for (i = 0; i < ranges.length; i++) {
+				range = ranges[i];
+	
+				// add the span of time before the event (if there is any)
+				if (range.start > start) { // compare millisecond time (skip any ambig logic)
+					inverseRanges.push({
+						start: start,
+						end: range.start
+					});
+				}
+	
+				start = range.end;
+			}
+	
+			// add the span of time after the last event (if there is any)
+			if (start < viewEnd) { // compare millisecond time (skip any ambig logic)
+				inverseRanges.push({
+					start: start,
+					end: viewEnd
+				});
+			}
+	
+			return inverseRanges;
+		},
+	
+	
+		sortEventSegs: function(segs) {
+			segs.sort(proxy(this, 'compareEventSegs'));
+		},
+	
+	
+		// A cmp function for determining which segments should take visual priority
+		compareEventSegs: function(seg1, seg2) {
+			return seg1.eventStartMS - seg2.eventStartMS || // earlier events go first
+				seg2.eventDurationMS - seg1.eventDurationMS || // tie? longer events go first
+				seg2.event.allDay - seg1.event.allDay || // tie? put all-day events first (booleans cast to 0/1)
+				compareByFieldSpecs(seg1.event, seg2.event, this.view.eventOrderSpecs);
+		}
+	
+	});
+	
+	
+	/* Utilities
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	
+	function isBgEvent(event) { // returns true if background OR inverse-background
+		var rendering = getEventRendering(event);
+		return rendering === 'background' || rendering === 'inverse-background';
+	}
+	FC.isBgEvent = isBgEvent; // export
+	
+	
+	function isInverseBgEvent(event) {
+		return getEventRendering(event) === 'inverse-background';
+	}
+	
+	
+	function getEventRendering(event) {
+		return firstDefined((event.source || {}).rendering, event.rendering);
+	}
+	
+	
+	function groupEventsById(events) {
+		var eventsById = {};
+		var i, event;
+	
+		for (i = 0; i < events.length; i++) {
+			event = events[i];
+			(eventsById[event._id] || (eventsById[event._id] = [])).push(event);
+		}
+	
+		return eventsById;
+	}
+	
+	
+	// A cmp function for determining which non-inverted "ranges" (see above) happen earlier
+	function compareRanges(range1, range2) {
+		return range1.start - range2.start; // earlier ranges go first
+	}
+	
+	
+	/* External-Dragging-Element Data
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	// Require all HTML5 data-* attributes used by FullCalendar to have this prefix.
+	// A value of '' will query attributes like data-event. A value of 'fc' will query attributes like data-fc-event.
+	FC.dataAttrPrefix = '';
+	
+	// Given a jQuery element that might represent a dragged FullCalendar event, returns an intermediate data structure
+	// to be used for Event Object creation.
+	// A defined `.eventProps`, even when empty, indicates that an event should be created.
+	function getDraggedElMeta(el) {
+		var prefix = FC.dataAttrPrefix;
+		var eventProps; // properties for creating the event, not related to date/time
+		var startTime; // a Duration
+		var duration;
+		var stick;
+	
+		if (prefix) { prefix += '-'; }
+		eventProps = el.data(prefix + 'event') || null;
+	
+		if (eventProps) {
+			if (typeof eventProps === 'object') {
+				eventProps = $.extend({}, eventProps); // make a copy
+			}
+			else { // something like 1 or true. still signal event creation
+				eventProps = {};
+			}
+	
+			// pluck special-cased date/time properties
+			startTime = eventProps.start;
+			if (startTime == null) { startTime = eventProps.time; } // accept 'time' as well
+			duration = eventProps.duration;
+			stick = eventProps.stick;
+			delete eventProps.start;
+			delete eventProps.time;
+			delete eventProps.duration;
+			delete eventProps.stick;
+		}
+	
+		// fallback to standalone attribute values for each of the date/time properties
+		if (startTime == null) { startTime = el.data(prefix + 'start'); }
+		if (startTime == null) { startTime = el.data(prefix + 'time'); } // accept 'time' as well
+		if (duration == null) { duration = el.data(prefix + 'duration'); }
+		if (stick == null) { stick = el.data(prefix + 'stick'); }
+	
+		// massage into correct data types
+		startTime = startTime != null ? moment.duration(startTime) : null;
+		duration = duration != null ? moment.duration(duration) : null;
+		stick = Boolean(stick);
+	
+		return { eventProps: eventProps, startTime: startTime, duration: duration, stick: stick };
+	}
+	
+	
+	;;
+	
+	/*
+	A set of rendering and date-related methods for a visual component comprised of one or more rows of day columns.
+	Prerequisite: the object being mixed into needs to be a *Grid*
+	*/
+	var DayTableMixin = FC.DayTableMixin = {
+	
+		breakOnWeeks: false, // should create a new row for each week?
+		dayDates: null, // whole-day dates for each column. left to right
+		dayIndices: null, // for each day from start, the offset
+		daysPerRow: null,
+		rowCnt: null,
+		colCnt: null,
+		colHeadFormat: null,
+	
+	
+		// Populates internal variables used for date calculation and rendering
+		updateDayTable: function() {
+			var view = this.view;
+			var date = this.start.clone();
+			var dayIndex = -1;
+			var dayIndices = [];
+			var dayDates = [];
+			var daysPerRow;
+			var firstDay;
+			var rowCnt;
+	
+			while (date.isBefore(this.end)) { // loop each day from start to end
+				if (view.isHiddenDay(date)) {
+					dayIndices.push(dayIndex + 0.5); // mark that it's between indices
+				}
+				else {
+					dayIndex++;
+					dayIndices.push(dayIndex);
+					dayDates.push(date.clone());
+				}
+				date.add(1, 'days');
+			}
+	
+			if (this.breakOnWeeks) {
+				// count columns until the day-of-week repeats
+				firstDay = dayDates[0].day();
+				for (daysPerRow = 1; daysPerRow < dayDates.length; daysPerRow++) {
+					if (dayDates[daysPerRow].day() == firstDay) {
+						break;
+					}
+				}
+				rowCnt = Math.ceil(dayDates.length / daysPerRow);
+			}
+			else {
+				rowCnt = 1;
+				daysPerRow = dayDates.length;
+			}
+	
+			this.dayDates = dayDates;
+			this.dayIndices = dayIndices;
+			this.daysPerRow = daysPerRow;
+			this.rowCnt = rowCnt;
+			
+			this.updateDayTableCols();
+		},
+	
+	
+		// Computes and assigned the colCnt property and updates any options that may be computed from it
+		updateDayTableCols: function() {
+			this.colCnt = this.computeColCnt();
+			this.colHeadFormat = this.view.opt('columnFormat') || this.computeColHeadFormat();
+		},
+	
+	
+		// Determines how many columns there should be in the table
+		computeColCnt: function() {
+			return this.daysPerRow;
+		},
+	
+	
+		// Computes the ambiguously-timed moment for the given cell
+		getCellDate: function(row, col) {
+			return this.dayDates[
+					this.getCellDayIndex(row, col)
+				].clone();
+		},
+	
+	
+		// Computes the ambiguously-timed date range for the given cell
+		getCellRange: function(row, col) {
+			var start = this.getCellDate(row, col);
+			var end = start.clone().add(1, 'days');
+	
+			return { start: start, end: end };
+		},
+	
+	
+		// Returns the number of day cells, chronologically, from the first of the grid (0-based)
+		getCellDayIndex: function(row, col) {
+			return row * this.daysPerRow + this.getColDayIndex(col);
+		},
+	
+	
+		// Returns the numner of day cells, chronologically, from the first cell in *any given row*
+		getColDayIndex: function(col) {
+			if (this.isRTL) {
+				return this.colCnt - 1 - col;
+			}
+			else {
+				return col;
+			}
+		},
+	
+	
+		// Given a date, returns its chronolocial cell-index from the first cell of the grid.
+		// If the date lies between cells (because of hiddenDays), returns a floating-point value between offsets.
+		// If before the first offset, returns a negative number.
+		// If after the last offset, returns an offset past the last cell offset.
+		// Only works for *start* dates of cells. Will not work for exclusive end dates for cells.
+		getDateDayIndex: function(date) {
+			var dayIndices = this.dayIndices;
+			var dayOffset = date.diff(this.start, 'days');
+	
+			if (dayOffset < 0) {
+				return dayIndices[0] - 1;
+			}
+			else if (dayOffset >= dayIndices.length) {
+				return dayIndices[dayIndices.length - 1] + 1;
+			}
+			else {
+				return dayIndices[dayOffset];
+			}
+		},
+	
+	
+		/* Options
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Computes a default column header formatting string if `colFormat` is not explicitly defined
+		computeColHeadFormat: function() {
+			// if more than one week row, or if there are a lot of columns with not much space,
+			// put just the day numbers will be in each cell
+			if (this.rowCnt > 1 || this.colCnt > 10) {
+				return 'ddd'; // "Sat"
+			}
+			// multiple days, so full single date string WON'T be in title text
+			else if (this.colCnt > 1) {
+				return this.view.opt('dayOfMonthFormat'); // "Sat 12/10"
+			}
+			// single day, so full single date string will probably be in title text
+			else {
+				return 'dddd'; // "Saturday"
+			}
+		},
+	
+	
+		/* Slicing
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Slices up a date range into a segment for every week-row it intersects with
+		sliceRangeByRow: function(range) {
+			var daysPerRow = this.daysPerRow;
+			var normalRange = this.view.computeDayRange(range); // make whole-day range, considering nextDayThreshold
+			var rangeFirst = this.getDateDayIndex(normalRange.start); // inclusive first index
+			var rangeLast = this.getDateDayIndex(normalRange.end.clone().subtract(1, 'days')); // inclusive last index
+			var segs = [];
+			var row;
+			var rowFirst, rowLast; // inclusive day-index range for current row
+			var segFirst, segLast; // inclusive day-index range for segment
+	
+			for (row = 0; row < this.rowCnt; row++) {
+				rowFirst = row * daysPerRow;
+				rowLast = rowFirst + daysPerRow - 1;
+	
+				// intersect segment's offset range with the row's
+				segFirst = Math.max(rangeFirst, rowFirst);
+				segLast = Math.min(rangeLast, rowLast);
+	
+				// deal with in-between indices
+				segFirst = Math.ceil(segFirst); // in-between starts round to next cell
+				segLast = Math.floor(segLast); // in-between ends round to prev cell
+	
+				if (segFirst <= segLast) { // was there any intersection with the current row?
+					segs.push({
+						row: row,
+	
+						// normalize to start of row
+						firstRowDayIndex: segFirst - rowFirst,
+						lastRowDayIndex: segLast - rowFirst,
+	
+						// must be matching integers to be the segment's start/end
+						isStart: segFirst === rangeFirst,
+						isEnd: segLast === rangeLast
+					});
+				}
+			}
+	
+			return segs;
+		},
+	
+	
+		// Slices up a date range into a segment for every day-cell it intersects with.
+		// TODO: make more DRY with sliceRangeByRow somehow.
+		sliceRangeByDay: function(range) {
+			var daysPerRow = this.daysPerRow;
+			var normalRange = this.view.computeDayRange(range); // make whole-day range, considering nextDayThreshold
+			var rangeFirst = this.getDateDayIndex(normalRange.start); // inclusive first index
+			var rangeLast = this.getDateDayIndex(normalRange.end.clone().subtract(1, 'days')); // inclusive last index
+			var segs = [];
+			var row;
+			var rowFirst, rowLast; // inclusive day-index range for current row
+			var i;
+			var segFirst, segLast; // inclusive day-index range for segment
+	
+			for (row = 0; row < this.rowCnt; row++) {
+				rowFirst = row * daysPerRow;
+				rowLast = rowFirst + daysPerRow - 1;
+	
+				for (i = rowFirst; i <= rowLast; i++) {
+	
+					// intersect segment's offset range with the row's
+					segFirst = Math.max(rangeFirst, i);
+					segLast = Math.min(rangeLast, i);
+	
+					// deal with in-between indices
+					segFirst = Math.ceil(segFirst); // in-between starts round to next cell
+					segLast = Math.floor(segLast); // in-between ends round to prev cell
+	
+					if (segFirst <= segLast) { // was there any intersection with the current row?
+						segs.push({
+							row: row,
+	
+							// normalize to start of row
+							firstRowDayIndex: segFirst - rowFirst,
+							lastRowDayIndex: segLast - rowFirst,
+	
+							// must be matching integers to be the segment's start/end
+							isStart: segFirst === rangeFirst,
+							isEnd: segLast === rangeLast
+						});
+					}
+				}
+			}
+	
+			return segs;
+		},
+	
+	
+		/* Header Rendering
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		renderHeadHtml: function() {
+			var view = this.view;
+	
+			return '' +
+				'<div class="fc-row ' + view.widgetHeaderClass + '">' +
+					'<table>' +
+						'<thead>' +
+							this.renderHeadTrHtml() +
+						'</thead>' +
+					'</table>' +
+				'</div>';
+		},
+	
+	
+		renderHeadIntroHtml: function() {
+			return this.renderIntroHtml(); // fall back to generic
+		},
+	
+	
+		renderHeadTrHtml: function() {
+			return '' +
+				'<tr>' +
+					(this.isRTL ? '' : this.renderHeadIntroHtml()) +
+					this.renderHeadDateCellsHtml() +
+					(this.isRTL ? this.renderHeadIntroHtml() : '') +
+				'</tr>';
+		},
+	
+	
+		renderHeadDateCellsHtml: function() {
+			var htmls = [];
+			var col, date;
+	
+			for (col = 0; col < this.colCnt; col++) {
+				date = this.getCellDate(0, col);
+				htmls.push(this.renderHeadDateCellHtml(date));
+			}
+	
+			return htmls.join('');
+		},
+	
+	
+		// TODO: when internalApiVersion, accept an object for HTML attributes
+		// (colspan should be no different)
+		renderHeadDateCellHtml: function(date, colspan, otherAttrs) {
+			var view = this.view;
+	
+			return '' +
+				'<th class="fc-day-header ' + view.widgetHeaderClass + ' fc-' + dayIDs[date.day()] + '"' +
+					(this.rowCnt == 1 ?
+						' data-date="' + date.format('YYYY-MM-DD') + '"' :
+						'') +
+					(colspan > 1 ?
+						' colspan="' + colspan + '"' :
+						'') +
+					(otherAttrs ?
+						' ' + otherAttrs :
+						'') +
+				'>' +
+					htmlEscape(date.format(this.colHeadFormat)) +
+				'</th>';
+		},
+	
+	
+		/* Background Rendering
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		renderBgTrHtml: function(row) {
+			return '' +
+				'<tr>' +
+					(this.isRTL ? '' : this.renderBgIntroHtml(row)) +
+					this.renderBgCellsHtml(row) +
+					(this.isRTL ? this.renderBgIntroHtml(row) : '') +
+				'</tr>';
+		},
+	
+	
+		renderBgIntroHtml: function(row) {
+			return this.renderIntroHtml(); // fall back to generic
+		},
+	
+	
+		renderBgCellsHtml: function(row) {
+			var htmls = [];
+			var col, date;
+	
+			for (col = 0; col < this.colCnt; col++) {
+				date = this.getCellDate(row, col);
+				htmls.push(this.renderBgCellHtml(date));
+			}
+	
+			return htmls.join('');
+		},
+	
+	
+		renderBgCellHtml: function(date, otherAttrs) {
+			var view = this.view;
+			var classes = this.getDayClasses(date);
+	
+			classes.unshift('fc-day', view.widgetContentClass);
+	
+			return '<td class="' + classes.join(' ') + '"' +
+				' data-date="' + date.format('YYYY-MM-DD') + '"' + // if date has a time, won't format it
+				(otherAttrs ?
+					' ' + otherAttrs :
+					'') +
+				'></td>';
+		},
+	
+	
+		/* Generic
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Generates the default HTML intro for any row. User classes should override
+		renderIntroHtml: function() {
+		},
+	
+	
+		// TODO: a generic method for dealing with <tr>, RTL, intro
+		// when increment internalApiVersion
+		// wrapTr (scheduler)
+	
+	
+		/* Utils
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Applies the generic "intro" and "outro" HTML to the given cells.
+		// Intro means the leftmost cell when the calendar is LTR and the rightmost cell when RTL. Vice-versa for outro.
+		bookendCells: function(trEl) {
+			var introHtml = this.renderIntroHtml();
+	
+			if (introHtml) {
+				if (this.isRTL) {
+					trEl.append(introHtml);
+				}
+				else {
+					trEl.prepend(introHtml);
+				}
+			}
+		}
+	
+	};
+	
+	;;
+	
+	/* A component that renders a grid of whole-days that runs horizontally. There can be multiple rows, one per week.
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	var DayGrid = FC.DayGrid = Grid.extend(DayTableMixin, {
+	
+		numbersVisible: false, // should render a row for day/week numbers? set by outside view. TODO: make internal
+		bottomCoordPadding: 0, // hack for extending the hit area for the last row of the coordinate grid
+	
+		rowEls: null, // set of fake row elements
+		cellEls: null, // set of whole-day elements comprising the row's background
+		helperEls: null, // set of cell skeleton elements for rendering the mock event "helper"
+	
+		rowCoordCache: null,
+		colCoordCache: null,
+	
+	
+		// Renders the rows and columns into the component's `this.el`, which should already be assigned.
+		// isRigid determins whether the individual rows should ignore the contents and be a constant height.
+		// Relies on the view's colCnt and rowCnt. In the future, this component should probably be self-sufficient.
+		renderDates: function(isRigid) {
+			var view = this.view;
+			var rowCnt = this.rowCnt;
+			var colCnt = this.colCnt;
+			var html = '';
+			var row;
+			var col;
+	
+			for (row = 0; row < rowCnt; row++) {
+				html += this.renderDayRowHtml(row, isRigid);
+			}
+			this.el.html(html);
+	
+			this.rowEls = this.el.find('.fc-row');
+			this.cellEls = this.el.find('.fc-day');
+	
+			this.rowCoordCache = new CoordCache({
+				els: this.rowEls,
+				isVertical: true
+			});
+			this.colCoordCache = new CoordCache({
+				els: this.cellEls.slice(0, this.colCnt), // only the first row
+				isHorizontal: true
+			});
+	
+			// trigger dayRender with each cell's element
+			for (row = 0; row < rowCnt; row++) {
+				for (col = 0; col < colCnt; col++) {
+					view.trigger(
+						'dayRender',
+						null,
+						this.getCellDate(row, col),
+						this.getCellEl(row, col)
+					);
+				}
+			}
+		},
+	
+	
+		unrenderDates: function() {
+			this.removeSegPopover();
+		},
+	
+	
+		renderBusinessHours: function() {
+			var events = this.view.calendar.getBusinessHoursEvents(true); // wholeDay=true
+			var segs = this.eventsToSegs(events);
+	
+			this.renderFill('businessHours', segs, 'bgevent');
+		},
+	
+	
+		// Generates the HTML for a single row, which is a div that wraps a table.
+		// `row` is the row number.
+		renderDayRowHtml: function(row, isRigid) {
+			var view = this.view;
+			var classes = [ 'fc-row', 'fc-week', view.widgetContentClass ];
+	
+			if (isRigid) {
+				classes.push('fc-rigid');
+			}
+	
+			return '' +
+				'<div class="' + classes.join(' ') + '">' +
+					'<div class="fc-bg">' +
+						'<table>' +
+							this.renderBgTrHtml(row) +
+						'</table>' +
+					'</div>' +
+					'<div class="fc-content-skeleton">' +
+						'<table>' +
+							(this.numbersVisible ?
+								'<thead>' +
+									this.renderNumberTrHtml(row) +
+								'</thead>' :
+								''
+								) +
+						'</table>' +
+					'</div>' +
+				'</div>';
+		},
+	
+	
+		/* Grid Number Rendering
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		renderNumberTrHtml: function(row) {
+			return '' +
+				'<tr>' +
+					(this.isRTL ? '' : this.renderNumberIntroHtml(row)) +
+					this.renderNumberCellsHtml(row) +
+					(this.isRTL ? this.renderNumberIntroHtml(row) : '') +
+				'</tr>';
+		},
+	
+	
+		renderNumberIntroHtml: function(row) {
+			return this.renderIntroHtml();
+		},
+	
+	
+		renderNumberCellsHtml: function(row) {
+			var htmls = [];
+			var col, date;
+	
+			for (col = 0; col < this.colCnt; col++) {
+				date = this.getCellDate(row, col);
+				htmls.push(this.renderNumberCellHtml(date));
+			}
+	
+			return htmls.join('');
+		},
+	
+	
+		// Generates the HTML for the <td>s of the "number" row in the DayGrid's content skeleton.
+		// The number row will only exist if either day numbers or week numbers are turned on.
+		renderNumberCellHtml: function(date) {
+			var classes;
+	
+			if (!this.view.dayNumbersVisible) { // if there are week numbers but not day numbers
+				return '<td/>'; //  will create an empty space above events :(
+			}
+	
+			classes = this.getDayClasses(date);
+			classes.unshift('fc-day-number');
+	
+			return '' +
+				'<td class="' + classes.join(' ') + '" data-date="' + date.format() + '">' +
+					date.date() +
+				'</td>';
+		},
+	
+	
+		/* Options
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Computes a default event time formatting string if `timeFormat` is not explicitly defined
+		computeEventTimeFormat: function() {
+			return this.view.opt('extraSmallTimeFormat'); // like "6p" or "6:30p"
+		},
+	
+	
+		// Computes a default `displayEventEnd` value if one is not expliclty defined
+		computeDisplayEventEnd: function() {
+			return this.colCnt == 1; // we'll likely have space if there's only one day
+		},
+	
+	
+		/* Dates
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		rangeUpdated: function() {
+			this.updateDayTable();
+		},
+	
+	
+		// Slices up the given span (unzoned start/end with other misc data) into an array of segments
+		spanToSegs: function(span) {
+			var segs = this.sliceRangeByRow(span);
+			var i, seg;
+	
+			for (i = 0; i < segs.length; i++) {
+				seg = segs[i];
+				if (this.isRTL) {
+					seg.leftCol = this.daysPerRow - 1 - seg.lastRowDayIndex;
+					seg.rightCol = this.daysPerRow - 1 - seg.firstRowDayIndex;
+				}
+				else {
+					seg.leftCol = seg.firstRowDayIndex;
+					seg.rightCol = seg.lastRowDayIndex;
+				}
+			}
+	
+			return segs;
+		},
+	
+	
+		/* Hit System
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		prepareHits: function() {
+			this.colCoordCache.build();
+			this.rowCoordCache.build();
+			this.rowCoordCache.bottoms[this.rowCnt - 1] += this.bottomCoordPadding; // hack
+		},
+	
+	
+		releaseHits: function() {
+			this.colCoordCache.clear();
+			this.rowCoordCache.clear();
+		},
+	
+	
+		queryHit: function(leftOffset, topOffset) {
+			var col = this.colCoordCache.getHorizontalIndex(leftOffset);
+			var row = this.rowCoordCache.getVerticalIndex(topOffset);
+	
+			if (row != null && col != null) {
+				return this.getCellHit(row, col);
+			}
+		},
+	
+	
+		getHitSpan: function(hit) {
+			return this.getCellRange(hit.row, hit.col);
+		},
+	
+	
+		getHitEl: function(hit) {
+			return this.getCellEl(hit.row, hit.col);
+		},
+	
+	
+		/* Cell System
+		------------------------------------------------------------------------------------------------------------------*/
+		// FYI: the first column is the leftmost column, regardless of date
+	
+	
+		getCellHit: function(row, col) {
+			return {
+				row: row,
+				col: col,
+				component: this, // needed unfortunately :(
+				left: this.colCoordCache.getLeftOffset(col),
+				right: this.colCoordCache.getRightOffset(col),
+				top: this.rowCoordCache.getTopOffset(row),
+				bottom: this.rowCoordCache.getBottomOffset(row)
+			};
+		},
+	
+	
+		getCellEl: function(row, col) {
+			return this.cellEls.eq(row * this.colCnt + col);
+		},
+	
+	
+		/* Event Drag Visualization
+		------------------------------------------------------------------------------------------------------------------*/
+		// TODO: move to DayGrid.event, similar to what we did with Grid's drag methods
+	
+	
+		// Renders a visual indication of an event or external element being dragged.
+		// `eventLocation` has zoned start and end (optional)
+		renderDrag: function(eventLocation, seg) {
+	
+			// always render a highlight underneath
+			this.renderHighlight(this.eventToSpan(eventLocation));
+	
+			// if a segment from the same calendar but another component is being dragged, render a helper event
+			if (seg && !seg.el.closest(this.el).length) {
+	
+				this.renderEventLocationHelper(eventLocation, seg);
+				this.applyDragOpacity(this.helperEls);
+	
+				return true; // a helper has been rendered
+			}
+		},
+	
+	
+		// Unrenders any visual indication of a hovering event
+		unrenderDrag: function() {
+			this.unrenderHighlight();
+			this.unrenderHelper();
+		},
+	
+	
+		/* Event Resize Visualization
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders a visual indication of an event being resized
+		renderEventResize: function(eventLocation, seg) {
+			this.renderHighlight(this.eventToSpan(eventLocation));
+			this.renderEventLocationHelper(eventLocation, seg);
+		},
+	
+	
+		// Unrenders a visual indication of an event being resized
+		unrenderEventResize: function() {
+			this.unrenderHighlight();
+			this.unrenderHelper();
+		},
+	
+	
+		/* Event Helper
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders a mock "helper" event. `sourceSeg` is the associated internal segment object. It can be null.
+		renderHelper: function(event, sourceSeg) {
+			var helperNodes = [];
+			var segs = this.eventToSegs(event);
+			var rowStructs;
+	
+			segs = this.renderFgSegEls(segs); // assigns each seg's el and returns a subset of segs that were rendered
+			rowStructs = this.renderSegRows(segs);
+	
+			// inject each new event skeleton into each associated row
+			this.rowEls.each(function(row, rowNode) {
+				var rowEl = $(rowNode); // the .fc-row
+				var skeletonEl = $('<div class="fc-helper-skeleton"><table/></div>'); // will be absolutely positioned
+				var skeletonTop;
+	
+				// If there is an original segment, match the top position. Otherwise, put it at the row's top level
+				if (sourceSeg && sourceSeg.row === row) {
+					skeletonTop = sourceSeg.el.position().top;
+				}
+				else {
+					skeletonTop = rowEl.find('.fc-content-skeleton tbody').position().top;
+				}
+	
+				skeletonEl.css('top', skeletonTop)
+					.find('table')
+						.append(rowStructs[row].tbodyEl);
+	
+				rowEl.append(skeletonEl);
+				helperNodes.push(skeletonEl[0]);
+			});
+	
+			this.helperEls = $(helperNodes); // array -> jQuery set
+		},
+	
+	
+		// Unrenders any visual indication of a mock helper event
+		unrenderHelper: function() {
+			if (this.helperEls) {
+				this.helperEls.remove();
+				this.helperEls = null;
+			}
+		},
+	
+	
+		/* Fill System (highlight, background events, business hours)
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		fillSegTag: 'td', // override the default tag name
+	
+	
+		// Renders a set of rectangles over the given segments of days.
+		// Only returns segments that successfully rendered.
+		renderFill: function(type, segs, className) {
+			var nodes = [];
+			var i, seg;
+			var skeletonEl;
+	
+			segs = this.renderFillSegEls(type, segs); // assignes `.el` to each seg. returns successfully rendered segs
+	
+			for (i = 0; i < segs.length; i++) {
+				seg = segs[i];
+				skeletonEl = this.renderFillRow(type, seg, className);
+				this.rowEls.eq(seg.row).append(skeletonEl);
+				nodes.push(skeletonEl[0]);
+			}
+	
+			this.elsByFill[type] = $(nodes);
+	
+			return segs;
+		},
+	
+	
+		// Generates the HTML needed for one row of a fill. Requires the seg's el to be rendered.
+		renderFillRow: function(type, seg, className) {
+			var colCnt = this.colCnt;
+			var startCol = seg.leftCol;
+			var endCol = seg.rightCol + 1;
+			var skeletonEl;
+			var trEl;
+	
+			className = className || type.toLowerCase();
+	
+			skeletonEl = $(
+				'<div class="fc-' + className + '-skeleton">' +
+					'<table><tr/></table>' +
+				'</div>'
+			);
+			trEl = skeletonEl.find('tr');
+	
+			if (startCol > 0) {
+				trEl.append('<td colspan="' + startCol + '"/>');
+			}
+	
+			trEl.append(
+				seg.el.attr('colspan', endCol - startCol)
+			);
+	
+			if (endCol < colCnt) {
+				trEl.append('<td colspan="' + (colCnt - endCol) + '"/>');
+			}
+	
+			this.bookendCells(trEl);
+	
+			return skeletonEl;
+		}
+	
+	});
+	
+	;;
+	
+	/* Event-rendering methods for the DayGrid class
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	DayGrid.mixin({
+	
+		rowStructs: null, // an array of objects, each holding information about a row's foreground event-rendering
+	
+	
+		// Unrenders all events currently rendered on the grid
+		unrenderEvents: function() {
+			this.removeSegPopover(); // removes the "more.." events popover
+			Grid.prototype.unrenderEvents.apply(this, arguments); // calls the super-method
+		},
+	
+	
+		// Retrieves all rendered segment objects currently rendered on the grid
+		getEventSegs: function() {
+			return Grid.prototype.getEventSegs.call(this) // get the segments from the super-method
+				.concat(this.popoverSegs || []); // append the segments from the "more..." popover
+		},
+	
+	
+		// Renders the given background event segments onto the grid
+		renderBgSegs: function(segs) {
+	
+			// don't render timed background events
+			var allDaySegs = $.grep(segs, function(seg) {
+				return seg.event.allDay;
+			});
+	
+			return Grid.prototype.renderBgSegs.call(this, allDaySegs); // call the super-method
+		},
+	
+	
+		// Renders the given foreground event segments onto the grid
+		renderFgSegs: function(segs) {
+			var rowStructs;
+	
+			// render an `.el` on each seg
+			// returns a subset of the segs. segs that were actually rendered
+			segs = this.renderFgSegEls(segs);
+	
+			rowStructs = this.rowStructs = this.renderSegRows(segs);
+	
+			// append to each row's content skeleton
+			this.rowEls.each(function(i, rowNode) {
+				$(rowNode).find('.fc-content-skeleton > table').append(
+					rowStructs[i].tbodyEl
+				);
+			});
+	
+			return segs; // return only the segs that were actually rendered
+		},
+	
+	
+		// Unrenders all currently rendered foreground event segments
+		unrenderFgSegs: function() {
+			var rowStructs = this.rowStructs || [];
+			var rowStruct;
+	
+			while ((rowStruct = rowStructs.pop())) {
+				rowStruct.tbodyEl.remove();
+			}
+	
+			this.rowStructs = null;
+		},
+	
+	
+		// Uses the given events array to generate <tbody> elements that should be appended to each row's content skeleton.
+		// Returns an array of rowStruct objects (see the bottom of `renderSegRow`).
+		// PRECONDITION: each segment shoud already have a rendered and assigned `.el`
+		renderSegRows: function(segs) {
+			var rowStructs = [];
+			var segRows;
+			var row;
+	
+			segRows = this.groupSegRows(segs); // group into nested arrays
+	
+			// iterate each row of segment groupings
+			for (row = 0; row < segRows.length; row++) {
+				rowStructs.push(
+					this.renderSegRow(row, segRows[row])
+				);
+			}
+	
+			return rowStructs;
+		},
+	
+	
+		// Builds the HTML to be used for the default element for an individual segment
+		fgSegHtml: function(seg, disableResizing) {
+			var view = this.view;
+			var event = seg.event;
+			var isDraggable = view.isEventDraggable(event);
+			var isResizableFromStart = !disableResizing && event.allDay &&
+				seg.isStart && view.isEventResizableFromStart(event);
+			var isResizableFromEnd = !disableResizing && event.allDay &&
+				seg.isEnd && view.isEventResizableFromEnd(event);
+			var classes = this.getSegClasses(seg, isDraggable, isResizableFromStart || isResizableFromEnd);
+			var skinCss = cssToStr(this.getSegSkinCss(seg));
+			var timeHtml = '';
+			var timeText;
+			var titleHtml;
+	
+			classes.unshift('fc-day-grid-event', 'fc-h-event');
+	
+			// Only display a timed events time if it is the starting segment
+			if (seg.isStart) {
+				timeText = this.getEventTimeText(event);
+				if (timeText) {
+					timeHtml = '<span class="fc-time">' + htmlEscape(timeText) + '</span>';
+				}
+			}
+	
+			titleHtml =
+				'<span class="fc-title">' +
+					(htmlEscape(event.title || '') || '&nbsp;') + // we always want one line of height
+				'</span>';
+			
+			return '<a class="' + classes.join(' ') + '"' +
+					(event.url ?
+						' href="' + htmlEscape(event.url) + '"' :
+						''
+						) +
+					(skinCss ?
+						' style="' + skinCss + '"' :
+						''
+						) +
+				'>' +
+					'<div class="fc-content">' +
+						(this.isRTL ?
+							titleHtml + ' ' + timeHtml : // put a natural space in between
+							timeHtml + ' ' + titleHtml   //
+							) +
+					'</div>' +
+					(isResizableFromStart ?
+						'<div class="fc-resizer fc-start-resizer" />' :
+						''
+						) +
+					(isResizableFromEnd ?
+						'<div class="fc-resizer fc-end-resizer" />' :
+						''
+						) +
+				'</a>';
+		},
+	
+	
+		// Given a row # and an array of segments all in the same row, render a <tbody> element, a skeleton that contains
+		// the segments. Returns object with a bunch of internal data about how the render was calculated.
+		// NOTE: modifies rowSegs
+		renderSegRow: function(row, rowSegs) {
+			var colCnt = this.colCnt;
+			var segLevels = this.buildSegLevels(rowSegs); // group into sub-arrays of levels
+			var levelCnt = Math.max(1, segLevels.length); // ensure at least one level
+			var tbody = $('<tbody/>');
+			var segMatrix = []; // lookup for which segments are rendered into which level+col cells
+			var cellMatrix = []; // lookup for all <td> elements of the level+col matrix
+			var loneCellMatrix = []; // lookup for <td> elements that only take up a single column
+			var i, levelSegs;
+			var col;
+			var tr;
+			var j, seg;
+			var td;
+	
+			// populates empty cells from the current column (`col`) to `endCol`
+			function emptyCellsUntil(endCol) {
+				while (col < endCol) {
+					// try to grab a cell from the level above and extend its rowspan. otherwise, create a fresh cell
+					td = (loneCellMatrix[i - 1] || [])[col];
+					if (td) {
+						td.attr(
+							'rowspan',
+							parseInt(td.attr('rowspan') || 1, 10) + 1
+						);
+					}
+					else {
+						td = $('<td/>');
+						tr.append(td);
+					}
+					cellMatrix[i][col] = td;
+					loneCellMatrix[i][col] = td;
+					col++;
+				}
+			}
+	
+			for (i = 0; i < levelCnt; i++) { // iterate through all levels
+				levelSegs = segLevels[i];
+				col = 0;
+				tr = $('<tr/>');
+	
+				segMatrix.push([]);
+				cellMatrix.push([]);
+				loneCellMatrix.push([]);
+	
+				// levelCnt might be 1 even though there are no actual levels. protect against this.
+				// this single empty row is useful for styling.
+				if (levelSegs) {
+					for (j = 0; j < levelSegs.length; j++) { // iterate through segments in level
+						seg = levelSegs[j];
+	
+						emptyCellsUntil(seg.leftCol);
+	
+						// create a container that occupies or more columns. append the event element.
+						td = $('<td class="fc-event-container"/>').append(seg.el);
+						if (seg.leftCol != seg.rightCol) {
+							td.attr('colspan', seg.rightCol - seg.leftCol + 1);
+						}
+						else { // a single-column segment
+							loneCellMatrix[i][col] = td;
+						}
+	
+						while (col <= seg.rightCol) {
+							cellMatrix[i][col] = td;
+							segMatrix[i][col] = seg;
+							col++;
+						}
+	
+						tr.append(td);
+					}
+				}
+	
+				emptyCellsUntil(colCnt); // finish off the row
+				this.bookendCells(tr);
+				tbody.append(tr);
+			}
+	
+			return { // a "rowStruct"
+				row: row, // the row number
+				tbodyEl: tbody,
+				cellMatrix: cellMatrix,
+				segMatrix: segMatrix,
+				segLevels: segLevels,
+				segs: rowSegs
+			};
+		},
+	
+	
+		// Stacks a flat array of segments, which are all assumed to be in the same row, into subarrays of vertical levels.
+		// NOTE: modifies segs
+		buildSegLevels: function(segs) {
+			var levels = [];
+			var i, seg;
+			var j;
+	
+			// Give preference to elements with certain criteria, so they have
+			// a chance to be closer to the top.
+			this.sortEventSegs(segs);
+			
+			for (i = 0; i < segs.length; i++) {
+				seg = segs[i];
+	
+				// loop through levels, starting with the topmost, until the segment doesn't collide with other segments
+				for (j = 0; j < levels.length; j++) {
+					if (!isDaySegCollision(seg, levels[j])) {
+						break;
+					}
+				}
+				// `j` now holds the desired subrow index
+				seg.level = j;
+	
+				// create new level array if needed and append segment
+				(levels[j] || (levels[j] = [])).push(seg);
+			}
+	
+			// order segments left-to-right. very important if calendar is RTL
+			for (j = 0; j < levels.length; j++) {
+				levels[j].sort(compareDaySegCols);
+			}
+	
+			return levels;
+		},
+	
+	
+		// Given a flat array of segments, return an array of sub-arrays, grouped by each segment's row
+		groupSegRows: function(segs) {
+			var segRows = [];
+			var i;
+	
+			for (i = 0; i < this.rowCnt; i++) {
+				segRows.push([]);
+			}
+	
+			for (i = 0; i < segs.length; i++) {
+				segRows[segs[i].row].push(segs[i]);
+			}
+	
+			return segRows;
+		}
+	
+	});
+	
+	
+	// Computes whether two segments' columns collide. They are assumed to be in the same row.
+	function isDaySegCollision(seg, otherSegs) {
+		var i, otherSeg;
+	
+		for (i = 0; i < otherSegs.length; i++) {
+			otherSeg = otherSegs[i];
+	
+			if (
+				otherSeg.leftCol <= seg.rightCol &&
+				otherSeg.rightCol >= seg.leftCol
+			) {
+				return true;
+			}
+		}
+	
+		return false;
+	}
+	
+	
+	// A cmp function for determining the leftmost event
+	function compareDaySegCols(a, b) {
+		return a.leftCol - b.leftCol;
+	}
+	
+	;;
+	
+	/* Methods relate to limiting the number events for a given day on a DayGrid
+	----------------------------------------------------------------------------------------------------------------------*/
+	// NOTE: all the segs being passed around in here are foreground segs
+	
+	DayGrid.mixin({
+	
+		segPopover: null, // the Popover that holds events that can't fit in a cell. null when not visible
+		popoverSegs: null, // an array of segment objects that the segPopover holds. null when not visible
+	
+	
+		removeSegPopover: function() {
+			if (this.segPopover) {
+				this.segPopover.hide(); // in handler, will call segPopover's removeElement
+			}
+		},
+	
+	
+		// Limits the number of "levels" (vertically stacking layers of events) for each row of the grid.
+		// `levelLimit` can be false (don't limit), a number, or true (should be computed).
+		limitRows: function(levelLimit) {
+			var rowStructs = this.rowStructs || [];
+			var row; // row #
+			var rowLevelLimit;
+	
+			for (row = 0; row < rowStructs.length; row++) {
+				this.unlimitRow(row);
+	
+				if (!levelLimit) {
+					rowLevelLimit = false;
+				}
+				else if (typeof levelLimit === 'number') {
+					rowLevelLimit = levelLimit;
+				}
+				else {
+					rowLevelLimit = this.computeRowLevelLimit(row);
+				}
+	
+				if (rowLevelLimit !== false) {
+					this.limitRow(row, rowLevelLimit);
+				}
+			}
+		},
+	
+	
+		// Computes the number of levels a row will accomodate without going outside its bounds.
+		// Assumes the row is "rigid" (maintains a constant height regardless of what is inside).
+		// `row` is the row number.
+		computeRowLevelLimit: function(row) {
+			var rowEl = this.rowEls.eq(row); // the containing "fake" row div
+			var rowHeight = rowEl.height(); // TODO: cache somehow?
+			var trEls = this.rowStructs[row].tbodyEl.children();
+			var i, trEl;
+			var trHeight;
+	
+			function iterInnerHeights(i, childNode) {
+				trHeight = Math.max(trHeight, $(childNode).outerHeight());
+			}
+	
+			// Reveal one level <tr> at a time and stop when we find one out of bounds
+			for (i = 0; i < trEls.length; i++) {
+				trEl = trEls.eq(i).removeClass('fc-limited'); // reset to original state (reveal)
+	
+				// with rowspans>1 and IE8, trEl.outerHeight() would return the height of the largest cell,
+				// so instead, find the tallest inner content element.
+				trHeight = 0;
+				trEl.find('> td > :first-child').each(iterInnerHeights);
+	
+				if (trEl.position().top + trHeight > rowHeight) {
+					return i;
+				}
+			}
+	
+			return false; // should not limit at all
+		},
+	
+	
+		// Limits the given grid row to the maximum number of levels and injects "more" links if necessary.
+		// `row` is the row number.
+		// `levelLimit` is a number for the maximum (inclusive) number of levels allowed.
+		limitRow: function(row, levelLimit) {
+			var _this = this;
+			var rowStruct = this.rowStructs[row];
+			var moreNodes = []; // array of "more" <a> links and <td> DOM nodes
+			var col = 0; // col #, left-to-right (not chronologically)
+			var levelSegs; // array of segment objects in the last allowable level, ordered left-to-right
+			var cellMatrix; // a matrix (by level, then column) of all <td> jQuery elements in the row
+			var limitedNodes; // array of temporarily hidden level <tr> and segment <td> DOM nodes
+			var i, seg;
+			var segsBelow; // array of segment objects below `seg` in the current `col`
+			var totalSegsBelow; // total number of segments below `seg` in any of the columns `seg` occupies
+			var colSegsBelow; // array of segment arrays, below seg, one for each column (offset from segs's first column)
+			var td, rowspan;
+			var segMoreNodes; // array of "more" <td> cells that will stand-in for the current seg's cell
+			var j;
+			var moreTd, moreWrap, moreLink;
+	
+			// Iterates through empty level cells and places "more" links inside if need be
+			function emptyCellsUntil(endCol) { // goes from current `col` to `endCol`
+				while (col < endCol) {
+					segsBelow = _this.getCellSegs(row, col, levelLimit);
+					if (segsBelow.length) {
+						td = cellMatrix[levelLimit - 1][col];
+						moreLink = _this.renderMoreLink(row, col, segsBelow);
+						moreWrap = $('<div/>').append(moreLink);
+						td.append(moreWrap);
+						moreNodes.push(moreWrap[0]);
+					}
+					col++;
+				}
+			}
+	
+			if (levelLimit && levelLimit < rowStruct.segLevels.length) { // is it actually over the limit?
+				levelSegs = rowStruct.segLevels[levelLimit - 1];
+				cellMatrix = rowStruct.cellMatrix;
+	
+				limitedNodes = rowStruct.tbodyEl.children().slice(levelLimit) // get level <tr> elements past the limit
+					.addClass('fc-limited').get(); // hide elements and get a simple DOM-nodes array
+	
+				// iterate though segments in the last allowable level
+				for (i = 0; i < levelSegs.length; i++) {
+					seg = levelSegs[i];
+					emptyCellsUntil(seg.leftCol); // process empty cells before the segment
+	
+					// determine *all* segments below `seg` that occupy the same columns
+					colSegsBelow = [];
+					totalSegsBelow = 0;
+					while (col <= seg.rightCol) {
+						segsBelow = this.getCellSegs(row, col, levelLimit);
+						colSegsBelow.push(segsBelow);
+						totalSegsBelow += segsBelow.length;
+						col++;
+					}
+	
+					if (totalSegsBelow) { // do we need to replace this segment with one or many "more" links?
+						td = cellMatrix[levelLimit - 1][seg.leftCol]; // the segment's parent cell
+						rowspan = td.attr('rowspan') || 1;
+						segMoreNodes = [];
+	
+						// make a replacement <td> for each column the segment occupies. will be one for each colspan
+						for (j = 0; j < colSegsBelow.length; j++) {
+							moreTd = $('<td class="fc-more-cell"/>').attr('rowspan', rowspan);
+							segsBelow = colSegsBelow[j];
+							moreLink = this.renderMoreLink(
+								row,
+								seg.leftCol + j,
+								[ seg ].concat(segsBelow) // count seg as hidden too
+							);
+							moreWrap = $('<div/>').append(moreLink);
+							moreTd.append(moreWrap);
+							segMoreNodes.push(moreTd[0]);
+							moreNodes.push(moreTd[0]);
+						}
+	
+						td.addClass('fc-limited').after($(segMoreNodes)); // hide original <td> and inject replacements
+						limitedNodes.push(td[0]);
+					}
+				}
+	
+				emptyCellsUntil(this.colCnt); // finish off the level
+				rowStruct.moreEls = $(moreNodes); // for easy undoing later
+				rowStruct.limitedEls = $(limitedNodes); // for easy undoing later
+			}
+		},
+	
+	
+		// Reveals all levels and removes all "more"-related elements for a grid's row.
+		// `row` is a row number.
+		unlimitRow: function(row) {
+			var rowStruct = this.rowStructs[row];
+	
+			if (rowStruct.moreEls) {
+				rowStruct.moreEls.remove();
+				rowStruct.moreEls = null;
+			}
+	
+			if (rowStruct.limitedEls) {
+				rowStruct.limitedEls.removeClass('fc-limited');
+				rowStruct.limitedEls = null;
+			}
+		},
+	
+	
+		// Renders an <a> element that represents hidden event element for a cell.
+		// Responsible for attaching click handler as well.
+		renderMoreLink: function(row, col, hiddenSegs) {
+			var _this = this;
+			var view = this.view;
+	
+			return $('<a class="fc-more"/>')
+				.text(
+					this.getMoreLinkText(hiddenSegs.length)
+				)
+				.on('click', function(ev) {
+					var clickOption = view.opt('eventLimitClick');
+					var date = _this.getCellDate(row, col);
+					var moreEl = $(this);
+					var dayEl = _this.getCellEl(row, col);
+					var allSegs = _this.getCellSegs(row, col);
+	
+					// rescope the segments to be within the cell's date
+					var reslicedAllSegs = _this.resliceDaySegs(allSegs, date);
+					var reslicedHiddenSegs = _this.resliceDaySegs(hiddenSegs, date);
+	
+					if (typeof clickOption === 'function') {
+						// the returned value can be an atomic option
+						clickOption = view.trigger('eventLimitClick', null, {
+							date: date,
+							dayEl: dayEl,
+							moreEl: moreEl,
+							segs: reslicedAllSegs,
+							hiddenSegs: reslicedHiddenSegs
+						}, ev);
+					}
+	
+					if (clickOption === 'popover') {
+						_this.showSegPopover(row, col, moreEl, reslicedAllSegs);
+					}
+					else if (typeof clickOption === 'string') { // a view name
+						view.calendar.zoomTo(date, clickOption);
+					}
+				});
+		},
+	
+	
+		// Reveals the popover that displays all events within a cell
+		showSegPopover: function(row, col, moreLink, segs) {
+			var _this = this;
+			var view = this.view;
+			var moreWrap = moreLink.parent(); // the <div> wrapper around the <a>
+			var topEl; // the element we want to match the top coordinate of
+			var options;
+	
+			if (this.rowCnt == 1) {
+				topEl = view.el; // will cause the popover to cover any sort of header
+			}
+			else {
+				topEl = this.rowEls.eq(row); // will align with top of row
+			}
+	
+			options = {
+				className: 'fc-more-popover',
+				content: this.renderSegPopoverContent(row, col, segs),
+				parentEl: this.el,
+				top: topEl.offset().top,
+				autoHide: true, // when the user clicks elsewhere, hide the popover
+				viewportConstrain: view.opt('popoverViewportConstrain'),
+				hide: function() {
+					// kill everything when the popover is hidden
+					_this.segPopover.removeElement();
+					_this.segPopover = null;
+					_this.popoverSegs = null;
+				}
+			};
+	
+			// Determine horizontal coordinate.
+			// We use the moreWrap instead of the <td> to avoid border confusion.
+			if (this.isRTL) {
+				options.right = moreWrap.offset().left + moreWrap.outerWidth() + 1; // +1 to be over cell border
+			}
+			else {
+				options.left = moreWrap.offset().left - 1; // -1 to be over cell border
+			}
+	
+			this.segPopover = new Popover(options);
+			this.segPopover.show();
+		},
+	
+	
+		// Builds the inner DOM contents of the segment popover
+		renderSegPopoverContent: function(row, col, segs) {
+			var view = this.view;
+			var isTheme = view.opt('theme');
+			var title = this.getCellDate(row, col).format(view.opt('dayPopoverFormat'));
+			var content = $(
+				'<div class="fc-header ' + view.widgetHeaderClass + '">' +
+					'<span class="fc-close ' +
+						(isTheme ? 'ui-icon ui-icon-closethick' : 'fc-icon fc-icon-x') +
+					'"></span>' +
+					'<span class="fc-title">' +
+						htmlEscape(title) +
+					'</span>' +
+					'<div class="fc-clear"/>' +
+				'</div>' +
+				'<div class="fc-body ' + view.widgetContentClass + '">' +
+					'<div class="fc-event-container"></div>' +
+				'</div>'
+			);
+			var segContainer = content.find('.fc-event-container');
+			var i;
+	
+			// render each seg's `el` and only return the visible segs
+			segs = this.renderFgSegEls(segs, true); // disableResizing=true
+			this.popoverSegs = segs;
+	
+			for (i = 0; i < segs.length; i++) {
+	
+				// because segments in the popover are not part of a grid coordinate system, provide a hint to any
+				// grids that want to do drag-n-drop about which cell it came from
+				this.prepareHits();
+				segs[i].hit = this.getCellHit(row, col);
+				this.releaseHits();
+	
+				segContainer.append(segs[i].el);
+			}
+	
+			return content;
+		},
+	
+	
+		// Given the events within an array of segment objects, reslice them to be in a single day
+		resliceDaySegs: function(segs, dayDate) {
+	
+			// build an array of the original events
+			var events = $.map(segs, function(seg) {
+				return seg.event;
+			});
+	
+			var dayStart = dayDate.clone();
+			var dayEnd = dayStart.clone().add(1, 'days');
+			var dayRange = { start: dayStart, end: dayEnd };
+	
+			// slice the events with a custom slicing function
+			segs = this.eventsToSegs(
+				events,
+				function(range) {
+					var seg = intersectRanges(range, dayRange); // undefind if no intersection
+					return seg ? [ seg ] : []; // must return an array of segments
+				}
+			);
+	
+			// force an order because eventsToSegs doesn't guarantee one
+			this.sortEventSegs(segs);
+	
+			return segs;
+		},
+	
+	
+		// Generates the text that should be inside a "more" link, given the number of events it represents
+		getMoreLinkText: function(num) {
+			var opt = this.view.opt('eventLimitText');
+	
+			if (typeof opt === 'function') {
+				return opt(num);
+			}
+			else {
+				return '+' + num + ' ' + opt;
+			}
+		},
+	
+	
+		// Returns segments within a given cell.
+		// If `startLevel` is specified, returns only events including and below that level. Otherwise returns all segs.
+		getCellSegs: function(row, col, startLevel) {
+			var segMatrix = this.rowStructs[row].segMatrix;
+			var level = startLevel || 0;
+			var segs = [];
+			var seg;
+	
+			while (level < segMatrix.length) {
+				seg = segMatrix[level][col];
+				if (seg) {
+					segs.push(seg);
+				}
+				level++;
+			}
+	
+			return segs;
+		}
+	
+	});
+	
+	;;
+	
+	/* A component that renders one or more columns of vertical time slots
+	----------------------------------------------------------------------------------------------------------------------*/
+	// We mixin DayTable, even though there is only a single row of days
+	
+	var TimeGrid = FC.TimeGrid = Grid.extend(DayTableMixin, {
+	
+		slotDuration: null, // duration of a "slot", a distinct time segment on given day, visualized by lines
+		snapDuration: null, // granularity of time for dragging and selecting
+		snapsPerSlot: null,
+		minTime: null, // Duration object that denotes the first visible time of any given day
+		maxTime: null, // Duration object that denotes the exclusive visible end time of any given day
+		labelFormat: null, // formatting string for times running along vertical axis
+		labelInterval: null, // duration of how often a label should be displayed for a slot
+	
+		colEls: null, // cells elements in the day-row background
+		slatEls: null, // elements running horizontally across all columns
+		nowIndicatorEls: null,
+	
+		colCoordCache: null,
+		slatCoordCache: null,
+	
+	
+		constructor: function() {
+			Grid.apply(this, arguments); // call the super-constructor
+	
+			this.processOptions();
+		},
+	
+	
+		// Renders the time grid into `this.el`, which should already be assigned.
+		// Relies on the view's colCnt. In the future, this component should probably be self-sufficient.
+		renderDates: function() {
+			this.el.html(this.renderHtml());
+			this.colEls = this.el.find('.fc-day');
+			this.slatEls = this.el.find('.fc-slats tr');
+	
+			this.colCoordCache = new CoordCache({
+				els: this.colEls,
+				isHorizontal: true
+			});
+			this.slatCoordCache = new CoordCache({
+				els: this.slatEls,
+				isVertical: true
+			});
+	
+			this.renderContentSkeleton();
+		},
+	
+	
+		// Renders the basic HTML skeleton for the grid
+		renderHtml: function() {
+			return '' +
+				'<div class="fc-bg">' +
+					'<table>' +
+						this.renderBgTrHtml(0) + // row=0
+					'</table>' +
+				'</div>' +
+				'<div class="fc-slats">' +
+					'<table>' +
+						this.renderSlatRowHtml() +
+					'</table>' +
+				'</div>';
+		},
+	
+	
+		// Generates the HTML for the horizontal "slats" that run width-wise. Has a time axis on a side. Depends on RTL.
+		renderSlatRowHtml: function() {
+			var view = this.view;
+			var isRTL = this.isRTL;
+			var html = '';
+			var slotTime = moment.duration(+this.minTime); // wish there was .clone() for durations
+			var slotDate; // will be on the view's first day, but we only care about its time
+			var isLabeled;
+			var axisHtml;
+	
+			// Calculate the time for each slot
+			while (slotTime < this.maxTime) {
+				slotDate = this.start.clone().time(slotTime);
+				isLabeled = isInt(divideDurationByDuration(slotTime, this.labelInterval));
+	
+				axisHtml =
+					'<td class="fc-axis fc-time ' + view.widgetContentClass + '" ' + view.axisStyleAttr() + '>' +
+						(isLabeled ?
+							'<span>' + // for matchCellWidths
+								htmlEscape(slotDate.format(this.labelFormat)) +
+							'</span>' :
+							''
+							) +
+					'</td>';
+	
+				html +=
+					'<tr data-time="' + slotDate.format('HH:mm:ss') + '"' +
+						(isLabeled ? '' : ' class="fc-minor"') +
+						'>' +
+						(!isRTL ? axisHtml : '') +
+						'<td class="' + view.widgetContentClass + '"/>' +
+						(isRTL ? axisHtml : '') +
+					"</tr>";
+	
+				slotTime.add(this.slotDuration);
+			}
+	
+			return html;
+		},
+	
+	
+		/* Options
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Parses various options into properties of this object
+		processOptions: function() {
+			var view = this.view;
+			var slotDuration = view.opt('slotDuration');
+			var snapDuration = view.opt('snapDuration');
+			var input;
+	
+			slotDuration = moment.duration(slotDuration);
+			snapDuration = snapDuration ? moment.duration(snapDuration) : slotDuration;
+	
+			this.slotDuration = slotDuration;
+			this.snapDuration = snapDuration;
+			this.snapsPerSlot = slotDuration / snapDuration; // TODO: ensure an integer multiple?
+	
+			this.minResizeDuration = snapDuration; // hack
+	
+			this.minTime = moment.duration(view.opt('minTime'));
+			this.maxTime = moment.duration(view.opt('maxTime'));
+	
+			// might be an array value (for TimelineView).
+			// if so, getting the most granular entry (the last one probably).
+			input = view.opt('slotLabelFormat');
+			if ($.isArray(input)) {
+				input = input[input.length - 1];
+			}
+	
+			this.labelFormat =
+				input ||
+				view.opt('axisFormat') || // deprecated
+				view.opt('smallTimeFormat'); // the computed default
+	
+			input = view.opt('slotLabelInterval');
+			this.labelInterval = input ?
+				moment.duration(input) :
+				this.computeLabelInterval(slotDuration);
+		},
+	
+	
+		// Computes an automatic value for slotLabelInterval
+		computeLabelInterval: function(slotDuration) {
+			var i;
+			var labelInterval;
+			var slotsPerLabel;
+	
+			// find the smallest stock label interval that results in more than one slots-per-label
+			for (i = AGENDA_STOCK_SUB_DURATIONS.length - 1; i >= 0; i--) {
+				labelInterval = moment.duration(AGENDA_STOCK_SUB_DURATIONS[i]);
+				slotsPerLabel = divideDurationByDuration(labelInterval, slotDuration);
+				if (isInt(slotsPerLabel) && slotsPerLabel > 1) {
+					return labelInterval;
+				}
+			}
+	
+			return moment.duration(slotDuration); // fall back. clone
+		},
+	
+	
+		// Computes a default event time formatting string if `timeFormat` is not explicitly defined
+		computeEventTimeFormat: function() {
+			return this.view.opt('noMeridiemTimeFormat'); // like "6:30" (no AM/PM)
+		},
+	
+	
+		// Computes a default `displayEventEnd` value if one is not expliclty defined
+		computeDisplayEventEnd: function() {
+			return true;
+		},
+	
+	
+		/* Hit System
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		prepareHits: function() {
+			this.colCoordCache.build();
+			this.slatCoordCache.build();
+		},
+	
+	
+		releaseHits: function() {
+			this.colCoordCache.clear();
+			// NOTE: don't clear slatCoordCache because we rely on it for computeTimeTop
+		},
+	
+	
+		queryHit: function(leftOffset, topOffset) {
+			var snapsPerSlot = this.snapsPerSlot;
+			var colCoordCache = this.colCoordCache;
+			var slatCoordCache = this.slatCoordCache;
+			var colIndex = colCoordCache.getHorizontalIndex(leftOffset);
+			var slatIndex = slatCoordCache.getVerticalIndex(topOffset);
+	
+			if (colIndex != null && slatIndex != null) {
+				var slatTop = slatCoordCache.getTopOffset(slatIndex);
+				var slatHeight = slatCoordCache.getHeight(slatIndex);
+				var partial = (topOffset - slatTop) / slatHeight; // floating point number between 0 and 1
+				var localSnapIndex = Math.floor(partial * snapsPerSlot); // the snap # relative to start of slat
+				var snapIndex = slatIndex * snapsPerSlot + localSnapIndex;
+				var snapTop = slatTop + (localSnapIndex / snapsPerSlot) * slatHeight;
+				var snapBottom = slatTop + ((localSnapIndex + 1) / snapsPerSlot) * slatHeight;
+	
+				return {
+					col: colIndex,
+					snap: snapIndex,
+					component: this, // needed unfortunately :(
+					left: colCoordCache.getLeftOffset(colIndex),
+					right: colCoordCache.getRightOffset(colIndex),
+					top: snapTop,
+					bottom: snapBottom
+				};
+			}
+		},
+	
+	
+		getHitSpan: function(hit) {
+			var start = this.getCellDate(0, hit.col); // row=0
+			var time = this.computeSnapTime(hit.snap); // pass in the snap-index
+			var end;
+	
+			start.time(time);
+			end = start.clone().add(this.snapDuration);
+	
+			return { start: start, end: end };
+		},
+	
+	
+		getHitEl: function(hit) {
+			return this.colEls.eq(hit.col);
+		},
+	
+	
+		/* Dates
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		rangeUpdated: function() {
+			this.updateDayTable();
+		},
+	
+	
+		// Given a row number of the grid, representing a "snap", returns a time (Duration) from its start-of-day
+		computeSnapTime: function(snapIndex) {
+			return moment.duration(this.minTime + this.snapDuration * snapIndex);
+		},
+	
+	
+		// Slices up the given span (unzoned start/end with other misc data) into an array of segments
+		spanToSegs: function(span) {
+			var segs = this.sliceRangeByTimes(span);
+			var i;
+	
+			for (i = 0; i < segs.length; i++) {
+				if (this.isRTL) {
+					segs[i].col = this.daysPerRow - 1 - segs[i].dayIndex;
+				}
+				else {
+					segs[i].col = segs[i].dayIndex;
+				}
+			}
+	
+			return segs;
+		},
+	
+	
+		sliceRangeByTimes: function(range) {
+			var segs = [];
+			var seg;
+			var dayIndex;
+			var dayDate;
+			var dayRange;
+	
+			for (dayIndex = 0; dayIndex < this.daysPerRow; dayIndex++) {
+				dayDate = this.dayDates[dayIndex].clone(); // TODO: better API for this?
+				dayRange = {
+					start: dayDate.clone().time(this.minTime),
+					end: dayDate.clone().time(this.maxTime)
+				};
+				seg = intersectRanges(range, dayRange); // both will be ambig timezone
+				if (seg) {
+					seg.dayIndex = dayIndex;
+					segs.push(seg);
+				}
+			}
+	
+			return segs;
+		},
+	
+	
+		/* Coordinates
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		updateSize: function(isResize) { // NOT a standard Grid method
+			this.slatCoordCache.build();
+	
+			if (isResize) {
+				this.updateSegVerticals(
+					[].concat(this.fgSegs || [], this.bgSegs || [], this.businessSegs || [])
+				);
+			}
+		},
+	
+	
+		// Computes the top coordinate, relative to the bounds of the grid, of the given date.
+		// A `startOfDayDate` must be given for avoiding ambiguity over how to treat midnight.
+		computeDateTop: function(date, startOfDayDate) {
+			return this.computeTimeTop(
+				moment.duration(
+					date - startOfDayDate.clone().stripTime()
+				)
+			);
+		},
+	
+	
+		// Computes the top coordinate, relative to the bounds of the grid, of the given time (a Duration).
+		computeTimeTop: function(time) {
+			var len = this.slatEls.length;
+			var slatCoverage = (time - this.minTime) / this.slotDuration; // floating-point value of # of slots covered
+			var slatIndex;
+			var slatRemainder;
+	
+			// compute a floating-point number for how many slats should be progressed through.
+			// from 0 to number of slats (inclusive)
+			// constrained because minTime/maxTime might be customized.
+			slatCoverage = Math.max(0, slatCoverage);
+			slatCoverage = Math.min(len, slatCoverage);
+	
+			// an integer index of the furthest whole slat
+			// from 0 to number slats (*exclusive*, so len-1)
+			slatIndex = Math.floor(slatCoverage);
+			slatIndex = Math.min(slatIndex, len - 1);
+	
+			// how much further through the slatIndex slat (from 0.0-1.0) must be covered in addition.
+			// could be 1.0 if slatCoverage is covering *all* the slots
+			slatRemainder = slatCoverage - slatIndex;
+	
+			return this.slatCoordCache.getTopPosition(slatIndex) +
+				this.slatCoordCache.getHeight(slatIndex) * slatRemainder;
+		},
+	
+	
+	
+		/* Event Drag Visualization
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders a visual indication of an event being dragged over the specified date(s).
+		// A returned value of `true` signals that a mock "helper" event has been rendered.
+		renderDrag: function(eventLocation, seg) {
+	
+			if (seg) { // if there is event information for this drag, render a helper event
+				this.renderEventLocationHelper(eventLocation, seg);
+	
+				for (var i = 0; i < this.helperSegs.length; i++) {
+					this.applyDragOpacity(this.helperSegs[i].el);
+				}
+	
+				return true; // signal that a helper has been rendered
+			}
+			else {
+				// otherwise, just render a highlight
+				this.renderHighlight(this.eventToSpan(eventLocation));
+			}
+		},
+	
+	
+		// Unrenders any visual indication of an event being dragged
+		unrenderDrag: function() {
+			this.unrenderHelper();
+			this.unrenderHighlight();
+		},
+	
+	
+		/* Event Resize Visualization
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders a visual indication of an event being resized
+		renderEventResize: function(eventLocation, seg) {
+			this.renderEventLocationHelper(eventLocation, seg);
+		},
+	
+	
+		// Unrenders any visual indication of an event being resized
+		unrenderEventResize: function() {
+			this.unrenderHelper();
+		},
+	
+	
+		/* Event Helper
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders a mock "helper" event. `sourceSeg` is the original segment object and might be null (an external drag)
+		renderHelper: function(event, sourceSeg) {
+			this.renderHelperSegs(this.eventToSegs(event), sourceSeg);
+		},
+	
+	
+		// Unrenders any mock helper event
+		unrenderHelper: function() {
+			this.unrenderHelperSegs();
+		},
+	
+	
+		/* Business Hours
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		renderBusinessHours: function() {
+			var events = this.view.calendar.getBusinessHoursEvents();
+			var segs = this.eventsToSegs(events);
+	
+			this.renderBusinessSegs(segs);
+		},
+	
+	
+		unrenderBusinessHours: function() {
+			this.unrenderBusinessSegs();
+		},
+	
+	
+		/* Now Indicator
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		getNowIndicatorUnit: function() {
+			return 'minute'; // will refresh on the minute
+		},
+	
+	
+		renderNowIndicator: function(date) {
+			// seg system might be overkill, but it handles scenario where line needs to be rendered
+			//  more than once because of columns with the same date (resources columns for example)
+			var segs = this.spanToSegs({ start: date, end: date });
+			var top = this.computeDateTop(date, date);
+			var nodes = [];
+			var i;
+	
+			// render lines within the columns
+			for (i = 0; i < segs.length; i++) {
+				nodes.push($('<div class="fc-now-indicator fc-now-indicator-line"></div>')
+					.css('top', top)
+					.appendTo(this.colContainerEls.eq(segs[i].col))[0]);
+			}
+	
+			// render an arrow over the axis
+			if (segs.length > 0) { // is the current time in view?
+				nodes.push($('<div class="fc-now-indicator fc-now-indicator-arrow"></div>')
+					.css('top', top)
+					.appendTo(this.el.find('.fc-content-skeleton'))[0]);
+			}
+	
+			this.nowIndicatorEls = $(nodes);
+		},
+	
+	
+		unrenderNowIndicator: function() {
+			if (this.nowIndicatorEls) {
+				this.nowIndicatorEls.remove();
+				this.nowIndicatorEls = null;
+			}
+		},
+	
+	
+		/* Selection
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders a visual indication of a selection. Overrides the default, which was to simply render a highlight.
+		renderSelection: function(span) {
+			if (this.view.opt('selectHelper')) { // this setting signals that a mock helper event should be rendered
+	
+				// normally acceps an eventLocation, span has a start/end, which is good enough
+				this.renderEventLocationHelper(span);
+			}
+			else {
+				this.renderHighlight(span);
+			}
+		},
+	
+	
+		// Unrenders any visual indication of a selection
+		unrenderSelection: function() {
+			this.unrenderHelper();
+			this.unrenderHighlight();
+		},
+	
+	
+		/* Highlight
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		renderHighlight: function(span) {
+			this.renderHighlightSegs(this.spanToSegs(span));
+		},
+	
+	
+		unrenderHighlight: function() {
+			this.unrenderHighlightSegs();
+		}
+	
+	});
+	
+	;;
+	
+	/* Methods for rendering SEGMENTS, pieces of content that live on the view
+	 ( this file is no longer just for events )
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	TimeGrid.mixin({
+	
+		colContainerEls: null, // containers for each column
+	
+		// inner-containers for each column where different types of segs live
+		fgContainerEls: null,
+		bgContainerEls: null,
+		helperContainerEls: null,
+		highlightContainerEls: null,
+		businessContainerEls: null,
+	
+		// arrays of different types of displayed segments
+		fgSegs: null,
+		bgSegs: null,
+		helperSegs: null,
+		highlightSegs: null,
+		businessSegs: null,
+	
+	
+		// Renders the DOM that the view's content will live in
+		renderContentSkeleton: function() {
+			var cellHtml = '';
+			var i;
+			var skeletonEl;
+	
+			for (i = 0; i < this.colCnt; i++) {
+				cellHtml +=
+					'<td>' +
+						'<div class="fc-content-col">' +
+							'<div class="fc-event-container fc-helper-container"></div>' +
+							'<div class="fc-event-container"></div>' +
+							'<div class="fc-highlight-container"></div>' +
+							'<div class="fc-bgevent-container"></div>' +
+							'<div class="fc-business-container"></div>' +
+						'</div>' +
+					'</td>';
+			}
+	
+			skeletonEl = $(
+				'<div class="fc-content-skeleton">' +
+					'<table>' +
+						'<tr>' + cellHtml + '</tr>' +
+					'</table>' +
+				'</div>'
+			);
+	
+			this.colContainerEls = skeletonEl.find('.fc-content-col');
+			this.helperContainerEls = skeletonEl.find('.fc-helper-container');
+			this.fgContainerEls = skeletonEl.find('.fc-event-container:not(.fc-helper-container)');
+			this.bgContainerEls = skeletonEl.find('.fc-bgevent-container');
+			this.highlightContainerEls = skeletonEl.find('.fc-highlight-container');
+			this.businessContainerEls = skeletonEl.find('.fc-business-container');
+	
+			this.bookendCells(skeletonEl.find('tr')); // TODO: do this on string level
+			this.el.append(skeletonEl);
+		},
+	
+	
+		/* Foreground Events
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		renderFgSegs: function(segs) {
+			segs = this.renderFgSegsIntoContainers(segs, this.fgContainerEls);
+			this.fgSegs = segs;
+			return segs; // needed for Grid::renderEvents
+		},
+	
+	
+		unrenderFgSegs: function() {
+			this.unrenderNamedSegs('fgSegs');
+		},
+	
+	
+		/* Foreground Helper Events
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		renderHelperSegs: function(segs, sourceSeg) {
+			var i, seg;
+			var sourceEl;
+	
+			segs = this.renderFgSegsIntoContainers(segs, this.helperContainerEls);
+	
+			// Try to make the segment that is in the same row as sourceSeg look the same
+			for (i = 0; i < segs.length; i++) {
+				seg = segs[i];
+				if (sourceSeg && sourceSeg.col === seg.col) {
+					sourceEl = sourceSeg.el;
+					seg.el.css({
+						left: sourceEl.css('left'),
+						right: sourceEl.css('right'),
+						'margin-left': sourceEl.css('margin-left'),
+						'margin-right': sourceEl.css('margin-right')
+					});
+				}
+			}
+	
+			this.helperSegs = segs;
+		},
+	
+	
+		unrenderHelperSegs: function() {
+			this.unrenderNamedSegs('helperSegs');
+		},
+	
+	
+		/* Background Events
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		renderBgSegs: function(segs) {
+			segs = this.renderFillSegEls('bgEvent', segs); // TODO: old fill system
+			this.updateSegVerticals(segs);
+			this.attachSegsByCol(this.groupSegsByCol(segs), this.bgContainerEls);
+			this.bgSegs = segs;
+			return segs; // needed for Grid::renderEvents
+		},
+	
+	
+		unrenderBgSegs: function() {
+			this.unrenderNamedSegs('bgSegs');
+		},
+	
+	
+		/* Highlight
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		renderHighlightSegs: function(segs) {
+			segs = this.renderFillSegEls('highlight', segs); // TODO: old fill system
+			this.updateSegVerticals(segs);
+			this.attachSegsByCol(this.groupSegsByCol(segs), this.highlightContainerEls);
+			this.highlightSegs = segs;
+		},
+	
+	
+		unrenderHighlightSegs: function() {
+			this.unrenderNamedSegs('highlightSegs');
+		},
+	
+	
+		/* Business Hours
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		renderBusinessSegs: function(segs) {
+			segs = this.renderFillSegEls('businessHours', segs); // TODO: old fill system
+			this.updateSegVerticals(segs);
+			this.attachSegsByCol(this.groupSegsByCol(segs), this.businessContainerEls);
+			this.businessSegs = segs;
+		},
+	
+	
+		unrenderBusinessSegs: function() {
+			this.unrenderNamedSegs('businessSegs');
+		},
+	
+	
+		/* Seg Rendering Utils
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Given a flat array of segments, return an array of sub-arrays, grouped by each segment's col
+		groupSegsByCol: function(segs) {
+			var segsByCol = [];
+			var i;
+	
+			for (i = 0; i < this.colCnt; i++) {
+				segsByCol.push([]);
+			}
+	
+			for (i = 0; i < segs.length; i++) {
+				segsByCol[segs[i].col].push(segs[i]);
+			}
+	
+			return segsByCol;
+		},
+	
+	
+		// Given segments grouped by column, insert the segments' elements into a parallel array of container
+		// elements, each living within a column.
+		attachSegsByCol: function(segsByCol, containerEls) {
+			var col;
+			var segs;
+			var i;
+	
+			for (col = 0; col < this.colCnt; col++) { // iterate each column grouping
+				segs = segsByCol[col];
+	
+				for (i = 0; i < segs.length; i++) {
+					containerEls.eq(col).append(segs[i].el);
+				}
+			}
+		},
+	
+	
+		// Given the name of a property of `this` object, assumed to be an array of segments,
+		// loops through each segment and removes from DOM. Will null-out the property afterwards.
+		unrenderNamedSegs: function(propName) {
+			var segs = this[propName];
+			var i;
+	
+			if (segs) {
+				for (i = 0; i < segs.length; i++) {
+					segs[i].el.remove();
+				}
+				this[propName] = null;
+			}
+		},
+	
+	
+	
+		/* Foreground Event Rendering Utils
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Given an array of foreground segments, render a DOM element for each, computes position,
+		// and attaches to the column inner-container elements.
+		renderFgSegsIntoContainers: function(segs, containerEls) {
+			var segsByCol;
+			var col;
+	
+			segs = this.renderFgSegEls(segs); // will call fgSegHtml
+			segsByCol = this.groupSegsByCol(segs);
+	
+			for (col = 0; col < this.colCnt; col++) {
+				this.updateFgSegCoords(segsByCol[col]);
+			}
+	
+			this.attachSegsByCol(segsByCol, containerEls);
+	
+			return segs;
+		},
+	
+	
+		// Renders the HTML for a single event segment's default rendering
+		fgSegHtml: function(seg, disableResizing) {
+			var view = this.view;
+			var event = seg.event;
+			var isDraggable = view.isEventDraggable(event);
+			var isResizableFromStart = !disableResizing && seg.isStart && view.isEventResizableFromStart(event);
+			var isResizableFromEnd = !disableResizing && seg.isEnd && view.isEventResizableFromEnd(event);
+			var classes = this.getSegClasses(seg, isDraggable, isResizableFromStart || isResizableFromEnd);
+			var skinCss = cssToStr(this.getSegSkinCss(seg));
+			var timeText;
+			var fullTimeText; // more verbose time text. for the print stylesheet
+			var startTimeText; // just the start time text
+	
+			classes.unshift('fc-time-grid-event', 'fc-v-event');
+	
+			if (view.isMultiDayEvent(event)) { // if the event appears to span more than one day...
+				// Don't display time text on segments that run entirely through a day.
+				// That would appear as midnight-midnight and would look dumb.
+				// Otherwise, display the time text for the *segment's* times (like 6pm-midnight or midnight-10am)
+				if (seg.isStart || seg.isEnd) {
+					timeText = this.getEventTimeText(seg);
+					fullTimeText = this.getEventTimeText(seg, 'LT');
+					startTimeText = this.getEventTimeText(seg, null, false); // displayEnd=false
+				}
+			} else {
+				// Display the normal time text for the *event's* times
+				timeText = this.getEventTimeText(event);
+				fullTimeText = this.getEventTimeText(event, 'LT');
+				startTimeText = this.getEventTimeText(event, null, false); // displayEnd=false
+			}
+	
+			return '<a class="' + classes.join(' ') + '"' +
+				(event.url ?
+					' href="' + htmlEscape(event.url) + '"' :
+					''
+					) +
+				(skinCss ?
+					' style="' + skinCss + '"' :
+					''
+					) +
+				'>' +
+					'<div class="fc-content">' +
+						(timeText ?
+							'<div class="fc-time"' +
+							' data-start="' + htmlEscape(startTimeText) + '"' +
+							' data-full="' + htmlEscape(fullTimeText) + '"' +
+							'>' +
+								'<span>' + htmlEscape(timeText) + '</span>' +
+							'</div>' :
+							''
+							) +
+						(event.title ?
+							'<div class="fc-title">' +
+								htmlEscape(event.title) +
+							'</div>' :
+							''
+							) +
+					'</div>' +
+					'<div class="fc-bg"/>' +
+					/* TODO: write CSS for this
+					(isResizableFromStart ?
+						'<div class="fc-resizer fc-start-resizer" />' :
+						''
+						) +
+					*/
+					(isResizableFromEnd ?
+						'<div class="fc-resizer fc-end-resizer" />' :
+						''
+						) +
+				'</a>';
+		},
+	
+	
+		/* Seg Position Utils
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Refreshes the CSS top/bottom coordinates for each segment element.
+		// Works when called after initial render, after a window resize/zoom for example.
+		updateSegVerticals: function(segs) {
+			this.computeSegVerticals(segs);
+			this.assignSegVerticals(segs);
+		},
+	
+	
+		// For each segment in an array, computes and assigns its top and bottom properties
+		computeSegVerticals: function(segs) {
+			var i, seg;
+	
+			for (i = 0; i < segs.length; i++) {
+				seg = segs[i];
+				seg.top = this.computeDateTop(seg.start, seg.start);
+				seg.bottom = this.computeDateTop(seg.end, seg.start);
+			}
+		},
+	
+	
+		// Given segments that already have their top/bottom properties computed, applies those values to
+		// the segments' elements.
+		assignSegVerticals: function(segs) {
+			var i, seg;
+	
+			for (i = 0; i < segs.length; i++) {
+				seg = segs[i];
+				seg.el.css(this.generateSegVerticalCss(seg));
+			}
+		},
+	
+	
+		// Generates an object with CSS properties for the top/bottom coordinates of a segment element
+		generateSegVerticalCss: function(seg) {
+			return {
+				top: seg.top,
+				bottom: -seg.bottom // flipped because needs to be space beyond bottom edge of event container
+			};
+		},
+	
+	
+		/* Foreground Event Positioning Utils
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Given segments that are assumed to all live in the *same column*,
+		// compute their verical/horizontal coordinates and assign to their elements.
+		updateFgSegCoords: function(segs) {
+			this.computeSegVerticals(segs); // horizontals relies on this
+			this.computeFgSegHorizontals(segs); // compute horizontal coordinates, z-index's, and reorder the array
+			this.assignSegVerticals(segs);
+			this.assignFgSegHorizontals(segs);
+		},
+	
+	
+		// Given an array of segments that are all in the same column, sets the backwardCoord and forwardCoord on each.
+		// NOTE: Also reorders the given array by date!
+		computeFgSegHorizontals: function(segs) {
+			var levels;
+			var level0;
+			var i;
+	
+			this.sortEventSegs(segs); // order by certain criteria
+			levels = buildSlotSegLevels(segs);
+			computeForwardSlotSegs(levels);
+	
+			if ((level0 = levels[0])) {
+	
+				for (i = 0; i < level0.length; i++) {
+					computeSlotSegPressures(level0[i]);
+				}
+	
+				for (i = 0; i < level0.length; i++) {
+					this.computeFgSegForwardBack(level0[i], 0, 0);
+				}
+			}
+		},
+	
+	
+		// Calculate seg.forwardCoord and seg.backwardCoord for the segment, where both values range
+		// from 0 to 1. If the calendar is left-to-right, the seg.backwardCoord maps to "left" and
+		// seg.forwardCoord maps to "right" (via percentage). Vice-versa if the calendar is right-to-left.
+		//
+		// The segment might be part of a "series", which means consecutive segments with the same pressure
+		// who's width is unknown until an edge has been hit. `seriesBackwardPressure` is the number of
+		// segments behind this one in the current series, and `seriesBackwardCoord` is the starting
+		// coordinate of the first segment in the series.
+		computeFgSegForwardBack: function(seg, seriesBackwardPressure, seriesBackwardCoord) {
+			var forwardSegs = seg.forwardSegs;
+			var i;
+	
+			if (seg.forwardCoord === undefined) { // not already computed
+	
+				if (!forwardSegs.length) {
+	
+					// if there are no forward segments, this segment should butt up against the edge
+					seg.forwardCoord = 1;
+				}
+				else {
+	
+					// sort highest pressure first
+					this.sortForwardSegs(forwardSegs);
+	
+					// this segment's forwardCoord will be calculated from the backwardCoord of the
+					// highest-pressure forward segment.
+					this.computeFgSegForwardBack(forwardSegs[0], seriesBackwardPressure + 1, seriesBackwardCoord);
+					seg.forwardCoord = forwardSegs[0].backwardCoord;
+				}
+	
+				// calculate the backwardCoord from the forwardCoord. consider the series
+				seg.backwardCoord = seg.forwardCoord -
+					(seg.forwardCoord - seriesBackwardCoord) / // available width for series
+					(seriesBackwardPressure + 1); // # of segments in the series
+	
+				// use this segment's coordinates to computed the coordinates of the less-pressurized
+				// forward segments
+				for (i=0; i<forwardSegs.length; i++) {
+					this.computeFgSegForwardBack(forwardSegs[i], 0, seg.forwardCoord);
+				}
+			}
+		},
+	
+	
+		sortForwardSegs: function(forwardSegs) {
+			forwardSegs.sort(proxy(this, 'compareForwardSegs'));
+		},
+	
+	
+		// A cmp function for determining which forward segment to rely on more when computing coordinates.
+		compareForwardSegs: function(seg1, seg2) {
+			// put higher-pressure first
+			return seg2.forwardPressure - seg1.forwardPressure ||
+				// put segments that are closer to initial edge first (and favor ones with no coords yet)
+				(seg1.backwardCoord || 0) - (seg2.backwardCoord || 0) ||
+				// do normal sorting...
+				this.compareEventSegs(seg1, seg2);
+		},
+	
+	
+		// Given foreground event segments that have already had their position coordinates computed,
+		// assigns position-related CSS values to their elements.
+		assignFgSegHorizontals: function(segs) {
+			var i, seg;
+	
+			for (i = 0; i < segs.length; i++) {
+				seg = segs[i];
+				seg.el.css(this.generateFgSegHorizontalCss(seg));
+	
+				// if the height is short, add a className for alternate styling
+				if (seg.bottom - seg.top < 30) {
+					seg.el.addClass('fc-short');
+				}
+			}
+		},
+	
+	
+		// Generates an object with CSS properties/values that should be applied to an event segment element.
+		// Contains important positioning-related properties that should be applied to any event element, customized or not.
+		generateFgSegHorizontalCss: function(seg) {
+			var shouldOverlap = this.view.opt('slotEventOverlap');
+			var backwardCoord = seg.backwardCoord; // the left side if LTR. the right side if RTL. floating-point
+			var forwardCoord = seg.forwardCoord; // the right side if LTR. the left side if RTL. floating-point
+			var props = this.generateSegVerticalCss(seg); // get top/bottom first
+			var left; // amount of space from left edge, a fraction of the total width
+			var right; // amount of space from right edge, a fraction of the total width
+	
+			if (shouldOverlap) {
+				// double the width, but don't go beyond the maximum forward coordinate (1.0)
+				forwardCoord = Math.min(1, backwardCoord + (forwardCoord - backwardCoord) * 2);
+			}
+	
+			if (this.isRTL) {
+				left = 1 - forwardCoord;
+				right = backwardCoord;
+			}
+			else {
+				left = backwardCoord;
+				right = 1 - forwardCoord;
+			}
+	
+			props.zIndex = seg.level + 1; // convert from 0-base to 1-based
+			props.left = left * 100 + '%';
+			props.right = right * 100 + '%';
+	
+			if (shouldOverlap && seg.forwardPressure) {
+				// add padding to the edge so that forward stacked events don't cover the resizer's icon
+				props[this.isRTL ? 'marginLeft' : 'marginRight'] = 10 * 2; // 10 is a guesstimate of the icon's width
+			}
+	
+			return props;
+		}
+	
+	});
+	
+	
+	// Builds an array of segments "levels". The first level will be the leftmost tier of segments if the calendar is
+	// left-to-right, or the rightmost if the calendar is right-to-left. Assumes the segments are already ordered by date.
+	function buildSlotSegLevels(segs) {
+		var levels = [];
+		var i, seg;
+		var j;
+	
+		for (i=0; i<segs.length; i++) {
+			seg = segs[i];
+	
+			// go through all the levels and stop on the first level where there are no collisions
+			for (j=0; j<levels.length; j++) {
+				if (!computeSlotSegCollisions(seg, levels[j]).length) {
+					break;
+				}
+			}
+	
+			seg.level = j;
+	
+			(levels[j] || (levels[j] = [])).push(seg);
+		}
+	
+		return levels;
+	}
+	
+	
+	// For every segment, figure out the other segments that are in subsequent
+	// levels that also occupy the same vertical space. Accumulate in seg.forwardSegs
+	function computeForwardSlotSegs(levels) {
+		var i, level;
+		var j, seg;
+		var k;
+	
+		for (i=0; i<levels.length; i++) {
+			level = levels[i];
+	
+			for (j=0; j<level.length; j++) {
+				seg = level[j];
+	
+				seg.forwardSegs = [];
+				for (k=i+1; k<levels.length; k++) {
+					computeSlotSegCollisions(seg, levels[k], seg.forwardSegs);
+				}
+			}
+		}
+	}
+	
+	
+	// Figure out which path forward (via seg.forwardSegs) results in the longest path until
+	// the furthest edge is reached. The number of segments in this path will be seg.forwardPressure
+	function computeSlotSegPressures(seg) {
+		var forwardSegs = seg.forwardSegs;
+		var forwardPressure = 0;
+		var i, forwardSeg;
+	
+		if (seg.forwardPressure === undefined) { // not already computed
+	
+			for (i=0; i<forwardSegs.length; i++) {
+				forwardSeg = forwardSegs[i];
+	
+				// figure out the child's maximum forward path
+				computeSlotSegPressures(forwardSeg);
+	
+				// either use the existing maximum, or use the child's forward pressure
+				// plus one (for the forwardSeg itself)
+				forwardPressure = Math.max(
+					forwardPressure,
+					1 + forwardSeg.forwardPressure
+				);
+			}
+	
+			seg.forwardPressure = forwardPressure;
+		}
+	}
+	
+	
+	// Find all the segments in `otherSegs` that vertically collide with `seg`.
+	// Append into an optionally-supplied `results` array and return.
+	function computeSlotSegCollisions(seg, otherSegs, results) {
+		results = results || [];
+	
+		for (var i=0; i<otherSegs.length; i++) {
+			if (isSlotSegCollision(seg, otherSegs[i])) {
+				results.push(otherSegs[i]);
+			}
+		}
+	
+		return results;
+	}
+	
+	
+	// Do these segments occupy the same vertical space?
+	function isSlotSegCollision(seg1, seg2) {
+		return seg1.bottom > seg2.top && seg1.top < seg2.bottom;
+	}
+	
+	;;
+	
+	/* An abstract class from which other views inherit from
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	var View = FC.View = Class.extend({
+	
+		type: null, // subclass' view name (string)
+		name: null, // deprecated. use `type` instead
+		title: null, // the text that will be displayed in the header's title
+	
+		calendar: null, // owner Calendar object
+		options: null, // hash containing all options. already merged with view-specific-options
+		el: null, // the view's containing element. set by Calendar
+	
+		displaying: null, // a promise representing the state of rendering. null if no render requested
+		isSkeletonRendered: false,
+		isEventsRendered: false,
+	
+		// range the view is actually displaying (moments)
+		start: null,
+		end: null, // exclusive
+	
+		// range the view is formally responsible for (moments)
+		// may be different from start/end. for example, a month view might have 1st-31st, excluding padded dates
+		intervalStart: null,
+		intervalEnd: null, // exclusive
+		intervalDuration: null,
+		intervalUnit: null, // name of largest unit being displayed, like "month" or "week"
+	
+		isRTL: false,
+		isSelected: false, // boolean whether a range of time is user-selected or not
+	
+		eventOrderSpecs: null, // criteria for ordering events when they have same date/time
+	
+		// subclasses can optionally use a scroll container
+		scrollerEl: null, // the element that will most likely scroll when content is too tall
+		scrollTop: null, // cached vertical scroll value
+	
+		// classNames styled by jqui themes
+		widgetHeaderClass: null,
+		widgetContentClass: null,
+		highlightStateClass: null,
+	
+		// for date utils, computed from options
+		nextDayThreshold: null,
+		isHiddenDayHash: null,
+	
+		// document handlers, bound to `this` object
+		documentMousedownProxy: null, // TODO: doesn't work with touch
+	
+		// now indicator
+		isNowIndicatorRendered: null,
+		initialNowDate: null, // result first getNow call
+		initialNowQueriedMs: null, // ms time the getNow was called
+		nowIndicatorTimeoutID: null, // for refresh timing of now indicator
+		nowIndicatorIntervalID: null, // "
+	
+	
+		constructor: function(calendar, type, options, intervalDuration) {
+	
+			this.calendar = calendar;
+			this.type = this.name = type; // .name is deprecated
+			this.options = options;
+			this.intervalDuration = intervalDuration || moment.duration(1, 'day');
+	
+			this.nextDayThreshold = moment.duration(this.opt('nextDayThreshold'));
+			this.initThemingProps();
+			this.initHiddenDays();
+			this.isRTL = this.opt('isRTL');
+	
+			this.eventOrderSpecs = parseFieldSpecs(this.opt('eventOrder'));
+	
+			this.documentMousedownProxy = proxy(this, 'documentMousedown');
+	
+			this.initialize();
+		},
+	
+	
+		// A good place for subclasses to initialize member variables
+		initialize: function() {
+			// subclasses can implement
+		},
+	
+	
+		// Retrieves an option with the given name
+		opt: function(name) {
+			return this.options[name];
+		},
+	
+	
+		// Triggers handlers that are view-related. Modifies args before passing to calendar.
+		trigger: function(name, thisObj) { // arguments beyond thisObj are passed along
+			var calendar = this.calendar;
+	
+			return calendar.trigger.apply(
+				calendar,
+				[name, thisObj || this].concat(
+					Array.prototype.slice.call(arguments, 2), // arguments beyond thisObj
+					[ this ] // always make the last argument a reference to the view. TODO: deprecate
+				)
+			);
+		},
+	
+	
+		/* Dates
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Updates all internal dates to center around the given current unzoned date.
+		setDate: function(date) {
+			this.setRange(this.computeRange(date));
+		},
+	
+	
+		// Updates all internal dates for displaying the given unzoned range.
+		setRange: function(range) {
+			$.extend(this, range); // assigns every property to this object's member variables
+			this.updateTitle();
+		},
+	
+	
+		// Given a single current unzoned date, produce information about what range to display.
+		// Subclasses can override. Must return all properties.
+		computeRange: function(date) {
+			var intervalUnit = computeIntervalUnit(this.intervalDuration);
+			var intervalStart = date.clone().startOf(intervalUnit);
+			var intervalEnd = intervalStart.clone().add(this.intervalDuration);
+			var start, end;
+	
+			// normalize the range's time-ambiguity
+			if (/year|month|week|day/.test(intervalUnit)) { // whole-days?
+				intervalStart.stripTime();
+				intervalEnd.stripTime();
+			}
+			else { // needs to have a time?
+				if (!intervalStart.hasTime()) {
+					intervalStart = this.calendar.time(0); // give 00:00 time
+				}
+				if (!intervalEnd.hasTime()) {
+					intervalEnd = this.calendar.time(0); // give 00:00 time
+				}
+			}
+	
+			start = intervalStart.clone();
+			start = this.skipHiddenDays(start);
+			end = intervalEnd.clone();
+			end = this.skipHiddenDays(end, -1, true); // exclusively move backwards
+	
+			return {
+				intervalUnit: intervalUnit,
+				intervalStart: intervalStart,
+				intervalEnd: intervalEnd,
+				start: start,
+				end: end
+			};
+		},
+	
+	
+		// Computes the new date when the user hits the prev button, given the current date
+		computePrevDate: function(date) {
+			return this.massageCurrentDate(
+				date.clone().startOf(this.intervalUnit).subtract(this.intervalDuration), -1
+			);
+		},
+	
+	
+		// Computes the new date when the user hits the next button, given the current date
+		computeNextDate: function(date) {
+			return this.massageCurrentDate(
+				date.clone().startOf(this.intervalUnit).add(this.intervalDuration)
+			);
+		},
+	
+	
+		// Given an arbitrarily calculated current date of the calendar, returns a date that is ensured to be completely
+		// visible. `direction` is optional and indicates which direction the current date was being
+		// incremented or decremented (1 or -1).
+		massageCurrentDate: function(date, direction) {
+			if (this.intervalDuration.as('days') <= 1) { // if the view displays a single day or smaller
+				if (this.isHiddenDay(date)) {
+					date = this.skipHiddenDays(date, direction);
+					date.startOf('day');
+				}
+			}
+	
+			return date;
+		},
+	
+	
+		/* Title and Date Formatting
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Sets the view's title property to the most updated computed value
+		updateTitle: function() {
+			this.title = this.computeTitle();
+		},
+	
+	
+		// Computes what the title at the top of the calendar should be for this view
+		computeTitle: function() {
+			return this.formatRange(
+				{
+					// in case intervalStart/End has a time, make sure timezone is correct
+					start: this.calendar.applyTimezone(this.intervalStart),
+					end: this.calendar.applyTimezone(this.intervalEnd)
+				},
+				this.opt('titleFormat') || this.computeTitleFormat(),
+				this.opt('titleRangeSeparator')
+			);
+		},
+	
+	
+		// Generates the format string that should be used to generate the title for the current date range.
+		// Attempts to compute the most appropriate format if not explicitly specified with `titleFormat`.
+		computeTitleFormat: function() {
+			if (this.intervalUnit == 'year') {
+				return 'YYYY';
+			}
+			else if (this.intervalUnit == 'month') {
+				return this.opt('monthYearFormat'); // like "September 2014"
+			}
+			else if (this.intervalDuration.as('days') > 1) {
+				return 'll'; // multi-day range. shorter, like "Sep 9 - 10 2014"
+			}
+			else {
+				return 'LL'; // one day. longer, like "September 9 2014"
+			}
+		},
+	
+	
+		// Utility for formatting a range. Accepts a range object, formatting string, and optional separator.
+		// Displays all-day ranges naturally, with an inclusive end. Takes the current isRTL into account.
+		// The timezones of the dates within `range` will be respected.
+		formatRange: function(range, formatStr, separator) {
+			var end = range.end;
+	
+			if (!end.hasTime()) { // all-day?
+				end = end.clone().subtract(1); // convert to inclusive. last ms of previous day
+			}
+	
+			return formatRange(range.start, end, formatStr, separator, this.opt('isRTL'));
+		},
+	
+	
+		/* Rendering
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Sets the container element that the view should render inside of.
+		// Does other DOM-related initializations.
+		setElement: function(el) {
+			this.el = el;
+			this.bindGlobalHandlers();
+		},
+	
+	
+		// Removes the view's container element from the DOM, clearing any content beforehand.
+		// Undoes any other DOM-related attachments.
+		removeElement: function() {
+			this.clear(); // clears all content
+	
+			// clean up the skeleton
+			if (this.isSkeletonRendered) {
+				this.unrenderSkeleton();
+				this.isSkeletonRendered = false;
+			}
+	
+			this.unbindGlobalHandlers();
+	
+			this.el.remove();
+	
+			// NOTE: don't null-out this.el in case the View was destroyed within an API callback.
+			// We don't null-out the View's other jQuery element references upon destroy,
+			//  so we shouldn't kill this.el either.
+		},
+	
+	
+		// Does everything necessary to display the view centered around the given unzoned date.
+		// Does every type of rendering EXCEPT rendering events.
+		// Is asychronous and returns a promise.
+		display: function(date) {
+			var _this = this;
+			var scrollState = null;
+	
+			if (this.displaying) {
+				scrollState = this.queryScroll();
+			}
+	
+			this.calendar.freezeContentHeight();
+	
+			return this.clear().then(function() { // clear the content first (async)
+				return (
+					_this.displaying =
+						$.when(_this.displayView(date)) // displayView might return a promise
+							.then(function() {
+								_this.forceScroll(_this.computeInitialScroll(scrollState));
+								_this.calendar.unfreezeContentHeight();
+								_this.triggerRender();
+							})
+				);
+			});
+		},
+	
+	
+		// Does everything necessary to clear the content of the view.
+		// Clears dates and events. Does not clear the skeleton.
+		// Is asychronous and returns a promise.
+		clear: function() {
+			var _this = this;
+			var displaying = this.displaying;
+	
+			if (displaying) { // previously displayed, or in the process of being displayed?
+				return displaying.then(function() { // wait for the display to finish
+					_this.displaying = null;
+					_this.clearEvents();
+					return _this.clearView(); // might return a promise. chain it
+				});
+			}
+			else {
+				return $.when(); // an immediately-resolved promise
+			}
+		},
+	
+	
+		// Displays the view's non-event content, such as date-related content or anything required by events.
+		// Renders the view's non-content skeleton if necessary.
+		// Can be asynchronous and return a promise.
+		displayView: function(date) {
+			if (!this.isSkeletonRendered) {
+				this.renderSkeleton();
+				this.isSkeletonRendered = true;
+			}
+			if (date) {
+				this.setDate(date);
+			}
+			if (this.render) {
+				this.render(); // TODO: deprecate
+			}
+			this.renderDates();
+			this.updateSize();
+			this.renderBusinessHours(); // might need coordinates, so should go after updateSize()
+			this.startNowIndicator();
+		},
+	
+	
+		// Unrenders the view content that was rendered in displayView.
+		// Can be asynchronous and return a promise.
+		clearView: function() {
+			this.unselect();
+			this.stopNowIndicator();
+			this.triggerUnrender();
+			this.unrenderBusinessHours();
+			this.unrenderDates();
+			if (this.destroy) {
+				this.destroy(); // TODO: deprecate
+			}
+		},
+	
+	
+		// Renders the basic structure of the view before any content is rendered
+		renderSkeleton: function() {
+			// subclasses should implement
+		},
+	
+	
+		// Unrenders the basic structure of the view
+		unrenderSkeleton: function() {
+			// subclasses should implement
+		},
+	
+	
+		// Renders the view's date-related content.
+		// Assumes setRange has already been called and the skeleton has already been rendered.
+		renderDates: function() {
+			// subclasses should implement
+		},
+	
+	
+		// Unrenders the view's date-related content
+		unrenderDates: function() {
+			// subclasses should override
+		},
+	
+	
+		// Signals that the view's content has been rendered
+		triggerRender: function() {
+			this.trigger('viewRender', this, this, this.el);
+		},
+	
+	
+		// Signals that the view's content is about to be unrendered
+		triggerUnrender: function() {
+			this.trigger('viewDestroy', this, this, this.el);
+		},
+	
+	
+		// Binds DOM handlers to elements that reside outside the view container, such as the document
+		bindGlobalHandlers: function() {
+			$(document).on('mousedown', this.documentMousedownProxy);
+		},
+	
+	
+		// Unbinds DOM handlers from elements that reside outside the view container
+		unbindGlobalHandlers: function() {
+			$(document).off('mousedown', this.documentMousedownProxy);
+		},
+	
+	
+		// Initializes internal variables related to theming
+		initThemingProps: function() {
+			var tm = this.opt('theme') ? 'ui' : 'fc';
+	
+			this.widgetHeaderClass = tm + '-widget-header';
+			this.widgetContentClass = tm + '-widget-content';
+			this.highlightStateClass = tm + '-state-highlight';
+		},
+	
+	
+		/* Business Hours
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders business-hours onto the view. Assumes updateSize has already been called.
+		renderBusinessHours: function() {
+			// subclasses should implement
+		},
+	
+	
+		// Unrenders previously-rendered business-hours
+		unrenderBusinessHours: function() {
+			// subclasses should implement
+		},
+	
+	
+		/* Now Indicator
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Immediately render the current time indicator and begins re-rendering it at an interval,
+		// which is defined by this.getNowIndicatorUnit().
+		// TODO: somehow do this for the current whole day's background too
+		startNowIndicator: function() {
+			var _this = this;
+			var unit;
+			var update;
+			var delay; // ms wait value
+	
+			if (this.opt('nowIndicator')) {
+				unit = this.getNowIndicatorUnit();
+				if (unit) {
+					update = proxy(this, 'updateNowIndicator'); // bind to `this`
+	
+					this.initialNowDate = this.calendar.getNow();
+					this.initialNowQueriedMs = +new Date();
+					this.renderNowIndicator(this.initialNowDate);
+					this.isNowIndicatorRendered = true;
+	
+					// wait until the beginning of the next interval
+					delay = this.initialNowDate.clone().startOf(unit).add(1, unit) - this.initialNowDate;
+					this.nowIndicatorTimeoutID = setTimeout(function() {
+						_this.nowIndicatorTimeoutID = null;
+						update();
+						delay = +moment.duration(1, unit);
+						delay = Math.max(100, delay); // prevent too frequent
+						_this.nowIndicatorIntervalID = setInterval(update, delay); // update every interval
+					}, delay);
+				}
+			}
+		},
+	
+	
+		// rerenders the now indicator, computing the new current time from the amount of time that has passed
+		// since the initial getNow call.
+		updateNowIndicator: function() {
+			if (this.isNowIndicatorRendered) {
+				this.unrenderNowIndicator();
+				this.renderNowIndicator(
+					this.initialNowDate.clone().add(new Date() - this.initialNowQueriedMs) // add ms
+				);
+			}
+		},
+	
+	
+		// Immediately unrenders the view's current time indicator and stops any re-rendering timers.
+		// Won't cause side effects if indicator isn't rendered.
+		stopNowIndicator: function() {
+			if (this.isNowIndicatorRendered) {
+	
+				if (this.nowIndicatorTimeoutID) {
+					clearTimeout(this.nowIndicatorTimeoutID);
+					this.nowIndicatorTimeoutID = null;
+				}
+				if (this.nowIndicatorIntervalID) {
+					clearTimeout(this.nowIndicatorIntervalID);
+					this.nowIndicatorIntervalID = null;
+				}
+	
+				this.unrenderNowIndicator();
+				this.isNowIndicatorRendered = false;
+			}
+		},
+	
+	
+		// Returns a string unit, like 'second' or 'minute' that defined how often the current time indicator
+		// should be refreshed. If something falsy is returned, no time indicator is rendered at all.
+		getNowIndicatorUnit: function() {
+			// subclasses should implement
+		},
+	
+	
+		// Renders a current time indicator at the given datetime
+		renderNowIndicator: function(date) {
+			// subclasses should implement
+		},
+	
+	
+		// Undoes the rendering actions from renderNowIndicator
+		unrenderNowIndicator: function() {
+			// subclasses should implement
+		},
+	
+	
+		/* Dimensions
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Refreshes anything dependant upon sizing of the container element of the grid
+		updateSize: function(isResize) {
+			var scrollState;
+	
+			if (isResize) {
+				scrollState = this.queryScroll();
+			}
+	
+			this.updateHeight(isResize);
+			this.updateWidth(isResize);
+			this.updateNowIndicator();
+	
+			if (isResize) {
+				this.setScroll(scrollState);
+			}
+		},
+	
+	
+		// Refreshes the horizontal dimensions of the calendar
+		updateWidth: function(isResize) {
+			// subclasses should implement
+		},
+	
+	
+		// Refreshes the vertical dimensions of the calendar
+		updateHeight: function(isResize) {
+			var calendar = this.calendar; // we poll the calendar for height information
+	
+			this.setHeight(
+				calendar.getSuggestedViewHeight(),
+				calendar.isHeightAuto()
+			);
+		},
+	
+	
+		// Updates the vertical dimensions of the calendar to the specified height.
+		// if `isAuto` is set to true, height becomes merely a suggestion and the view should use its "natural" height.
+		setHeight: function(height, isAuto) {
+			// subclasses should implement
+		},
+	
+	
+		/* Scroller
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Given the total height of the view, return the number of pixels that should be used for the scroller.
+		// Utility for subclasses.
+		computeScrollerHeight: function(totalHeight) {
+			var scrollerEl = this.scrollerEl;
+			var both;
+			var otherHeight; // cumulative height of everything that is not the scrollerEl in the view (header+borders)
+	
+			both = this.el.add(scrollerEl);
+	
+			// fuckin IE8/9/10/11 sometimes returns 0 for dimensions. this weird hack was the only thing that worked
+			both.css({
+				position: 'relative', // cause a reflow, which will force fresh dimension recalculation
+				left: -1 // ensure reflow in case the el was already relative. negative is less likely to cause new scroll
+			});
+			otherHeight = this.el.outerHeight() - scrollerEl.height(); // grab the dimensions
+			both.css({ position: '', left: '' }); // undo hack
+	
+			return totalHeight - otherHeight;
+		},
+	
+	
+		// Computes the initial pre-configured scroll state prior to allowing the user to change it.
+		// Given the scroll state from the previous rendering. If first time rendering, given null.
+		computeInitialScroll: function(previousScrollState) {
+			return 0;
+		},
+	
+	
+		// Retrieves the view's current natural scroll state. Can return an arbitrary format.
+		queryScroll: function() {
+			if (this.scrollerEl) {
+				return this.scrollerEl.scrollTop(); // operates on scrollerEl by default
+			}
+		},
+	
+	
+		// Sets the view's scroll state. Will accept the same format computeInitialScroll and queryScroll produce.
+		setScroll: function(scrollState) {
+			if (this.scrollerEl) {
+				return this.scrollerEl.scrollTop(scrollState); // operates on scrollerEl by default
+			}
+		},
+	
+	
+		// Sets the scroll state, making sure to overcome any predefined scroll value the browser has in mind
+		forceScroll: function(scrollState) {
+			var _this = this;
+	
+			this.setScroll(scrollState);
+			setTimeout(function() {
+				_this.setScroll(scrollState);
+			}, 0);
+		},
+	
+	
+		/* Event Elements / Segments
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Does everything necessary to display the given events onto the current view
+		displayEvents: function(events) {
+			var scrollState = this.queryScroll();
+	
+			this.clearEvents();
+			this.renderEvents(events);
+			this.isEventsRendered = true;
+			this.setScroll(scrollState);
+			this.triggerEventRender();
+		},
+	
+	
+		// Does everything necessary to clear the view's currently-rendered events
+		clearEvents: function() {
+			var scrollState;
+	
+			if (this.isEventsRendered) {
+	
+				// TODO: optimize: if we know this is part of a displayEvents call, don't queryScroll/setScroll
+				scrollState = this.queryScroll();
+	
+				this.triggerEventUnrender();
+				if (this.destroyEvents) {
+					this.destroyEvents(); // TODO: deprecate
+				}
+				this.unrenderEvents();
+				this.setScroll(scrollState);
+				this.isEventsRendered = false;
+			}
+		},
+	
+	
+		// Renders the events onto the view.
+		renderEvents: function(events) {
+			// subclasses should implement
+		},
+	
+	
+		// Removes event elements from the view.
+		unrenderEvents: function() {
+			// subclasses should implement
+		},
+	
+	
+		// Signals that all events have been rendered
+		triggerEventRender: function() {
+			this.renderedEventSegEach(function(seg) {
+				this.trigger('eventAfterRender', seg.event, seg.event, seg.el);
+			});
+			this.trigger('eventAfterAllRender');
+		},
+	
+	
+		// Signals that all event elements are about to be removed
+		triggerEventUnrender: function() {
+			this.renderedEventSegEach(function(seg) {
+				this.trigger('eventDestroy', seg.event, seg.event, seg.el);
+			});
+		},
+	
+	
+		// Given an event and the default element used for rendering, returns the element that should actually be used.
+		// Basically runs events and elements through the eventRender hook.
+		resolveEventEl: function(event, el) {
+			var custom = this.trigger('eventRender', event, event, el);
+	
+			if (custom === false) { // means don't render at all
+				el = null;
+			}
+			else if (custom && custom !== true) {
+				el = $(custom);
+			}
+	
+			return el;
+		},
+	
+	
+		// Hides all rendered event segments linked to the given event
+		showEvent: function(event) {
+			this.renderedEventSegEach(function(seg) {
+				seg.el.css('visibility', '');
+			}, event);
+		},
+	
+	
+		// Shows all rendered event segments linked to the given event
+		hideEvent: function(event) {
+			this.renderedEventSegEach(function(seg) {
+				seg.el.css('visibility', 'hidden');
+			}, event);
+		},
+	
+	
+		// Iterates through event segments that have been rendered (have an el). Goes through all by default.
+		// If the optional `event` argument is specified, only iterates through segments linked to that event.
+		// The `this` value of the callback function will be the view.
+		renderedEventSegEach: function(func, event) {
+			var segs = this.getEventSegs();
+			var i;
+	
+			for (i = 0; i < segs.length; i++) {
+				if (!event || segs[i].event._id === event._id) {
+					if (segs[i].el) {
+						func.call(this, segs[i]);
+					}
+				}
+			}
+		},
+	
+	
+		// Retrieves all the rendered segment objects for the view
+		getEventSegs: function() {
+			// subclasses must implement
+			return [];
+		},
+	
+	
+		/* Event Drag-n-Drop
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Computes if the given event is allowed to be dragged by the user
+		isEventDraggable: function(event) {
+			var source = event.source || {};
+	
+			return firstDefined(
+				event.startEditable,
+				source.startEditable,
+				this.opt('eventStartEditable'),
+				event.editable,
+				source.editable,
+				this.opt('editable')
+			);
+		},
+	
+	
+		// Must be called when an event in the view is dropped onto new location.
+		// `dropLocation` is an object that contains the new zoned start/end/allDay values for the event.
+		reportEventDrop: function(event, dropLocation, largeUnit, el, ev) {
+			var calendar = this.calendar;
+			var mutateResult = calendar.mutateEvent(event, dropLocation, largeUnit);
+			var undoFunc = function() {
+				mutateResult.undo();
+				calendar.reportEventChange();
+			};
+	
+			this.triggerEventDrop(event, mutateResult.dateDelta, undoFunc, el, ev);
+			calendar.reportEventChange(); // will rerender events
+		},
+	
+	
+		// Triggers event-drop handlers that have subscribed via the API
+		triggerEventDrop: function(event, dateDelta, undoFunc, el, ev) {
+			this.trigger('eventDrop', el[0], event, dateDelta, undoFunc, ev, {}); // {} = jqui dummy
+		},
+	
+	
+		/* External Element Drag-n-Drop
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Must be called when an external element, via jQuery UI, has been dropped onto the calendar.
+		// `meta` is the parsed data that has been embedded into the dragging event.
+		// `dropLocation` is an object that contains the new zoned start/end/allDay values for the event.
+		reportExternalDrop: function(meta, dropLocation, el, ev, ui) {
+			var eventProps = meta.eventProps;
+			var eventInput;
+			var event;
+	
+			// Try to build an event object and render it. TODO: decouple the two
+			if (eventProps) {
+				eventInput = $.extend({}, eventProps, dropLocation);
+				event = this.calendar.renderEvent(eventInput, meta.stick)[0]; // renderEvent returns an array
+			}
+	
+			this.triggerExternalDrop(event, dropLocation, el, ev, ui);
+		},
+	
+	
+		// Triggers external-drop handlers that have subscribed via the API
+		triggerExternalDrop: function(event, dropLocation, el, ev, ui) {
+	
+			// trigger 'drop' regardless of whether element represents an event
+			this.trigger('drop', el[0], dropLocation.start, ev, ui);
+	
+			if (event) {
+				this.trigger('eventReceive', null, event); // signal an external event landed
+			}
+		},
+	
+	
+		/* Drag-n-Drop Rendering (for both events and external elements)
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders a visual indication of a event or external-element drag over the given drop zone.
+		// If an external-element, seg will be `null`
+		renderDrag: function(dropLocation, seg) {
+			// subclasses must implement
+		},
+	
+	
+		// Unrenders a visual indication of an event or external-element being dragged.
+		unrenderDrag: function() {
+			// subclasses must implement
+		},
+	
+	
+		/* Event Resizing
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Computes if the given event is allowed to be resized from its starting edge
+		isEventResizableFromStart: function(event) {
+			return this.opt('eventResizableFromStart') && this.isEventResizable(event);
+		},
+	
+	
+		// Computes if the given event is allowed to be resized from its ending edge
+		isEventResizableFromEnd: function(event) {
+			return this.isEventResizable(event);
+		},
+	
+	
+		// Computes if the given event is allowed to be resized by the user at all
+		isEventResizable: function(event) {
+			var source = event.source || {};
+	
+			return firstDefined(
+				event.durationEditable,
+				source.durationEditable,
+				this.opt('eventDurationEditable'),
+				event.editable,
+				source.editable,
+				this.opt('editable')
+			);
+		},
+	
+	
+		// Must be called when an event in the view has been resized to a new length
+		reportEventResize: function(event, resizeLocation, largeUnit, el, ev) {
+			var calendar = this.calendar;
+			var mutateResult = calendar.mutateEvent(event, resizeLocation, largeUnit);
+			var undoFunc = function() {
+				mutateResult.undo();
+				calendar.reportEventChange();
+			};
+	
+			this.triggerEventResize(event, mutateResult.durationDelta, undoFunc, el, ev);
+			calendar.reportEventChange(); // will rerender events
+		},
+	
+	
+		// Triggers event-resize handlers that have subscribed via the API
+		triggerEventResize: function(event, durationDelta, undoFunc, el, ev) {
+			this.trigger('eventResize', el[0], event, durationDelta, undoFunc, ev, {}); // {} = jqui dummy
+		},
+	
+	
+		/* Selection
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Selects a date span on the view. `start` and `end` are both Moments.
+		// `ev` is the native mouse event that begin the interaction.
+		select: function(span, ev) {
+			this.unselect(ev);
+			this.renderSelection(span);
+			this.reportSelection(span, ev);
+		},
+	
+	
+		// Renders a visual indication of the selection
+		renderSelection: function(span) {
+			// subclasses should implement
+		},
+	
+	
+		// Called when a new selection is made. Updates internal state and triggers handlers.
+		reportSelection: function(span, ev) {
+			this.isSelected = true;
+			this.triggerSelect(span, ev);
+		},
+	
+	
+		// Triggers handlers to 'select'
+		triggerSelect: function(span, ev) {
+			this.trigger(
+				'select',
+				null,
+				this.calendar.applyTimezone(span.start), // convert to calendar's tz for external API
+				this.calendar.applyTimezone(span.end), // "
+				ev
+			);
+		},
+	
+	
+		// Undoes a selection. updates in the internal state and triggers handlers.
+		// `ev` is the native mouse event that began the interaction.
+		unselect: function(ev) {
+			if (this.isSelected) {
+				this.isSelected = false;
+				if (this.destroySelection) {
+					this.destroySelection(); // TODO: deprecate
+				}
+				this.unrenderSelection();
+				this.trigger('unselect', null, ev);
+			}
+		},
+	
+	
+		// Unrenders a visual indication of selection
+		unrenderSelection: function() {
+			// subclasses should implement
+		},
+	
+	
+		// Handler for unselecting when the user clicks something and the 'unselectAuto' setting is on
+		documentMousedown: function(ev) {
+			var ignore;
+	
+			// is there a selection, and has the user made a proper left click?
+			if (this.isSelected && this.opt('unselectAuto') && isPrimaryMouseButton(ev)) {
+	
+				// only unselect if the clicked element is not identical to or inside of an 'unselectCancel' element
+				ignore = this.opt('unselectCancel');
+				if (!ignore || !$(ev.target).closest(ignore).length) {
+					this.unselect(ev);
+				}
+			}
+		},
+	
+	
+		/* Day Click
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Triggers handlers to 'dayClick'
+		// Span has start/end of the clicked area. Only the start is useful.
+		triggerDayClick: function(span, dayEl, ev) {
+			this.trigger(
+				'dayClick',
+				dayEl,
+				this.calendar.applyTimezone(span.start), // convert to calendar's timezone for external API
+				ev
+			);
+		},
+	
+	
+		/* Date Utils
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Initializes internal variables related to calculating hidden days-of-week
+		initHiddenDays: function() {
+			var hiddenDays = this.opt('hiddenDays') || []; // array of day-of-week indices that are hidden
+			var isHiddenDayHash = []; // is the day-of-week hidden? (hash with day-of-week-index -> bool)
+			var dayCnt = 0;
+			var i;
+	
+			if (this.opt('weekends') === false) {
+				hiddenDays.push(0, 6); // 0=sunday, 6=saturday
+			}
+	
+			for (i = 0; i < 7; i++) {
+				if (
+					!(isHiddenDayHash[i] = $.inArray(i, hiddenDays) !== -1)
+				) {
+					dayCnt++;
+				}
+			}
+	
+			if (!dayCnt) {
+				throw 'invalid hiddenDays'; // all days were hidden? bad.
+			}
+	
+			this.isHiddenDayHash = isHiddenDayHash;
+		},
+	
+	
+		// Is the current day hidden?
+		// `day` is a day-of-week index (0-6), or a Moment
+		isHiddenDay: function(day) {
+			if (moment.isMoment(day)) {
+				day = day.day();
+			}
+			return this.isHiddenDayHash[day];
+		},
+	
+	
+		// Incrementing the current day until it is no longer a hidden day, returning a copy.
+		// If the initial value of `date` is not a hidden day, don't do anything.
+		// Pass `isExclusive` as `true` if you are dealing with an end date.
+		// `inc` defaults to `1` (increment one day forward each time)
+		skipHiddenDays: function(date, inc, isExclusive) {
+			var out = date.clone();
+			inc = inc || 1;
+			while (
+				this.isHiddenDayHash[(out.day() + (isExclusive ? inc : 0) + 7) % 7]
+			) {
+				out.add(inc, 'days');
+			}
+			return out;
+		},
+	
+	
+		// Returns the date range of the full days the given range visually appears to occupy.
+		// Returns a new range object.
+		computeDayRange: function(range) {
+			var startDay = range.start.clone().stripTime(); // the beginning of the day the range starts
+			var end = range.end;
+			var endDay = null;
+			var endTimeMS;
+	
+			if (end) {
+				endDay = end.clone().stripTime(); // the beginning of the day the range exclusively ends
+				endTimeMS = +end.time(); // # of milliseconds into `endDay`
+	
+				// If the end time is actually inclusively part of the next day and is equal to or
+				// beyond the next day threshold, adjust the end to be the exclusive end of `endDay`.
+				// Otherwise, leaving it as inclusive will cause it to exclude `endDay`.
+				if (endTimeMS && endTimeMS >= this.nextDayThreshold) {
+					endDay.add(1, 'days');
+				}
+			}
+	
+			// If no end was specified, or if it is within `startDay` but not past nextDayThreshold,
+			// assign the default duration of one day.
+			if (!end || endDay <= startDay) {
+				endDay = startDay.clone().add(1, 'days');
+			}
+	
+			return { start: startDay, end: endDay };
+		},
+	
+	
+		// Does the given event visually appear to occupy more than one day?
+		isMultiDayEvent: function(event) {
+			var range = this.computeDayRange(event); // event is range-ish
+	
+			return range.end.diff(range.start, 'days') > 1;
+		}
+	
+	});
+	
+	;;
+	
+	var Calendar = FC.Calendar = Class.extend({
+	
+		dirDefaults: null, // option defaults related to LTR or RTL
+		langDefaults: null, // option defaults related to current locale
+		overrides: null, // option overrides given to the fullCalendar constructor
+		options: null, // all defaults combined with overrides
+		viewSpecCache: null, // cache of view definitions
+		view: null, // current View object
+		header: null,
+		loadingLevel: 0, // number of simultaneous loading tasks
+	
+	
+		// a lot of this class' OOP logic is scoped within this constructor function,
+		// but in the future, write individual methods on the prototype.
+		constructor: Calendar_constructor,
+	
+	
+		// Subclasses can override this for initialization logic after the constructor has been called
+		initialize: function() {
+		},
+	
+	
+		// Initializes `this.options` and other important options-related objects
+		initOptions: function(overrides) {
+			var lang, langDefaults;
+			var isRTL, dirDefaults;
+	
+			// converts legacy options into non-legacy ones.
+			// in the future, when this is removed, don't use `overrides` reference. make a copy.
+			overrides = massageOverrides(overrides);
+	
+			lang = overrides.lang;
+			langDefaults = langOptionHash[lang];
+			if (!langDefaults) {
+				lang = Calendar.defaults.lang;
+				langDefaults = langOptionHash[lang] || {};
+			}
+	
+			isRTL = firstDefined(
+				overrides.isRTL,
+				langDefaults.isRTL,
+				Calendar.defaults.isRTL
+			);
+			dirDefaults = isRTL ? Calendar.rtlDefaults : {};
+	
+			this.dirDefaults = dirDefaults;
+			this.langDefaults = langDefaults;
+			this.overrides = overrides;
+			this.options = mergeOptions([ // merge defaults and overrides. lowest to highest precedence
+				Calendar.defaults, // global defaults
+				dirDefaults,
+				langDefaults,
+				overrides
+			]);
+			populateInstanceComputableOptions(this.options);
+	
+			this.viewSpecCache = {}; // somewhat unrelated
+		},
+	
+	
+		// Gets information about how to create a view. Will use a cache.
+		getViewSpec: function(viewType) {
+			var cache = this.viewSpecCache;
+	
+			return cache[viewType] || (cache[viewType] = this.buildViewSpec(viewType));
+		},
+	
+	
+		// Given a duration singular unit, like "week" or "day", finds a matching view spec.
+		// Preference is given to views that have corresponding buttons.
+		getUnitViewSpec: function(unit) {
+			var viewTypes;
+			var i;
+			var spec;
+	
+			if ($.inArray(unit, intervalUnits) != -1) {
+	
+				// put views that have buttons first. there will be duplicates, but oh well
+				viewTypes = this.header.getViewsWithButtons();
+				$.each(FC.views, function(viewType) { // all views
+					viewTypes.push(viewType);
+				});
+	
+				for (i = 0; i < viewTypes.length; i++) {
+					spec = this.getViewSpec(viewTypes[i]);
+					if (spec) {
+						if (spec.singleUnit == unit) {
+							return spec;
+						}
+					}
+				}
+			}
+		},
+	
+	
+		// Builds an object with information on how to create a given view
+		buildViewSpec: function(requestedViewType) {
+			var viewOverrides = this.overrides.views || {};
+			var specChain = []; // for the view. lowest to highest priority
+			var defaultsChain = []; // for the view. lowest to highest priority
+			var overridesChain = []; // for the view. lowest to highest priority
+			var viewType = requestedViewType;
+			var spec; // for the view
+			var overrides; // for the view
+			var duration;
+			var unit;
+	
+			// iterate from the specific view definition to a more general one until we hit an actual View class
+			while (viewType) {
+				spec = fcViews[viewType];
+				overrides = viewOverrides[viewType];
+				viewType = null; // clear. might repopulate for another iteration
+	
+				if (typeof spec === 'function') { // TODO: deprecate
+					spec = { 'class': spec };
+				}
+	
+				if (spec) {
+					specChain.unshift(spec);
+					defaultsChain.unshift(spec.defaults || {});
+					duration = duration || spec.duration;
+					viewType = viewType || spec.type;
+				}
+	
+				if (overrides) {
+					overridesChain.unshift(overrides); // view-specific option hashes have options at zero-level
+					duration = duration || overrides.duration;
+					viewType = viewType || overrides.type;
+				}
+			}
+	
+			spec = mergeProps(specChain);
+			spec.type = requestedViewType;
+			if (!spec['class']) {
+				return false;
+			}
+	
+			if (duration) {
+				duration = moment.duration(duration);
+				if (duration.valueOf()) { // valid?
+					spec.duration = duration;
+					unit = computeIntervalUnit(duration);
+	
+					// view is a single-unit duration, like "week" or "day"
+					// incorporate options for this. lowest priority
+					if (duration.as(unit) === 1) {
+						spec.singleUnit = unit;
+						overridesChain.unshift(viewOverrides[unit] || {});
+					}
+				}
+			}
+	
+			spec.defaults = mergeOptions(defaultsChain);
+			spec.overrides = mergeOptions(overridesChain);
+	
+			this.buildViewSpecOptions(spec);
+			this.buildViewSpecButtonText(spec, requestedViewType);
+	
+			return spec;
+		},
+	
+	
+		// Builds and assigns a view spec's options object from its already-assigned defaults and overrides
+		buildViewSpecOptions: function(spec) {
+			spec.options = mergeOptions([ // lowest to highest priority
+				Calendar.defaults, // global defaults
+				spec.defaults, // view's defaults (from ViewSubclass.defaults)
+				this.dirDefaults,
+				this.langDefaults, // locale and dir take precedence over view's defaults!
+				this.overrides, // calendar's overrides (options given to constructor)
+				spec.overrides // view's overrides (view-specific options)
+			]);
+			populateInstanceComputableOptions(spec.options);
+		},
+	
+	
+		// Computes and assigns a view spec's buttonText-related options
+		buildViewSpecButtonText: function(spec, requestedViewType) {
+	
+			// given an options object with a possible `buttonText` hash, lookup the buttonText for the
+			// requested view, falling back to a generic unit entry like "week" or "day"
+			function queryButtonText(options) {
+				var buttonText = options.buttonText || {};
+				return buttonText[requestedViewType] ||
+					(spec.singleUnit ? buttonText[spec.singleUnit] : null);
+			}
+	
+			// highest to lowest priority
+			spec.buttonTextOverride =
+				queryButtonText(this.overrides) || // constructor-specified buttonText lookup hash takes precedence
+				spec.overrides.buttonText; // `buttonText` for view-specific options is a string
+	
+			// highest to lowest priority. mirrors buildViewSpecOptions
+			spec.buttonTextDefault =
+				queryButtonText(this.langDefaults) ||
+				queryButtonText(this.dirDefaults) ||
+				spec.defaults.buttonText || // a single string. from ViewSubclass.defaults
+				queryButtonText(Calendar.defaults) ||
+				(spec.duration ? this.humanizeDuration(spec.duration) : null) || // like "3 days"
+				requestedViewType; // fall back to given view name
+		},
+	
+	
+		// Given a view name for a custom view or a standard view, creates a ready-to-go View object
+		instantiateView: function(viewType) {
+			var spec = this.getViewSpec(viewType);
+	
+			return new spec['class'](this, viewType, spec.options, spec.duration);
+		},
+	
+	
+		// Returns a boolean about whether the view is okay to instantiate at some point
+		isValidViewType: function(viewType) {
+			return Boolean(this.getViewSpec(viewType));
+		},
+	
+	
+		// Should be called when any type of async data fetching begins
+		pushLoading: function() {
+			if (!(this.loadingLevel++)) {
+				this.trigger('loading', null, true, this.view);
+			}
+		},
+	
+	
+		// Should be called when any type of async data fetching completes
+		popLoading: function() {
+			if (!(--this.loadingLevel)) {
+				this.trigger('loading', null, false, this.view);
+			}
+		},
+	
+	
+		// Given arguments to the select method in the API, returns a span (unzoned start/end and other info)
+		buildSelectSpan: function(zonedStartInput, zonedEndInput) {
+			var start = this.moment(zonedStartInput).stripZone();
+			var end;
+	
+			if (zonedEndInput) {
+				end = this.moment(zonedEndInput).stripZone();
+			}
+			else if (start.hasTime()) {
+				end = start.clone().add(this.defaultTimedEventDuration);
+			}
+			else {
+				end = start.clone().add(this.defaultAllDayEventDuration);
+			}
+	
+			return { start: start, end: end };
+		}
+	
+	});
+	
+	
+	Calendar.mixin(Emitter);
+	
+	
+	function Calendar_constructor(element, overrides) {
+		var t = this;
+	
+	
+		t.initOptions(overrides || {});
+		var options = this.options;
+	
+		
+		// Exports
+		// -----------------------------------------------------------------------------------
+	
+		t.render = render;
+		t.destroy = destroy;
+		t.refetchEvents = refetchEvents;
+		t.reportEvents = reportEvents;
+		t.reportEventChange = reportEventChange;
+		t.rerenderEvents = renderEvents; // `renderEvents` serves as a rerender. an API method
+		t.changeView = renderView; // `renderView` will switch to another view
+		t.select = select;
+		t.unselect = unselect;
+		t.prev = prev;
+		t.next = next;
+		t.prevYear = prevYear;
+		t.nextYear = nextYear;
+		t.today = today;
+		t.gotoDate = gotoDate;
+		t.incrementDate = incrementDate;
+		t.zoomTo = zoomTo;
+		t.getDate = getDate;
+		t.getCalendar = getCalendar;
+		t.getView = getView;
+		t.option = option;
+		t.trigger = trigger;
+	
+	
+	
+		// Language-data Internals
+		// -----------------------------------------------------------------------------------
+		// Apply overrides to the current language's data
+	
+	
+		var localeData = createObject( // make a cheap copy
+			getMomentLocaleData(options.lang) // will fall back to en
+		);
+	
+		if (options.monthNames) {
+			localeData._months = options.monthNames;
+		}
+		if (options.monthNamesShort) {
+			localeData._monthsShort = options.monthNamesShort;
+		}
+		if (options.dayNames) {
+			localeData._weekdays = options.dayNames;
+		}
+		if (options.dayNamesShort) {
+			localeData._weekdaysShort = options.dayNamesShort;
+		}
+		if (options.firstDay != null) {
+			var _week = createObject(localeData._week); // _week: { dow: # }
+			_week.dow = options.firstDay;
+			localeData._week = _week;
+		}
+	
+		// assign a normalized value, to be used by our .week() moment extension
+		localeData._fullCalendar_weekCalc = (function(weekCalc) {
+			if (typeof weekCalc === 'function') {
+				return weekCalc;
+			}
+			else if (weekCalc === 'local') {
+				return weekCalc;
+			}
+			else if (weekCalc === 'iso' || weekCalc === 'ISO') {
+				return 'ISO';
+			}
+		})(options.weekNumberCalculation);
+	
+	
+	
+		// Calendar-specific Date Utilities
+		// -----------------------------------------------------------------------------------
+	
+	
+		t.defaultAllDayEventDuration = moment.duration(options.defaultAllDayEventDuration);
+		t.defaultTimedEventDuration = moment.duration(options.defaultTimedEventDuration);
+	
+	
+		// Builds a moment using the settings of the current calendar: timezone and language.
+		// Accepts anything the vanilla moment() constructor accepts.
+		t.moment = function() {
+			var mom;
+	
+			if (options.timezone === 'local') {
+				mom = FC.moment.apply(null, arguments);
+	
+				// Force the moment to be local, because FC.moment doesn't guarantee it.
+				if (mom.hasTime()) { // don't give ambiguously-timed moments a local zone
+					mom.local();
+				}
+			}
+			else if (options.timezone === 'UTC') {
+				mom = FC.moment.utc.apply(null, arguments); // process as UTC
+			}
+			else {
+				mom = FC.moment.parseZone.apply(null, arguments); // let the input decide the zone
+			}
+	
+			if ('_locale' in mom) { // moment 2.8 and above
+				mom._locale = localeData;
+			}
+			else { // pre-moment-2.8
+				mom._lang = localeData;
+			}
+	
+			return mom;
+		};
+	
+	
+		// Returns a boolean about whether or not the calendar knows how to calculate
+		// the timezone offset of arbitrary dates in the current timezone.
+		t.getIsAmbigTimezone = function() {
+			return options.timezone !== 'local' && options.timezone !== 'UTC';
+		};
+	
+	
+		// Returns a copy of the given date in the current timezone. Has no effect on dates without times.
+		t.applyTimezone = function(date) {
+			if (!date.hasTime()) {
+				return date.clone();
+			}
+	
+			var zonedDate = t.moment(date.toArray());
+			var timeAdjust = date.time() - zonedDate.time();
+			var adjustedZonedDate;
+	
+			// Safari sometimes has problems with this coersion when near DST. Adjust if necessary. (bug #2396)
+			if (timeAdjust) { // is the time result different than expected?
+				adjustedZonedDate = zonedDate.clone().add(timeAdjust); // add milliseconds
+				if (date.time() - adjustedZonedDate.time() === 0) { // does it match perfectly now?
+					zonedDate = adjustedZonedDate;
+				}
+			}
+	
+			return zonedDate;
+		};
+	
+	
+		// Returns a moment for the current date, as defined by the client's computer or from the `now` option.
+		// Will return an moment with an ambiguous timezone.
+		t.getNow = function() {
+			var now = options.now;
+			if (typeof now === 'function') {
+				now = now();
+			}
+			return t.moment(now).stripZone();
+		};
+	
+	
+		// Get an event's normalized end date. If not present, calculate it from the defaults.
+		t.getEventEnd = function(event) {
+			if (event.end) {
+				return event.end.clone();
+			}
+			else {
+				return t.getDefaultEventEnd(event.allDay, event.start);
+			}
+		};
+	
+	
+		// Given an event's allDay status and start date, return what its fallback end date should be.
+		// TODO: rename to computeDefaultEventEnd
+		t.getDefaultEventEnd = function(allDay, zonedStart) {
+			var end = zonedStart.clone();
+	
+			if (allDay) {
+				end.stripTime().add(t.defaultAllDayEventDuration);
+			}
+			else {
+				end.add(t.defaultTimedEventDuration);
+			}
+	
+			if (t.getIsAmbigTimezone()) {
+				end.stripZone(); // we don't know what the tzo should be
+			}
+	
+			return end;
+		};
+	
+	
+		// Produces a human-readable string for the given duration.
+		// Side-effect: changes the locale of the given duration.
+		t.humanizeDuration = function(duration) {
+			return (duration.locale || duration.lang).call(duration, options.lang) // works moment-pre-2.8
+				.humanize();
+		};
+	
+	
+		
+		// Imports
+		// -----------------------------------------------------------------------------------
+	
+	
+		EventManager.call(t, options);
+		var isFetchNeeded = t.isFetchNeeded;
+		var fetchEvents = t.fetchEvents;
+	
+	
+	
+		// Locals
+		// -----------------------------------------------------------------------------------
+	
+	
+		var _element = element[0];
+		var header;
+		var headerElement;
+		var content;
+		var tm; // for making theme classes
+		var currentView; // NOTE: keep this in sync with this.view
+		var viewsByType = {}; // holds all instantiated view instances, current or not
+		var suggestedViewHeight;
+		var windowResizeProxy; // wraps the windowResize function
+		var ignoreWindowResize = 0;
+		var events = [];
+		var date; // unzoned
+		
+		
+		
+		// Main Rendering
+		// -----------------------------------------------------------------------------------
+	
+	
+		// compute the initial ambig-timezone date
+		if (options.defaultDate != null) {
+			date = t.moment(options.defaultDate).stripZone();
+		}
+		else {
+			date = t.getNow(); // getNow already returns unzoned
+		}
+		
+		
+		function render() {
+			if (!content) {
+				initialRender();
+			}
+			else if (elementVisible()) {
+				// mainly for the public API
+				calcSize();
+				renderView();
+			}
+		}
+		
+		
+		function initialRender() {
+			tm = options.theme ? 'ui' : 'fc';
+			element.addClass('fc');
+	
+			if (options.isRTL) {
+				element.addClass('fc-rtl');
+			}
+			else {
+				element.addClass('fc-ltr');
+			}
+	
+			if (options.theme) {
+				element.addClass('ui-widget');
+			}
+			else {
+				element.addClass('fc-unthemed');
+			}
+	
+			content = $("<div class='fc-view-container'/>").prependTo(element);
+	
+			header = t.header = new Header(t, options);
+			headerElement = header.render();
+			if (headerElement) {
+				element.prepend(headerElement);
+			}
+	
+			renderView(options.defaultView);
+	
+			if (options.handleWindowResize) {
+				windowResizeProxy = debounce(windowResize, options.windowResizeDelay); // prevents rapid calls
+				$(window).resize(windowResizeProxy);
+			}
+		}
+		
+		
+		function destroy() {
+	
+			if (currentView) {
+				currentView.removeElement();
+	
+				// NOTE: don't null-out currentView/t.view in case API methods are called after destroy.
+				// It is still the "current" view, just not rendered.
+			}
+	
+			header.removeElement();
+			content.remove();
+			element.removeClass('fc fc-ltr fc-rtl fc-unthemed ui-widget');
+	
+			if (windowResizeProxy) {
+				$(window).unbind('resize', windowResizeProxy);
+			}
+		}
+		
+		
+		function elementVisible() {
+			return element.is(':visible');
+		}
+		
+		
+	
+		// View Rendering
+		// -----------------------------------------------------------------------------------
+	
+	
+		// Renders a view because of a date change, view-type change, or for the first time.
+		// If not given a viewType, keep the current view but render different dates.
+		function renderView(viewType) {
+			ignoreWindowResize++;
+	
+			// if viewType is changing, remove the old view's rendering
+			if (currentView && viewType && currentView.type !== viewType) {
+				header.deactivateButton(currentView.type);
+				freezeContentHeight(); // prevent a scroll jump when view element is removed
+				currentView.removeElement();
+				currentView = t.view = null;
+			}
+	
+			// if viewType changed, or the view was never created, create a fresh view
+			if (!currentView && viewType) {
+				currentView = t.view =
+					viewsByType[viewType] ||
+					(viewsByType[viewType] = t.instantiateView(viewType));
+	
+				currentView.setElement(
+					$("<div class='fc-view fc-" + viewType + "-view' />").appendTo(content)
+				);
+				header.activateButton(viewType);
+			}
+	
+			if (currentView) {
+	
+				// in case the view should render a period of time that is completely hidden
+				date = currentView.massageCurrentDate(date);
+	
+				// render or rerender the view
+				if (
+					!currentView.displaying ||
+					!date.isWithin(currentView.intervalStart, currentView.intervalEnd) // implicit date window change
+				) {
+					if (elementVisible()) {
+	
+						currentView.display(date); // will call freezeContentHeight
+						unfreezeContentHeight(); // immediately unfreeze regardless of whether display is async
+	
+						// need to do this after View::render, so dates are calculated
+						updateHeaderTitle();
+						updateTodayButton();
+	
+						getAndRenderEvents();
+					}
+				}
+			}
+	
+			unfreezeContentHeight(); // undo any lone freezeContentHeight calls
+			ignoreWindowResize--;
+		}
+	
+		
+	
+		// Resizing
+		// -----------------------------------------------------------------------------------
+	
+	
+		t.getSuggestedViewHeight = function() {
+			if (suggestedViewHeight === undefined) {
+				calcSize();
+			}
+			return suggestedViewHeight;
+		};
+	
+	
+		t.isHeightAuto = function() {
+			return options.contentHeight === 'auto' || options.height === 'auto';
+		};
+		
+		
+		function updateSize(shouldRecalc) {
+			if (elementVisible()) {
+	
+				if (shouldRecalc) {
+					_calcSize();
+				}
+	
+				ignoreWindowResize++;
+				currentView.updateSize(true); // isResize=true. will poll getSuggestedViewHeight() and isHeightAuto()
+				ignoreWindowResize--;
+	
+				return true; // signal success
+			}
+		}
+	
+	
+		function calcSize() {
+			if (elementVisible()) {
+				_calcSize();
+			}
+		}
+		
+		
+		function _calcSize() { // assumes elementVisible
+			if (typeof options.contentHeight === 'number') { // exists and not 'auto'
+				suggestedViewHeight = options.contentHeight;
+			}
+			else if (typeof options.height === 'number') { // exists and not 'auto'
+				suggestedViewHeight = options.height - (headerElement ? headerElement.outerHeight(true) : 0);
+			}
+			else {
+				suggestedViewHeight = Math.round(content.width() / Math.max(options.aspectRatio, .5));
+			}
+		}
+		
+		
+		function windowResize(ev) {
+			if (
+				!ignoreWindowResize &&
+				ev.target === window && // so we don't process jqui "resize" events that have bubbled up
+				currentView.start // view has already been rendered
+			) {
+				if (updateSize(true)) {
+					currentView.trigger('windowResize', _element);
+				}
+			}
+		}
+		
+		
+		
+		/* Event Fetching/Rendering
+		-----------------------------------------------------------------------------*/
+		// TODO: going forward, most of this stuff should be directly handled by the view
+	
+	
+		function refetchEvents() { // can be called as an API method
+			destroyEvents(); // so that events are cleared before user starts waiting for AJAX
+			fetchAndRenderEvents();
+		}
+	
+	
+		function renderEvents() { // destroys old events if previously rendered
+			if (elementVisible()) {
+				freezeContentHeight();
+				currentView.displayEvents(events);
+				unfreezeContentHeight();
+			}
+		}
+	
+	
+		function destroyEvents() {
+			freezeContentHeight();
+			currentView.clearEvents();
+			unfreezeContentHeight();
+		}
+		
+	
+		function getAndRenderEvents() {
+			if (!options.lazyFetching || isFetchNeeded(currentView.start, currentView.end)) {
+				fetchAndRenderEvents();
+			}
+			else {
+				renderEvents();
+			}
+		}
+	
+	
+		function fetchAndRenderEvents() {
+			fetchEvents(currentView.start, currentView.end);
+				// ... will call reportEvents
+				// ... which will call renderEvents
+		}
+	
+		
+		// called when event data arrives
+		function reportEvents(_events) {
+			events = _events;
+			renderEvents();
+		}
+	
+	
+		// called when a single event's data has been changed
+		function reportEventChange() {
+			renderEvents();
+		}
+	
+	
+	
+		/* Header Updating
+		-----------------------------------------------------------------------------*/
+	
+	
+		function updateHeaderTitle() {
+			header.updateTitle(currentView.title);
+		}
+	
+	
+		function updateTodayButton() {
+			var now = t.getNow();
+			if (now.isWithin(currentView.intervalStart, currentView.intervalEnd)) {
+				header.disableButton('today');
+			}
+			else {
+				header.enableButton('today');
+			}
+		}
+		
+	
+	
+		/* Selection
+		-----------------------------------------------------------------------------*/
+		
+	
+		// this public method receives start/end dates in any format, with any timezone
+		function select(zonedStartInput, zonedEndInput) {
+			currentView.select(
+				t.buildSelectSpan.apply(t, arguments)
+			);
+		}
+		
+	
+		function unselect() { // safe to be called before renderView
+			if (currentView) {
+				currentView.unselect();
+			}
+		}
+		
+		
+		
+		/* Date
+		-----------------------------------------------------------------------------*/
+		
+		
+		function prev() {
+			date = currentView.computePrevDate(date);
+			renderView();
+		}
+		
+		
+		function next() {
+			date = currentView.computeNextDate(date);
+			renderView();
+		}
+		
+		
+		function prevYear() {
+			date.add(-1, 'years');
+			renderView();
+		}
+		
+		
+		function nextYear() {
+			date.add(1, 'years');
+			renderView();
+		}
+		
+		
+		function today() {
+			date = t.getNow();
+			renderView();
+		}
+		
+		
+		function gotoDate(zonedDateInput) {
+			date = t.moment(zonedDateInput).stripZone();
+			renderView();
+		}
+		
+		
+		function incrementDate(delta) {
+			date.add(moment.duration(delta));
+			renderView();
+		}
+	
+	
+		// Forces navigation to a view for the given date.
+		// `viewType` can be a specific view name or a generic one like "week" or "day".
+		function zoomTo(newDate, viewType) {
+			var spec;
+	
+			viewType = viewType || 'day'; // day is default zoom
+			spec = t.getViewSpec(viewType) || t.getUnitViewSpec(viewType);
+	
+			date = newDate.clone();
+			renderView(spec ? spec.type : null);
+		}
+		
+		
+		// for external API
+		function getDate() {
+			return t.applyTimezone(date); // infuse the calendar's timezone
+		}
+	
+	
+	
+		/* Height "Freezing"
+		-----------------------------------------------------------------------------*/
+		// TODO: move this into the view
+	
+		t.freezeContentHeight = freezeContentHeight;
+		t.unfreezeContentHeight = unfreezeContentHeight;
+	
+	
+		function freezeContentHeight() {
+			content.css({
+				width: '100%',
+				height: content.height(),
+				overflow: 'hidden'
+			});
+		}
+	
+	
+		function unfreezeContentHeight() {
+			content.css({
+				width: '',
+				height: '',
+				overflow: ''
+			});
+		}
+		
+		
+		
+		/* Misc
+		-----------------------------------------------------------------------------*/
+		
+	
+		function getCalendar() {
+			return t;
+		}
+	
+		
+		function getView() {
+			return currentView;
+		}
+		
+		
+		function option(name, value) {
+			if (value === undefined) {
+				return options[name];
+			}
+			if (name == 'height' || name == 'contentHeight' || name == 'aspectRatio') {
+				options[name] = value;
+				updateSize(true); // true = allow recalculation of height
+			}
+		}
+		
+		
+		function trigger(name, thisObj) { // overrides the Emitter's trigger method :(
+			var args = Array.prototype.slice.call(arguments, 2);
+	
+			thisObj = thisObj || _element;
+			this.triggerWith(name, thisObj, args); // Emitter's method
+	
+			if (options[name]) {
+				return options[name].apply(thisObj, args);
+			}
+		}
+	
+		t.initialize();
+	}
+	
+	;;
+	
+	Calendar.defaults = {
+	
+		titleRangeSeparator: ' \u2014 ', // emphasized dash
+		monthYearFormat: 'MMMM YYYY', // required for en. other languages rely on datepicker computable option
+	
+		defaultTimedEventDuration: '02:00:00',
+		defaultAllDayEventDuration: { days: 1 },
+		forceEventDuration: false,
+		nextDayThreshold: '09:00:00', // 9am
+	
+		// display
+		defaultView: 'month',
+		aspectRatio: 1.35,
+		header: {
+			left: 'title',
+			center: '',
+			right: 'today prev,next'
+		},
+		weekends: true,
+		weekNumbers: false,
+	
+		weekNumberTitle: 'W',
+		weekNumberCalculation: 'local',
+		
+		//editable: false,
+	
+		//nowIndicator: false,
+	
+		scrollTime: '06:00:00',
+		
+		// event ajax
+		lazyFetching: true,
+		startParam: 'start',
+		endParam: 'end',
+		timezoneParam: 'timezone',
+	
+		timezone: false,
+	
+		//allDayDefault: undefined,
+	
+		// locale
+		isRTL: false,
+		buttonText: {
+			prev: "prev",
+			next: "next",
+			prevYear: "prev year",
+			nextYear: "next year",
+			year: 'year', // TODO: locale files need to specify this
+			today: 'today',
+			month: 'month',
+			week: 'week',
+			day: 'day'
+		},
+	
+		buttonIcons: {
+			prev: 'left-single-arrow',
+			next: 'right-single-arrow',
+			prevYear: 'left-double-arrow',
+			nextYear: 'right-double-arrow'
+		},
+		
+		// jquery-ui theming
+		theme: false,
+		themeButtonIcons: {
+			prev: 'circle-triangle-w',
+			next: 'circle-triangle-e',
+			prevYear: 'seek-prev',
+			nextYear: 'seek-next'
+		},
+	
+		//eventResizableFromStart: false,
+		dragOpacity: .75,
+		dragRevertDuration: 500,
+		dragScroll: true,
+		
+		//selectable: false,
+		unselectAuto: true,
+		
+		dropAccept: '*',
+	
+		eventOrder: 'title',
+	
+		eventLimit: false,
+		eventLimitText: 'more',
+		eventLimitClick: 'popover',
+		dayPopoverFormat: 'LL',
+		
+		handleWindowResize: true,
+		windowResizeDelay: 200 // milliseconds before an updateSize happens
+		
+	};
+	
+	
+	Calendar.englishDefaults = { // used by lang.js
+		dayPopoverFormat: 'dddd, MMMM D'
+	};
+	
+	
+	Calendar.rtlDefaults = { // right-to-left defaults
+		header: { // TODO: smarter solution (first/center/last ?)
+			left: 'next,prev today',
+			center: '',
+			right: 'title'
+		},
+		buttonIcons: {
+			prev: 'right-single-arrow',
+			next: 'left-single-arrow',
+			prevYear: 'right-double-arrow',
+			nextYear: 'left-double-arrow'
+		},
+		themeButtonIcons: {
+			prev: 'circle-triangle-e',
+			next: 'circle-triangle-w',
+			nextYear: 'seek-prev',
+			prevYear: 'seek-next'
+		}
+	};
+	
+	;;
+	
+	var langOptionHash = FC.langs = {}; // initialize and expose
+	
+	
+	// TODO: document the structure and ordering of a FullCalendar lang file
+	// TODO: rename everything "lang" to "locale", like what the moment project did
+	
+	
+	// Initialize jQuery UI datepicker translations while using some of the translations
+	// Will set this as the default language for datepicker.
+	FC.datepickerLang = function(langCode, dpLangCode, dpOptions) {
+	
+		// get the FullCalendar internal option hash for this language. create if necessary
+		var fcOptions = langOptionHash[langCode] || (langOptionHash[langCode] = {});
+	
+		// transfer some simple options from datepicker to fc
+		fcOptions.isRTL = dpOptions.isRTL;
+		fcOptions.weekNumberTitle = dpOptions.weekHeader;
+	
+		// compute some more complex options from datepicker
+		$.each(dpComputableOptions, function(name, func) {
+			fcOptions[name] = func(dpOptions);
+		});
+	
+		// is jQuery UI Datepicker is on the page?
+		if ($.datepicker) {
+	
+			// Register the language data.
+			// FullCalendar and MomentJS use language codes like "pt-br" but Datepicker
+			// does it like "pt-BR" or if it doesn't have the language, maybe just "pt".
+			// Make an alias so the language can be referenced either way.
+			$.datepicker.regional[dpLangCode] =
+				$.datepicker.regional[langCode] = // alias
+					dpOptions;
+	
+			// Alias 'en' to the default language data. Do this every time.
+			$.datepicker.regional.en = $.datepicker.regional[''];
+	
+			// Set as Datepicker's global defaults.
+			$.datepicker.setDefaults(dpOptions);
+		}
+	};
+	
+	
+	// Sets FullCalendar-specific translations. Will set the language as the global default.
+	FC.lang = function(langCode, newFcOptions) {
+		var fcOptions;
+		var momOptions;
+	
+		// get the FullCalendar internal option hash for this language. create if necessary
+		fcOptions = langOptionHash[langCode] || (langOptionHash[langCode] = {});
+	
+		// provided new options for this language? merge them in
+		if (newFcOptions) {
+			fcOptions = langOptionHash[langCode] = mergeOptions([ fcOptions, newFcOptions ]);
+		}
+	
+		// compute language options that weren't defined.
+		// always do this. newFcOptions can be undefined when initializing from i18n file,
+		// so no way to tell if this is an initialization or a default-setting.
+		momOptions = getMomentLocaleData(langCode); // will fall back to en
+		$.each(momComputableOptions, function(name, func) {
+			if (fcOptions[name] == null) {
+				fcOptions[name] = func(momOptions, fcOptions);
+			}
+		});
+	
+		// set it as the default language for FullCalendar
+		Calendar.defaults.lang = langCode;
+	};
+	
+	
+	// NOTE: can't guarantee any of these computations will run because not every language has datepicker
+	// configs, so make sure there are English fallbacks for these in the defaults file.
+	var dpComputableOptions = {
+	
+		buttonText: function(dpOptions) {
+			return {
+				// the translations sometimes wrongly contain HTML entities
+				prev: stripHtmlEntities(dpOptions.prevText),
+				next: stripHtmlEntities(dpOptions.nextText),
+				today: stripHtmlEntities(dpOptions.currentText)
+			};
+		},
+	
+		// Produces format strings like "MMMM YYYY" -> "September 2014"
+		monthYearFormat: function(dpOptions) {
+			return dpOptions.showMonthAfterYear ?
+				'YYYY[' + dpOptions.yearSuffix + '] MMMM' :
+				'MMMM YYYY[' + dpOptions.yearSuffix + ']';
+		}
+	
+	};
+	
+	var momComputableOptions = {
+	
+		// Produces format strings like "ddd M/D" -> "Fri 9/15"
+		dayOfMonthFormat: function(momOptions, fcOptions) {
+			var format = momOptions.longDateFormat('l'); // for the format like "M/D/YYYY"
+	
+			// strip the year off the edge, as well as other misc non-whitespace chars
+			format = format.replace(/^Y+[^\w\s]*|[^\w\s]*Y+$/g, '');
+	
+			if (fcOptions.isRTL) {
+				format += ' ddd'; // for RTL, add day-of-week to end
+			}
+			else {
+				format = 'ddd ' + format; // for LTR, add day-of-week to beginning
+			}
+			return format;
+		},
+	
+		// Produces format strings like "h:mma" -> "6:00pm"
+		mediumTimeFormat: function(momOptions) { // can't be called `timeFormat` because collides with option
+			return momOptions.longDateFormat('LT')
+				.replace(/\s*a$/i, 'a'); // convert AM/PM/am/pm to lowercase. remove any spaces beforehand
+		},
+	
+		// Produces format strings like "h(:mm)a" -> "6pm" / "6:30pm"
+		smallTimeFormat: function(momOptions) {
+			return momOptions.longDateFormat('LT')
+				.replace(':mm', '(:mm)')
+				.replace(/(\Wmm)$/, '($1)') // like above, but for foreign langs
+				.replace(/\s*a$/i, 'a'); // convert AM/PM/am/pm to lowercase. remove any spaces beforehand
+		},
+	
+		// Produces format strings like "h(:mm)t" -> "6p" / "6:30p"
+		extraSmallTimeFormat: function(momOptions) {
+			return momOptions.longDateFormat('LT')
+				.replace(':mm', '(:mm)')
+				.replace(/(\Wmm)$/, '($1)') // like above, but for foreign langs
+				.replace(/\s*a$/i, 't'); // convert to AM/PM/am/pm to lowercase one-letter. remove any spaces beforehand
+		},
+	
+		// Produces format strings like "ha" / "H" -> "6pm" / "18"
+		hourFormat: function(momOptions) {
+			return momOptions.longDateFormat('LT')
+				.replace(':mm', '')
+				.replace(/(\Wmm)$/, '') // like above, but for foreign langs
+				.replace(/\s*a$/i, 'a'); // convert AM/PM/am/pm to lowercase. remove any spaces beforehand
+		},
+	
+		// Produces format strings like "h:mm" -> "6:30" (with no AM/PM)
+		noMeridiemTimeFormat: function(momOptions) {
+			return momOptions.longDateFormat('LT')
+				.replace(/\s*a$/i, ''); // remove trailing AM/PM
+		}
+	
+	};
+	
+	
+	// options that should be computed off live calendar options (considers override options)
+	// TODO: best place for this? related to lang?
+	// TODO: flipping text based on isRTL is a bad idea because the CSS `direction` might want to handle it
+	var instanceComputableOptions = {
+	
+		// Produces format strings for results like "Mo 16"
+		smallDayDateFormat: function(options) {
+			return options.isRTL ?
+				'D dd' :
+				'dd D';
+		},
+	
+		// Produces format strings for results like "Wk 5"
+		weekFormat: function(options) {
+			return options.isRTL ?
+				'w[ ' + options.weekNumberTitle + ']' :
+				'[' + options.weekNumberTitle + ' ]w';
+		},
+	
+		// Produces format strings for results like "Wk5"
+		smallWeekFormat: function(options) {
+			return options.isRTL ?
+				'w[' + options.weekNumberTitle + ']' :
+				'[' + options.weekNumberTitle + ']w';
+		}
+	
+	};
+	
+	function populateInstanceComputableOptions(options) {
+		$.each(instanceComputableOptions, function(name, func) {
+			if (options[name] == null) {
+				options[name] = func(options);
+			}
+		});
+	}
+	
+	
+	// Returns moment's internal locale data. If doesn't exist, returns English.
+	// Works with moment-pre-2.8
+	function getMomentLocaleData(langCode) {
+		var func = moment.localeData || moment.langData;
+		return func.call(moment, langCode) ||
+			func.call(moment, 'en'); // the newer localData could return null, so fall back to en
+	}
+	
+	
+	// Initialize English by forcing computation of moment-derived options.
+	// Also, sets it as the default.
+	FC.lang('en', Calendar.englishDefaults);
+	
+	;;
+	
+	/* Top toolbar area with buttons and title
+	----------------------------------------------------------------------------------------------------------------------*/
+	// TODO: rename all header-related things to "toolbar"
+	
+	function Header(calendar, options) {
+		var t = this;
+		
+		// exports
+		t.render = render;
+		t.removeElement = removeElement;
+		t.updateTitle = updateTitle;
+		t.activateButton = activateButton;
+		t.deactivateButton = deactivateButton;
+		t.disableButton = disableButton;
+		t.enableButton = enableButton;
+		t.getViewsWithButtons = getViewsWithButtons;
+		
+		// locals
+		var el = $();
+		var viewsWithButtons = [];
+		var tm;
+	
+	
+		function render() {
+			var sections = options.header;
+	
+			tm = options.theme ? 'ui' : 'fc';
+	
+			if (sections) {
+				el = $("<div class='fc-toolbar'/>")
+					.append(renderSection('left'))
+					.append(renderSection('right'))
+					.append(renderSection('center'))
+					.append('<div class="fc-clear"/>');
+	
+				return el;
+			}
+		}
+		
+		
+		function removeElement() {
+			el.remove();
+			el = $();
+		}
+		
+		
+		function renderSection(position) {
+			var sectionEl = $('<div class="fc-' + position + '"/>');
+			var buttonStr = options.header[position];
+	
+			if (buttonStr) {
+				$.each(buttonStr.split(' '), function(i) {
+					var groupChildren = $();
+					var isOnlyButtons = true;
+					var groupEl;
+	
+					$.each(this.split(','), function(j, buttonName) {
+						var customButtonProps;
+						var viewSpec;
+						var buttonClick;
+						var overrideText; // text explicitly set by calendar's constructor options. overcomes icons
+						var defaultText;
+						var themeIcon;
+						var normalIcon;
+						var innerHtml;
+						var classes;
+						var button; // the element
+	
+						if (buttonName == 'title') {
+							groupChildren = groupChildren.add($('<h2>&nbsp;</h2>')); // we always want it to take up height
+							isOnlyButtons = false;
+						}
+						else {
+							if ((customButtonProps = (calendar.options.customButtons || {})[buttonName])) {
+								buttonClick = function(ev) {
+									if (customButtonProps.click) {
+										customButtonProps.click.call(button[0], ev);
+									}
+								};
+								overrideText = ''; // icons will override text
+								defaultText = customButtonProps.text;
+							}
+							else if ((viewSpec = calendar.getViewSpec(buttonName))) {
+								buttonClick = function() {
+									calendar.changeView(buttonName);
+								};
+								viewsWithButtons.push(buttonName);
+								overrideText = viewSpec.buttonTextOverride;
+								defaultText = viewSpec.buttonTextDefault;
+							}
+							else if (calendar[buttonName]) { // a calendar method
+								buttonClick = function() {
+									calendar[buttonName]();
+								};
+								overrideText = (calendar.overrides.buttonText || {})[buttonName];
+								defaultText = options.buttonText[buttonName]; // everything else is considered default
+							}
+	
+							if (buttonClick) {
+	
+								themeIcon =
+									customButtonProps ?
+										customButtonProps.themeIcon :
+										options.themeButtonIcons[buttonName];
+	
+								normalIcon =
+									customButtonProps ?
+										customButtonProps.icon :
+										options.buttonIcons[buttonName];
+	
+								if (overrideText) {
+									innerHtml = htmlEscape(overrideText);
+								}
+								else if (themeIcon && options.theme) {
+									innerHtml = "<span class='ui-icon ui-icon-" + themeIcon + "'></span>";
+								}
+								else if (normalIcon && !options.theme) {
+									innerHtml = "<span class='fc-icon fc-icon-" + normalIcon + "'></span>";
+								}
+								else {
+									innerHtml = htmlEscape(defaultText);
+								}
+	
+								classes = [
+									'fc-' + buttonName + '-button',
+									tm + '-button',
+									tm + '-state-default'
+								];
+	
+								button = $( // type="button" so that it doesn't submit a form
+									'<button type="button" class="' + classes.join(' ') + '">' +
+										innerHtml +
+									'</button>'
+									)
+									.click(function(ev) {
+										// don't process clicks for disabled buttons
+										if (!button.hasClass(tm + '-state-disabled')) {
+	
+											buttonClick(ev);
+	
+											// after the click action, if the button becomes the "active" tab, or disabled,
+											// it should never have a hover class, so remove it now.
+											if (
+												button.hasClass(tm + '-state-active') ||
+												button.hasClass(tm + '-state-disabled')
+											) {
+												button.removeClass(tm + '-state-hover');
+											}
+										}
+									})
+									.mousedown(function() {
+										// the *down* effect (mouse pressed in).
+										// only on buttons that are not the "active" tab, or disabled
+										button
+											.not('.' + tm + '-state-active')
+											.not('.' + tm + '-state-disabled')
+											.addClass(tm + '-state-down');
+									})
+									.mouseup(function() {
+										// undo the *down* effect
+										button.removeClass(tm + '-state-down');
+									})
+									.hover(
+										function() {
+											// the *hover* effect.
+											// only on buttons that are not the "active" tab, or disabled
+											button
+												.not('.' + tm + '-state-active')
+												.not('.' + tm + '-state-disabled')
+												.addClass(tm + '-state-hover');
+										},
+										function() {
+											// undo the *hover* effect
+											button
+												.removeClass(tm + '-state-hover')
+												.removeClass(tm + '-state-down'); // if mouseleave happens before mouseup
+										}
+									);
+	
+								groupChildren = groupChildren.add(button);
+							}
+						}
+					});
+	
+					if (isOnlyButtons) {
+						groupChildren
+							.first().addClass(tm + '-corner-left').end()
+							.last().addClass(tm + '-corner-right').end();
+					}
+	
+					if (groupChildren.length > 1) {
+						groupEl = $('<div/>');
+						if (isOnlyButtons) {
+							groupEl.addClass('fc-button-group');
+						}
+						groupEl.append(groupChildren);
+						sectionEl.append(groupEl);
+					}
+					else {
+						sectionEl.append(groupChildren); // 1 or 0 children
+					}
+				});
+			}
+	
+			return sectionEl;
+		}
+		
+		
+		function updateTitle(text) {
+			el.find('h2').text(text);
+		}
+		
+		
+		function activateButton(buttonName) {
+			el.find('.fc-' + buttonName + '-button')
+				.addClass(tm + '-state-active');
+		}
+		
+		
+		function deactivateButton(buttonName) {
+			el.find('.fc-' + buttonName + '-button')
+				.removeClass(tm + '-state-active');
+		}
+		
+		
+		function disableButton(buttonName) {
+			el.find('.fc-' + buttonName + '-button')
+				.attr('disabled', 'disabled')
+				.addClass(tm + '-state-disabled');
+		}
+		
+		
+		function enableButton(buttonName) {
+			el.find('.fc-' + buttonName + '-button')
+				.removeAttr('disabled')
+				.removeClass(tm + '-state-disabled');
+		}
+	
+	
+		function getViewsWithButtons() {
+			return viewsWithButtons;
+		}
+	
+	}
+	
+	;;
+	
+	FC.sourceNormalizers = [];
+	FC.sourceFetchers = [];
+	
+	var ajaxDefaults = {
+		dataType: 'json',
+		cache: false
+	};
+	
+	var eventGUID = 1;
+	
+	
+	function EventManager(options) { // assumed to be a calendar
+		var t = this;
+		
+		
+		// exports
+		t.isFetchNeeded = isFetchNeeded;
+		t.fetchEvents = fetchEvents;
+		t.addEventSource = addEventSource;
+		t.removeEventSource = removeEventSource;
+		t.updateEvent = updateEvent;
+		t.renderEvent = renderEvent;
+		t.removeEvents = removeEvents;
+		t.clientEvents = clientEvents;
+		t.mutateEvent = mutateEvent;
+		t.normalizeEventDates = normalizeEventDates;
+		t.normalizeEventTimes = normalizeEventTimes;
+		
+		
+		// imports
+		var reportEvents = t.reportEvents;
+		
+		
+		// locals
+		var stickySource = { events: [] };
+		var sources = [ stickySource ];
+		var rangeStart, rangeEnd;
+		var currentFetchID = 0;
+		var pendingSourceCnt = 0;
+		var cache = []; // holds events that have already been expanded
+	
+	
+		$.each(
+			(options.events ? [ options.events ] : []).concat(options.eventSources || []),
+			function(i, sourceInput) {
+				var source = buildEventSource(sourceInput);
+				if (source) {
+					sources.push(source);
+				}
+			}
+		);
+		
+		
+		
+		/* Fetching
+		-----------------------------------------------------------------------------*/
+	
+	
+		// start and end are assumed to be unzoned
+		function isFetchNeeded(start, end) {
+			return !rangeStart || // nothing has been fetched yet?
+				start < rangeStart || end > rangeEnd; // is part of the new range outside of the old range?
+		}
+		
+		
+		function fetchEvents(start, end) {
+			rangeStart = start;
+			rangeEnd = end;
+			cache = [];
+			var fetchID = ++currentFetchID;
+			var len = sources.length;
+			pendingSourceCnt = len;
+			for (var i=0; i<len; i++) {
+				fetchEventSource(sources[i], fetchID);
+			}
+		}
+		
+		
+		function fetchEventSource(source, fetchID) {
+			_fetchEventSource(source, function(eventInputs) {
+				var isArraySource = $.isArray(source.events);
+				var i, eventInput;
+				var abstractEvent;
+	
+				if (fetchID == currentFetchID) {
+	
+					if (eventInputs) {
+						for (i = 0; i < eventInputs.length; i++) {
+							eventInput = eventInputs[i];
+	
+							if (isArraySource) { // array sources have already been convert to Event Objects
+								abstractEvent = eventInput;
+							}
+							else {
+								abstractEvent = buildEventFromInput(eventInput, source);
+							}
+	
+							if (abstractEvent) { // not false (an invalid event)
+								cache.push.apply(
+									cache,
+									expandEvent(abstractEvent) // add individual expanded events to the cache
+								);
+							}
+						}
+					}
+	
+					pendingSourceCnt--;
+					if (!pendingSourceCnt) {
+						reportEvents(cache);
+					}
+				}
+			});
+		}
+		
+		
+		function _fetchEventSource(source, callback) {
+			var i;
+			var fetchers = FC.sourceFetchers;
+			var res;
+	
+			for (i=0; i<fetchers.length; i++) {
+				res = fetchers[i].call(
+					t, // this, the Calendar object
+					source,
+					rangeStart.clone(),
+					rangeEnd.clone(),
+					options.timezone,
+					callback
+				);
+	
+				if (res === true) {
+					// the fetcher is in charge. made its own async request
+					return;
+				}
+				else if (typeof res == 'object') {
+					// the fetcher returned a new source. process it
+					_fetchEventSource(res, callback);
+					return;
+				}
+			}
+	
+			var events = source.events;
+			if (events) {
+				if ($.isFunction(events)) {
+					t.pushLoading();
+					events.call(
+						t, // this, the Calendar object
+						rangeStart.clone(),
+						rangeEnd.clone(),
+						options.timezone,
+						function(events) {
+							callback(events);
+							t.popLoading();
+						}
+					);
+				}
+				else if ($.isArray(events)) {
+					callback(events);
+				}
+				else {
+					callback();
+				}
+			}else{
+				var url = source.url;
+				if (url) {
+					var success = source.success;
+					var error = source.error;
+					var complete = source.complete;
+	
+					// retrieve any outbound GET/POST $.ajax data from the options
+					var customData;
+					if ($.isFunction(source.data)) {
+						// supplied as a function that returns a key/value object
+						customData = source.data();
+					}
+					else {
+						// supplied as a straight key/value object
+						customData = source.data;
+					}
+	
+					// use a copy of the custom data so we can modify the parameters
+					// and not affect the passed-in object.
+					var data = $.extend({}, customData || {});
+	
+					var startParam = firstDefined(source.startParam, options.startParam);
+					var endParam = firstDefined(source.endParam, options.endParam);
+					var timezoneParam = firstDefined(source.timezoneParam, options.timezoneParam);
+	
+					if (startParam) {
+						data[startParam] = rangeStart.format();
+					}
+					if (endParam) {
+						data[endParam] = rangeEnd.format();
+					}
+					if (options.timezone && options.timezone != 'local') {
+						data[timezoneParam] = options.timezone;
+					}
+	
+					t.pushLoading();
+					$.ajax($.extend({}, ajaxDefaults, source, {
+						data: data,
+						success: function(events) {
+							events = events || [];
+							var res = applyAll(success, this, arguments);
+							if ($.isArray(res)) {
+								events = res;
+							}
+							callback(events);
+						},
+						error: function() {
+							applyAll(error, this, arguments);
+							callback();
+						},
+						complete: function() {
+							applyAll(complete, this, arguments);
+							t.popLoading();
+						}
+					}));
+				}else{
+					callback();
+				}
+			}
+		}
+		
+		
+		
+		/* Sources
+		-----------------------------------------------------------------------------*/
+		
+	
+		function addEventSource(sourceInput) {
+			var source = buildEventSource(sourceInput);
+			if (source) {
+				sources.push(source);
+				pendingSourceCnt++;
+				fetchEventSource(source, currentFetchID); // will eventually call reportEvents
+			}
+		}
+	
+	
+		function buildEventSource(sourceInput) { // will return undefined if invalid source
+			var normalizers = FC.sourceNormalizers;
+			var source;
+			var i;
+	
+			if ($.isFunction(sourceInput) || $.isArray(sourceInput)) {
+				source = { events: sourceInput };
+			}
+			else if (typeof sourceInput === 'string') {
+				source = { url: sourceInput };
+			}
+			else if (typeof sourceInput === 'object') {
+				source = $.extend({}, sourceInput); // shallow copy
+			}
+	
+			if (source) {
+	
+				// TODO: repeat code, same code for event classNames
+				if (source.className) {
+					if (typeof source.className === 'string') {
+						source.className = source.className.split(/\s+/);
+					}
+					// otherwise, assumed to be an array
+				}
+				else {
+					source.className = [];
+				}
+	
+				// for array sources, we convert to standard Event Objects up front
+				if ($.isArray(source.events)) {
+					source.origArray = source.events; // for removeEventSource
+					source.events = $.map(source.events, function(eventInput) {
+						return buildEventFromInput(eventInput, source);
+					});
+				}
+	
+				for (i=0; i<normalizers.length; i++) {
+					normalizers[i].call(t, source);
+				}
+	
+				return source;
+			}
+		}
+	
+	
+		function removeEventSource(source) {
+			sources = $.grep(sources, function(src) {
+				return !isSourcesEqual(src, source);
+			});
+			// remove all client events from that source
+			cache = $.grep(cache, function(e) {
+				return !isSourcesEqual(e.source, source);
+			});
+			reportEvents(cache);
+		}
+	
+	
+		function isSourcesEqual(source1, source2) {
+			return source1 && source2 && getSourcePrimitive(source1) == getSourcePrimitive(source2);
+		}
+	
+	
+		function getSourcePrimitive(source) {
+			return (
+				(typeof source === 'object') ? // a normalized event source?
+					(source.origArray || source.googleCalendarId || source.url || source.events) : // get the primitive
+					null
+			) ||
+			source; // the given argument *is* the primitive
+		}
+		
+		
+		
+		/* Manipulation
+		-----------------------------------------------------------------------------*/
+	
+	
+		// Only ever called from the externally-facing API
+		function updateEvent(event) {
+	
+			// massage start/end values, even if date string values
+			event.start = t.moment(event.start);
+			if (event.end) {
+				event.end = t.moment(event.end);
+			}
+			else {
+				event.end = null;
+			}
+	
+			mutateEvent(event, getMiscEventProps(event)); // will handle start/end/allDay normalization
+			reportEvents(cache); // reports event modifications (so we can redraw)
+		}
+	
+	
+		// Returns a hash of misc event properties that should be copied over to related events.
+		function getMiscEventProps(event) {
+			var props = {};
+	
+			$.each(event, function(name, val) {
+				if (isMiscEventPropName(name)) {
+					if (val !== undefined && isAtomic(val)) { // a defined non-object
+						props[name] = val;
+					}
+				}
+			});
+	
+			return props;
+		}
+	
+		// non-date-related, non-id-related, non-secret
+		function isMiscEventPropName(name) {
+			return !/^_|^(id|allDay|start|end)$/.test(name);
+		}
+	
+		
+		// returns the expanded events that were created
+		function renderEvent(eventInput, stick) {
+			var abstractEvent = buildEventFromInput(eventInput);
+			var events;
+			var i, event;
+	
+			if (abstractEvent) { // not false (a valid input)
+				events = expandEvent(abstractEvent);
+	
+				for (i = 0; i < events.length; i++) {
+					event = events[i];
+	
+					if (!event.source) {
+						if (stick) {
+							stickySource.events.push(event);
+							event.source = stickySource;
+						}
+						cache.push(event);
+					}
+				}
+	
+				reportEvents(cache);
+	
+				return events;
+			}
+	
+			return [];
+		}
+		
+		
+		function removeEvents(filter) {
+			var eventID;
+			var i;
+	
+			if (filter == null) { // null or undefined. remove all events
+				filter = function() { return true; }; // will always match
+			}
+			else if (!$.isFunction(filter)) { // an event ID
+				eventID = filter + '';
+				filter = function(event) {
+					return event._id == eventID;
+				};
+			}
+	
+			// Purge event(s) from our local cache
+			cache = $.grep(cache, filter, true); // inverse=true
+	
+			// Remove events from array sources.
+			// This works because they have been converted to official Event Objects up front.
+			// (and as a result, event._id has been calculated).
+			for (i=0; i<sources.length; i++) {
+				if ($.isArray(sources[i].events)) {
+					sources[i].events = $.grep(sources[i].events, filter, true);
+				}
+			}
+	
+			reportEvents(cache);
+		}
+		
+		
+		function clientEvents(filter) {
+			if ($.isFunction(filter)) {
+				return $.grep(cache, filter);
+			}
+			else if (filter != null) { // not null, not undefined. an event ID
+				filter += '';
+				return $.grep(cache, function(e) {
+					return e._id == filter;
+				});
+			}
+			return cache; // else, return all
+		}
+		
+		
+		
+		/* Event Normalization
+		-----------------------------------------------------------------------------*/
+	
+	
+		// Given a raw object with key/value properties, returns an "abstract" Event object.
+		// An "abstract" event is an event that, if recurring, will not have been expanded yet.
+		// Will return `false` when input is invalid.
+		// `source` is optional
+		function buildEventFromInput(input, source) {
+			var out = {};
+			var start, end;
+			var allDay;
+	
+			if (options.eventDataTransform) {
+				input = options.eventDataTransform(input);
+			}
+			if (source && source.eventDataTransform) {
+				input = source.eventDataTransform(input);
+			}
+	
+			// Copy all properties over to the resulting object.
+			// The special-case properties will be copied over afterwards.
+			$.extend(out, input);
+	
+			if (source) {
+				out.source = source;
+			}
+	
+			out._id = input._id || (input.id === undefined ? '_fc' + eventGUID++ : input.id + '');
+	
+			if (input.className) {
+				if (typeof input.className == 'string') {
+					out.className = input.className.split(/\s+/);
+				}
+				else { // assumed to be an array
+					out.className = input.className;
+				}
+			}
+			else {
+				out.className = [];
+			}
+	
+			start = input.start || input.date; // "date" is an alias for "start"
+			end = input.end;
+	
+			// parse as a time (Duration) if applicable
+			if (isTimeString(start)) {
+				start = moment.duration(start);
+			}
+			if (isTimeString(end)) {
+				end = moment.duration(end);
+			}
+	
+			if (input.dow || moment.isDuration(start) || moment.isDuration(end)) {
+	
+				// the event is "abstract" (recurring) so don't calculate exact start/end dates just yet
+				out.start = start ? moment.duration(start) : null; // will be a Duration or null
+				out.end = end ? moment.duration(end) : null; // will be a Duration or null
+				out._recurring = true; // our internal marker
+			}
+			else {
+	
+				if (start) {
+					start = t.moment(start);
+					if (!start.isValid()) {
+						return false;
+					}
+				}
+	
+				if (end) {
+					end = t.moment(end);
+					if (!end.isValid()) {
+						end = null; // let defaults take over
+					}
+				}
+	
+				allDay = input.allDay;
+				if (allDay === undefined) { // still undefined? fallback to default
+					allDay = firstDefined(
+						source ? source.allDayDefault : undefined,
+						options.allDayDefault
+					);
+					// still undefined? normalizeEventDates will calculate it
+				}
+	
+				assignDatesToEvent(start, end, allDay, out);
+			}
+	
+			return out;
+		}
+	
+	
+		// Normalizes and assigns the given dates to the given partially-formed event object.
+		// NOTE: mutates the given start/end moments. does not make a copy.
+		function assignDatesToEvent(start, end, allDay, event) {
+			event.start = start;
+			event.end = end;
+			event.allDay = allDay;
+			normalizeEventDates(event);
+			backupEventDates(event);
+		}
+	
+	
+		// Ensures proper values for allDay/start/end. Accepts an Event object, or a plain object with event-ish properties.
+		// NOTE: Will modify the given object.
+		function normalizeEventDates(eventProps) {
+	
+			normalizeEventTimes(eventProps);
+	
+			if (eventProps.end && !eventProps.end.isAfter(eventProps.start)) {
+				eventProps.end = null;
+			}
+	
+			if (!eventProps.end) {
+				if (options.forceEventDuration) {
+					eventProps.end = t.getDefaultEventEnd(eventProps.allDay, eventProps.start);
+				}
+				else {
+					eventProps.end = null;
+				}
+			}
+		}
+	
+	
+		// Ensures the allDay property exists and the timeliness of the start/end dates are consistent
+		function normalizeEventTimes(eventProps) {
+			if (eventProps.allDay == null) {
+				eventProps.allDay = !(eventProps.start.hasTime() || (eventProps.end && eventProps.end.hasTime()));
+			}
+	
+			if (eventProps.allDay) {
+				eventProps.start.stripTime();
+				if (eventProps.end) {
+					// TODO: consider nextDayThreshold here? If so, will require a lot of testing and adjustment
+					eventProps.end.stripTime();
+				}
+			}
+			else {
+				if (!eventProps.start.hasTime()) {
+					eventProps.start = t.applyTimezone(eventProps.start.time(0)); // will assign a 00:00 time
+				}
+				if (eventProps.end && !eventProps.end.hasTime()) {
+					eventProps.end = t.applyTimezone(eventProps.end.time(0)); // will assign a 00:00 time
+				}
+			}
+		}
+	
+	
+		// If the given event is a recurring event, break it down into an array of individual instances.
+		// If not a recurring event, return an array with the single original event.
+		// If given a falsy input (probably because of a failed buildEventFromInput call), returns an empty array.
+		// HACK: can override the recurring window by providing custom rangeStart/rangeEnd (for businessHours).
+		function expandEvent(abstractEvent, _rangeStart, _rangeEnd) {
+			var events = [];
+			var dowHash;
+			var dow;
+			var i;
+			var date;
+			var startTime, endTime;
+			var start, end;
+			var event;
+	
+			_rangeStart = _rangeStart || rangeStart;
+			_rangeEnd = _rangeEnd || rangeEnd;
+	
+			if (abstractEvent) {
+				if (abstractEvent._recurring) {
+	
+					// make a boolean hash as to whether the event occurs on each day-of-week
+					if ((dow = abstractEvent.dow)) {
+						dowHash = {};
+						for (i = 0; i < dow.length; i++) {
+							dowHash[dow[i]] = true;
+						}
+					}
+	
+					// iterate through every day in the current range
+					date = _rangeStart.clone().stripTime(); // holds the date of the current day
+					while (date.isBefore(_rangeEnd)) {
+	
+						if (!dowHash || dowHash[date.day()]) { // if everyday, or this particular day-of-week
+	
+							startTime = abstractEvent.start; // the stored start and end properties are times (Durations)
+							endTime = abstractEvent.end; // "
+							start = date.clone();
+							end = null;
+	
+							if (startTime) {
+								start = start.time(startTime);
+							}
+							if (endTime) {
+								end = date.clone().time(endTime);
+							}
+	
+							event = $.extend({}, abstractEvent); // make a copy of the original
+							assignDatesToEvent(
+								start, end,
+								!startTime && !endTime, // allDay?
+								event
+							);
+							events.push(event);
+						}
+	
+						date.add(1, 'days');
+					}
+				}
+				else {
+					events.push(abstractEvent); // return the original event. will be a one-item array
+				}
+			}
+	
+			return events;
+		}
+	
+	
+	
+		/* Event Modification Math
+		-----------------------------------------------------------------------------------------*/
+	
+	
+		// Modifies an event and all related events by applying the given properties.
+		// Special date-diffing logic is used for manipulation of dates.
+		// If `props` does not contain start/end dates, the updated values are assumed to be the event's current start/end.
+		// All date comparisons are done against the event's pristine _start and _end dates.
+		// Returns an object with delta information and a function to undo all operations.
+		// For making computations in a granularity greater than day/time, specify largeUnit.
+		// NOTE: The given `newProps` might be mutated for normalization purposes.
+		function mutateEvent(event, newProps, largeUnit) {
+			var miscProps = {};
+			var oldProps;
+			var clearEnd;
+			var startDelta;
+			var endDelta;
+			var durationDelta;
+			var undoFunc;
+	
+			// diffs the dates in the appropriate way, returning a duration
+			function diffDates(date1, date0) { // date1 - date0
+				if (largeUnit) {
+					return diffByUnit(date1, date0, largeUnit);
+				}
+				else if (newProps.allDay) {
+					return diffDay(date1, date0);
+				}
+				else {
+					return diffDayTime(date1, date0);
+				}
+			}
+	
+			newProps = newProps || {};
+	
+			// normalize new date-related properties
+			if (!newProps.start) {
+				newProps.start = event.start.clone();
+			}
+			if (newProps.end === undefined) {
+				newProps.end = event.end ? event.end.clone() : null;
+			}
+			if (newProps.allDay == null) { // is null or undefined?
+				newProps.allDay = event.allDay;
+			}
+			normalizeEventDates(newProps);
+	
+			// create normalized versions of the original props to compare against
+			// need a real end value, for diffing
+			oldProps = {
+				start: event._start.clone(),
+				end: event._end ? event._end.clone() : t.getDefaultEventEnd(event._allDay, event._start),
+				allDay: newProps.allDay // normalize the dates in the same regard as the new properties
+			};
+			normalizeEventDates(oldProps);
+	
+			// need to clear the end date if explicitly changed to null
+			clearEnd = event._end !== null && newProps.end === null;
+	
+			// compute the delta for moving the start date
+			startDelta = diffDates(newProps.start, oldProps.start);
+	
+			// compute the delta for moving the end date
+			if (newProps.end) {
+				endDelta = diffDates(newProps.end, oldProps.end);
+				durationDelta = endDelta.subtract(startDelta);
+			}
+			else {
+				durationDelta = null;
+			}
+	
+			// gather all non-date-related properties
+			$.each(newProps, function(name, val) {
+				if (isMiscEventPropName(name)) {
+					if (val !== undefined) {
+						miscProps[name] = val;
+					}
+				}
+			});
+	
+			// apply the operations to the event and all related events
+			undoFunc = mutateEvents(
+				clientEvents(event._id), // get events with this ID
+				clearEnd,
+				newProps.allDay,
+				startDelta,
+				durationDelta,
+				miscProps
+			);
+	
+			return {
+				dateDelta: startDelta,
+				durationDelta: durationDelta,
+				undo: undoFunc
+			};
+		}
+	
+	
+		// Modifies an array of events in the following ways (operations are in order):
+		// - clear the event's `end`
+		// - convert the event to allDay
+		// - add `dateDelta` to the start and end
+		// - add `durationDelta` to the event's duration
+		// - assign `miscProps` to the event
+		//
+		// Returns a function that can be called to undo all the operations.
+		//
+		// TODO: don't use so many closures. possible memory issues when lots of events with same ID.
+		//
+		function mutateEvents(events, clearEnd, allDay, dateDelta, durationDelta, miscProps) {
+			var isAmbigTimezone = t.getIsAmbigTimezone();
+			var undoFunctions = [];
+	
+			// normalize zero-length deltas to be null
+			if (dateDelta && !dateDelta.valueOf()) { dateDelta = null; }
+			if (durationDelta && !durationDelta.valueOf()) { durationDelta = null; }
+	
+			$.each(events, function(i, event) {
+				var oldProps;
+				var newProps;
+	
+				// build an object holding all the old values, both date-related and misc.
+				// for the undo function.
+				oldProps = {
+					start: event.start.clone(),
+					end: event.end ? event.end.clone() : null,
+					allDay: event.allDay
+				};
+				$.each(miscProps, function(name) {
+					oldProps[name] = event[name];
+				});
+	
+				// new date-related properties. work off the original date snapshot.
+				// ok to use references because they will be thrown away when backupEventDates is called.
+				newProps = {
+					start: event._start,
+					end: event._end,
+					allDay: allDay // normalize the dates in the same regard as the new properties
+				};
+				normalizeEventDates(newProps); // massages start/end/allDay
+	
+				// strip or ensure the end date
+				if (clearEnd) {
+					newProps.end = null;
+				}
+				else if (durationDelta && !newProps.end) { // the duration translation requires an end date
+					newProps.end = t.getDefaultEventEnd(newProps.allDay, newProps.start);
+				}
+	
+				if (dateDelta) {
+					newProps.start.add(dateDelta);
+					if (newProps.end) {
+						newProps.end.add(dateDelta);
+					}
+				}
+	
+				if (durationDelta) {
+					newProps.end.add(durationDelta); // end already ensured above
+				}
+	
+				// if the dates have changed, and we know it is impossible to recompute the
+				// timezone offsets, strip the zone.
+				if (
+					isAmbigTimezone &&
+					!newProps.allDay &&
+					(dateDelta || durationDelta)
+				) {
+					newProps.start.stripZone();
+					if (newProps.end) {
+						newProps.end.stripZone();
+					}
+				}
+	
+				$.extend(event, miscProps, newProps); // copy over misc props, then date-related props
+				backupEventDates(event); // regenerate internal _start/_end/_allDay
+	
+				undoFunctions.push(function() {
+					$.extend(event, oldProps);
+					backupEventDates(event); // regenerate internal _start/_end/_allDay
+				});
+			});
+	
+			return function() {
+				for (var i = 0; i < undoFunctions.length; i++) {
+					undoFunctions[i]();
+				}
+			};
+		}
+	
+	
+		/* Business Hours
+		-----------------------------------------------------------------------------------------*/
+	
+		t.getBusinessHoursEvents = getBusinessHoursEvents;
+	
+	
+		// Returns an array of events as to when the business hours occur in the given view.
+		// Abuse of our event system :(
+		function getBusinessHoursEvents(wholeDay) {
+			var optionVal = options.businessHours;
+			var defaultVal = {
+				className: 'fc-nonbusiness',
+				start: '09:00',
+				end: '17:00',
+				dow: [ 1, 2, 3, 4, 5 ], // monday - friday
+				rendering: 'inverse-background'
+			};
+			var view = t.getView();
+			var eventInput;
+	
+			if (optionVal) { // `true` (which means "use the defaults") or an override object
+				eventInput = $.extend(
+					{}, // copy to a new object in either case
+					defaultVal,
+					typeof optionVal === 'object' ? optionVal : {} // override the defaults
+				);
+			}
+	
+			if (eventInput) {
+	
+				// if a whole-day series is requested, clear the start/end times
+				if (wholeDay) {
+					eventInput.start = null;
+					eventInput.end = null;
+				}
+	
+				return expandEvent(
+					buildEventFromInput(eventInput),
+					view.start,
+					view.end
+				);
+			}
+	
+			return [];
+		}
+	
+	
+		/* Overlapping / Constraining
+		-----------------------------------------------------------------------------------------*/
+	
+		t.isEventSpanAllowed = isEventSpanAllowed;
+		t.isExternalSpanAllowed = isExternalSpanAllowed;
+		t.isSelectionSpanAllowed = isSelectionSpanAllowed;
+	
+	
+		// Determines if the given event can be relocated to the given span (unzoned start/end with other misc data)
+		function isEventSpanAllowed(span, event) {
+			var source = event.source || {};
+			var constraint = firstDefined(
+				event.constraint,
+				source.constraint,
+				options.eventConstraint
+			);
+			var overlap = firstDefined(
+				event.overlap,
+				source.overlap,
+				options.eventOverlap
+			);
+			return isSpanAllowed(span, constraint, overlap, event);
+		}
+	
+	
+		// Determines if an external event can be relocated to the given span (unzoned start/end with other misc data)
+		function isExternalSpanAllowed(eventSpan, eventLocation, eventProps) {
+			var eventInput;
+			var event;
+	
+			// note: very similar logic is in View's reportExternalDrop
+			if (eventProps) {
+				eventInput = $.extend({}, eventProps, eventLocation);
+				event = expandEvent(buildEventFromInput(eventInput))[0];
+			}
+	
+			if (event) {
+				return isEventSpanAllowed(eventSpan, event);
+			}
+			else { // treat it as a selection
+	
+				return isSelectionSpanAllowed(eventSpan);
+			}
+		}
+	
+	
+		// Determines the given span (unzoned start/end with other misc data) can be selected.
+		function isSelectionSpanAllowed(span) {
+			return isSpanAllowed(span, options.selectConstraint, options.selectOverlap);
+		}
+	
+	
+		// Returns true if the given span (caused by an event drop/resize or a selection) is allowed to exist
+		// according to the constraint/overlap settings.
+		// `event` is not required if checking a selection.
+		function isSpanAllowed(span, constraint, overlap, event) {
+			var constraintEvents;
+			var anyContainment;
+			var peerEvents;
+			var i, peerEvent;
+			var peerOverlap;
+	
+			// the range must be fully contained by at least one of produced constraint events
+			if (constraint != null) {
+	
+				// not treated as an event! intermediate data structure
+				// TODO: use ranges in the future
+				constraintEvents = constraintToEvents(constraint);
+	
+				anyContainment = false;
+				for (i = 0; i < constraintEvents.length; i++) {
+					if (eventContainsRange(constraintEvents[i], span)) {
+						anyContainment = true;
+						break;
+					}
+				}
+	
+				if (!anyContainment) {
+					return false;
+				}
+			}
+	
+			peerEvents = t.getPeerEvents(span, event);
+	
+			for (i = 0; i < peerEvents.length; i++)  {
+				peerEvent = peerEvents[i];
+	
+				// there needs to be an actual intersection before disallowing anything
+				if (eventIntersectsRange(peerEvent, span)) {
+	
+					// evaluate overlap for the given range and short-circuit if necessary
+					if (overlap === false) {
+						return false;
+					}
+					// if the event's overlap is a test function, pass the peer event in question as the first param
+					else if (typeof overlap === 'function' && !overlap(peerEvent, event)) {
+						return false;
+					}
+	
+					// if we are computing if the given range is allowable for an event, consider the other event's
+					// EventObject-specific or Source-specific `overlap` property
+					if (event) {
+						peerOverlap = firstDefined(
+							peerEvent.overlap,
+							(peerEvent.source || {}).overlap
+							// we already considered the global `eventOverlap`
+						);
+						if (peerOverlap === false) {
+							return false;
+						}
+						// if the peer event's overlap is a test function, pass the subject event as the first param
+						if (typeof peerOverlap === 'function' && !peerOverlap(event, peerEvent)) {
+							return false;
+						}
+					}
+				}
+			}
+	
+			return true;
+		}
+	
+	
+		// Given an event input from the API, produces an array of event objects. Possible event inputs:
+		// 'businessHours'
+		// An event ID (number or string)
+		// An object with specific start/end dates or a recurring event (like what businessHours accepts)
+		function constraintToEvents(constraintInput) {
+	
+			if (constraintInput === 'businessHours') {
+				return getBusinessHoursEvents();
+			}
+	
+			if (typeof constraintInput === 'object') {
+				return expandEvent(buildEventFromInput(constraintInput));
+			}
+	
+			return clientEvents(constraintInput); // probably an ID
+		}
+	
+	
+		// Does the event's date range fully contain the given range?
+		// start/end already assumed to have stripped zones :(
+		function eventContainsRange(event, range) {
+			var eventStart = event.start.clone().stripZone();
+			var eventEnd = t.getEventEnd(event).stripZone();
+	
+			return range.start >= eventStart && range.end <= eventEnd;
+		}
+	
+	
+		// Does the event's date range intersect with the given range?
+		// start/end already assumed to have stripped zones :(
+		function eventIntersectsRange(event, range) {
+			var eventStart = event.start.clone().stripZone();
+			var eventEnd = t.getEventEnd(event).stripZone();
+	
+			return range.start < eventEnd && range.end > eventStart;
+		}
+	
+	
+		t.getEventCache = function() {
+			return cache;
+		};
+	
+	}
+	
+	
+	// Returns a list of events that the given event should be compared against when being considered for a move to
+	// the specified span. Attached to the Calendar's prototype because EventManager is a mixin for a Calendar.
+	Calendar.prototype.getPeerEvents = function(span, event) {
+		var cache = this.getEventCache();
+		var peerEvents = [];
+		var i, otherEvent;
+	
+		for (i = 0; i < cache.length; i++) {
+			otherEvent = cache[i];
+			if (
+				!event ||
+				event._id !== otherEvent._id // don't compare the event to itself or other related [repeating] events
+			) {
+				peerEvents.push(otherEvent);
+			}
+		}
+	
+		return peerEvents;
+	};
+	
+	
+	// updates the "backup" properties, which are preserved in order to compute diffs later on.
+	function backupEventDates(event) {
+		event._allDay = event.allDay;
+		event._start = event.start.clone();
+		event._end = event.end ? event.end.clone() : null;
+	}
+	
+	;;
+	
+	/* An abstract class for the "basic" views, as well as month view. Renders one or more rows of day cells.
+	----------------------------------------------------------------------------------------------------------------------*/
+	// It is a manager for a DayGrid subcomponent, which does most of the heavy lifting.
+	// It is responsible for managing width/height.
+	
+	var BasicView = FC.BasicView = View.extend({
+	
+		dayGridClass: DayGrid, // class the dayGrid will be instantiated from (overridable by subclasses)
+		dayGrid: null, // the main subcomponent that does most of the heavy lifting
+	
+		dayNumbersVisible: false, // display day numbers on each day cell?
+		weekNumbersVisible: false, // display week numbers along the side?
+	
+		weekNumberWidth: null, // width of all the week-number cells running down the side
+	
+		headContainerEl: null, // div that hold's the dayGrid's rendered date header
+		headRowEl: null, // the fake row element of the day-of-week header
+	
+	
+		initialize: function() {
+			this.dayGrid = this.instantiateDayGrid();
+		},
+	
+	
+		// Generates the DayGrid object this view needs. Draws from this.dayGridClass
+		instantiateDayGrid: function() {
+			// generate a subclass on the fly with BasicView-specific behavior
+			// TODO: cache this subclass
+			var subclass = this.dayGridClass.extend(basicDayGridMethods);
+	
+			return new subclass(this);
+		},
+	
+	
+		// Sets the display range and computes all necessary dates
+		setRange: function(range) {
+			View.prototype.setRange.call(this, range); // call the super-method
+	
+			this.dayGrid.breakOnWeeks = /year|month|week/.test(this.intervalUnit); // do before setRange
+			this.dayGrid.setRange(range);
+		},
+	
+	
+		// Compute the value to feed into setRange. Overrides superclass.
+		computeRange: function(date) {
+			var range = View.prototype.computeRange.call(this, date); // get value from the super-method
+	
+			// year and month views should be aligned with weeks. this is already done for week
+			if (/year|month/.test(range.intervalUnit)) {
+				range.start.startOf('week');
+				range.start = this.skipHiddenDays(range.start);
+	
+				// make end-of-week if not already
+				if (range.end.weekday()) {
+					range.end.add(1, 'week').startOf('week');
+					range.end = this.skipHiddenDays(range.end, -1, true); // exclusively move backwards
+				}
+			}
+	
+			return range;
+		},
+	
+	
+		// Renders the view into `this.el`, which should already be assigned
+		renderDates: function() {
+	
+			this.dayNumbersVisible = this.dayGrid.rowCnt > 1; // TODO: make grid responsible
+			this.weekNumbersVisible = this.opt('weekNumbers');
+			this.dayGrid.numbersVisible = this.dayNumbersVisible || this.weekNumbersVisible;
+	
+			this.el.addClass('fc-basic-view').html(this.renderSkeletonHtml());
+			this.renderHead();
+	
+			this.scrollerEl = this.el.find('.fc-day-grid-container');
+	
+			this.dayGrid.setElement(this.el.find('.fc-day-grid'));
+			this.dayGrid.renderDates(this.hasRigidRows());
+		},
+	
+	
+		// render the day-of-week headers
+		renderHead: function() {
+			this.headContainerEl =
+				this.el.find('.fc-head-container')
+					.html(this.dayGrid.renderHeadHtml());
+			this.headRowEl = this.headContainerEl.find('.fc-row');
+		},
+	
+	
+		// Unrenders the content of the view. Since we haven't separated skeleton rendering from date rendering,
+		// always completely kill the dayGrid's rendering.
+		unrenderDates: function() {
+			this.dayGrid.unrenderDates();
+			this.dayGrid.removeElement();
+		},
+	
+	
+		renderBusinessHours: function() {
+			this.dayGrid.renderBusinessHours();
+		},
+	
+	
+		// Builds the HTML skeleton for the view.
+		// The day-grid component will render inside of a container defined by this HTML.
+		renderSkeletonHtml: function() {
+			return '' +
+				'<table>' +
+					'<thead class="fc-head">' +
+						'<tr>' +
+							'<td class="fc-head-container ' + this.widgetHeaderClass + '"></td>' +
+						'</tr>' +
+					'</thead>' +
+					'<tbody class="fc-body">' +
+						'<tr>' +
+							'<td class="' + this.widgetContentClass + '">' +
+								'<div class="fc-day-grid-container">' +
+									'<div class="fc-day-grid"/>' +
+								'</div>' +
+							'</td>' +
+						'</tr>' +
+					'</tbody>' +
+				'</table>';
+		},
+	
+	
+		// Generates an HTML attribute string for setting the width of the week number column, if it is known
+		weekNumberStyleAttr: function() {
+			if (this.weekNumberWidth !== null) {
+				return 'style="width:' + this.weekNumberWidth + 'px"';
+			}
+			return '';
+		},
+	
+	
+		// Determines whether each row should have a constant height
+		hasRigidRows: function() {
+			var eventLimit = this.opt('eventLimit');
+			return eventLimit && typeof eventLimit !== 'number';
+		},
+	
+	
+		/* Dimensions
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Refreshes the horizontal dimensions of the view
+		updateWidth: function() {
+			if (this.weekNumbersVisible) {
+				// Make sure all week number cells running down the side have the same width.
+				// Record the width for cells created later.
+				this.weekNumberWidth = matchCellWidths(
+					this.el.find('.fc-week-number')
+				);
+			}
+		},
+	
+	
+		// Adjusts the vertical dimensions of the view to the specified values
+		setHeight: function(totalHeight, isAuto) {
+			var eventLimit = this.opt('eventLimit');
+			var scrollerHeight;
+	
+			// reset all heights to be natural
+			unsetScroller(this.scrollerEl);
+			uncompensateScroll(this.headRowEl);
+	
+			this.dayGrid.removeSegPopover(); // kill the "more" popover if displayed
+	
+			// is the event limit a constant level number?
+			if (eventLimit && typeof eventLimit === 'number') {
+				this.dayGrid.limitRows(eventLimit); // limit the levels first so the height can redistribute after
+			}
+	
+			scrollerHeight = this.computeScrollerHeight(totalHeight);
+			this.setGridHeight(scrollerHeight, isAuto);
+	
+			// is the event limit dynamically calculated?
+			if (eventLimit && typeof eventLimit !== 'number') {
+				this.dayGrid.limitRows(eventLimit); // limit the levels after the grid's row heights have been set
+			}
+	
+			if (!isAuto && setPotentialScroller(this.scrollerEl, scrollerHeight)) { // using scrollbars?
+	
+				compensateScroll(this.headRowEl, getScrollbarWidths(this.scrollerEl));
+	
+				// doing the scrollbar compensation might have created text overflow which created more height. redo
+				scrollerHeight = this.computeScrollerHeight(totalHeight);
+				this.scrollerEl.height(scrollerHeight);
+			}
+		},
+	
+	
+		// Sets the height of just the DayGrid component in this view
+		setGridHeight: function(height, isAuto) {
+			if (isAuto) {
+				undistributeHeight(this.dayGrid.rowEls); // let the rows be their natural height with no expanding
+			}
+			else {
+				distributeHeight(this.dayGrid.rowEls, height, true); // true = compensate for height-hogging rows
+			}
+		},
+	
+	
+		/* Hit Areas
+		------------------------------------------------------------------------------------------------------------------*/
+		// forward all hit-related method calls to dayGrid
+	
+	
+		prepareHits: function() {
+			this.dayGrid.prepareHits();
+		},
+	
+	
+		releaseHits: function() {
+			this.dayGrid.releaseHits();
+		},
+	
+	
+		queryHit: function(left, top) {
+			return this.dayGrid.queryHit(left, top);
+		},
+	
+	
+		getHitSpan: function(hit) {
+			return this.dayGrid.getHitSpan(hit);
+		},
+	
+	
+		getHitEl: function(hit) {
+			return this.dayGrid.getHitEl(hit);
+		},
+	
+	
+		/* Events
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders the given events onto the view and populates the segments array
+		renderEvents: function(events) {
+			this.dayGrid.renderEvents(events);
+	
+			this.updateHeight(); // must compensate for events that overflow the row
+		},
+	
+	
+		// Retrieves all segment objects that are rendered in the view
+		getEventSegs: function() {
+			return this.dayGrid.getEventSegs();
+		},
+	
+	
+		// Unrenders all event elements and clears internal segment data
+		unrenderEvents: function() {
+			this.dayGrid.unrenderEvents();
+	
+			// we DON'T need to call updateHeight() because:
+			// A) a renderEvents() call always happens after this, which will eventually call updateHeight()
+			// B) in IE8, this causes a flash whenever events are rerendered
+		},
+	
+	
+		/* Dragging (for both events and external elements)
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// A returned value of `true` signals that a mock "helper" event has been rendered.
+		renderDrag: function(dropLocation, seg) {
+			return this.dayGrid.renderDrag(dropLocation, seg);
+		},
+	
+	
+		unrenderDrag: function() {
+			this.dayGrid.unrenderDrag();
+		},
+	
+	
+		/* Selection
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders a visual indication of a selection
+		renderSelection: function(span) {
+			this.dayGrid.renderSelection(span);
+		},
+	
+	
+		// Unrenders a visual indications of a selection
+		unrenderSelection: function() {
+			this.dayGrid.unrenderSelection();
+		}
+	
+	});
+	
+	
+	// Methods that will customize the rendering behavior of the BasicView's dayGrid
+	var basicDayGridMethods = {
+	
+	
+		// Generates the HTML that will go before the day-of week header cells
+		renderHeadIntroHtml: function() {
+			var view = this.view;
+	
+			if (view.weekNumbersVisible) {
+				return '' +
+					'<th class="fc-week-number ' + view.widgetHeaderClass + '" ' + view.weekNumberStyleAttr() + '>' +
+						'<span>' + // needed for matchCellWidths
+							htmlEscape(view.opt('weekNumberTitle')) +
+						'</span>' +
+					'</th>';
+			}
+	
+			return '';
+		},
+	
+	
+		// Generates the HTML that will go before content-skeleton cells that display the day/week numbers
+		renderNumberIntroHtml: function(row) {
+			var view = this.view;
+	
+			if (view.weekNumbersVisible) {
+				return '' +
+					'<td class="fc-week-number" ' + view.weekNumberStyleAttr() + '>' +
+						'<span>' + // needed for matchCellWidths
+							this.getCellDate(row, 0).format('w') +
+						'</span>' +
+					'</td>';
+			}
+	
+			return '';
+		},
+	
+	
+		// Generates the HTML that goes before the day bg cells for each day-row
+		renderBgIntroHtml: function() {
+			var view = this.view;
+	
+			if (view.weekNumbersVisible) {
+				return '<td class="fc-week-number ' + view.widgetContentClass + '" ' +
+					view.weekNumberStyleAttr() + '></td>';
+			}
+	
+			return '';
+		},
+	
+	
+		// Generates the HTML that goes before every other type of row generated by DayGrid.
+		// Affects helper-skeleton and highlight-skeleton rows.
+		renderIntroHtml: function() {
+			var view = this.view;
+	
+			if (view.weekNumbersVisible) {
+				return '<td class="fc-week-number" ' + view.weekNumberStyleAttr() + '></td>';
+			}
+	
+			return '';
+		}
+	
+	};
+	
+	;;
+	
+	/* A month view with day cells running in rows (one-per-week) and columns
+	----------------------------------------------------------------------------------------------------------------------*/
+	
+	var MonthView = FC.MonthView = BasicView.extend({
+	
+		// Produces information about what range to display
+		computeRange: function(date) {
+			var range = BasicView.prototype.computeRange.call(this, date); // get value from super-method
+			var rowCnt;
+	
+			// ensure 6 weeks
+			if (this.isFixedWeeks()) {
+				rowCnt = Math.ceil(range.end.diff(range.start, 'weeks', true)); // could be partial weeks due to hiddenDays
+				range.end.add(6 - rowCnt, 'weeks');
+			}
+	
+			return range;
+		},
+	
+	
+		// Overrides the default BasicView behavior to have special multi-week auto-height logic
+		setGridHeight: function(height, isAuto) {
+	
+			isAuto = isAuto || this.opt('weekMode') === 'variable'; // LEGACY: weekMode is deprecated
+	
+			// if auto, make the height of each row the height that it would be if there were 6 weeks
+			if (isAuto) {
+				height *= this.rowCnt / 6;
+			}
+	
+			distributeHeight(this.dayGrid.rowEls, height, !isAuto); // if auto, don't compensate for height-hogging rows
+		},
+	
+	
+		isFixedWeeks: function() {
+			var weekMode = this.opt('weekMode'); // LEGACY: weekMode is deprecated
+			if (weekMode) {
+				return weekMode === 'fixed'; // if any other type of weekMode, assume NOT fixed
+			}
+	
+			return this.opt('fixedWeekCount');
+		}
+	
+	});
+	
+	;;
+	
+	fcViews.basic = {
+		'class': BasicView
+	};
+	
+	fcViews.basicDay = {
+		type: 'basic',
+		duration: { days: 1 }
+	};
+	
+	fcViews.basicWeek = {
+		type: 'basic',
+		duration: { weeks: 1 }
+	};
+	
+	fcViews.month = {
+		'class': MonthView,
+		duration: { months: 1 }, // important for prev/next
+		defaults: {
+			fixedWeekCount: true
+		}
+	};
+	;;
+	
+	/* An abstract class for all agenda-related views. Displays one more columns with time slots running vertically.
+	----------------------------------------------------------------------------------------------------------------------*/
+	// Is a manager for the TimeGrid subcomponent and possibly the DayGrid subcomponent (if allDaySlot is on).
+	// Responsible for managing width/height.
+	
+	var AgendaView = FC.AgendaView = View.extend({
+	
+		timeGridClass: TimeGrid, // class used to instantiate the timeGrid. subclasses can override
+		timeGrid: null, // the main time-grid subcomponent of this view
+	
+		dayGridClass: DayGrid, // class used to instantiate the dayGrid. subclasses can override
+		dayGrid: null, // the "all-day" subcomponent. if all-day is turned off, this will be null
+	
+		axisWidth: null, // the width of the time axis running down the side
+	
+		headContainerEl: null, // div that hold's the timeGrid's rendered date header
+		noScrollRowEls: null, // set of fake row elements that must compensate when scrollerEl has scrollbars
+	
+		// when the time-grid isn't tall enough to occupy the given height, we render an <hr> underneath
+		bottomRuleEl: null,
+		bottomRuleHeight: null,
+	
+	
+		initialize: function() {
+			this.timeGrid = this.instantiateTimeGrid();
+	
+			if (this.opt('allDaySlot')) { // should we display the "all-day" area?
+				this.dayGrid = this.instantiateDayGrid(); // the all-day subcomponent of this view
+			}
+		},
+	
+	
+		// Instantiates the TimeGrid object this view needs. Draws from this.timeGridClass
+		instantiateTimeGrid: function() {
+			var subclass = this.timeGridClass.extend(agendaTimeGridMethods);
+	
+			return new subclass(this);
+		},
+	
+	
+		// Instantiates the DayGrid object this view might need. Draws from this.dayGridClass
+		instantiateDayGrid: function() {
+			var subclass = this.dayGridClass.extend(agendaDayGridMethods);
+	
+			return new subclass(this);
+		},
+	
+	
+		/* Rendering
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Sets the display range and computes all necessary dates
+		setRange: function(range) {
+			View.prototype.setRange.call(this, range); // call the super-method
+	
+			this.timeGrid.setRange(range);
+			if (this.dayGrid) {
+				this.dayGrid.setRange(range);
+			}
+		},
+	
+	
+		// Renders the view into `this.el`, which has already been assigned
+		renderDates: function() {
+	
+			this.el.addClass('fc-agenda-view').html(this.renderSkeletonHtml());
+			this.renderHead();
+	
+			// the element that wraps the time-grid that will probably scroll
+			this.scrollerEl = this.el.find('.fc-time-grid-container');
+	
+			this.timeGrid.setElement(this.el.find('.fc-time-grid'));
+			this.timeGrid.renderDates();
+	
+			// the <hr> that sometimes displays under the time-grid
+			this.bottomRuleEl = $('<hr class="fc-divider ' + this.widgetHeaderClass + '"/>')
+				.appendTo(this.timeGrid.el); // inject it into the time-grid
+	
+			if (this.dayGrid) {
+				this.dayGrid.setElement(this.el.find('.fc-day-grid'));
+				this.dayGrid.renderDates();
+	
+				// have the day-grid extend it's coordinate area over the <hr> dividing the two grids
+				this.dayGrid.bottomCoordPadding = this.dayGrid.el.next('hr').outerHeight();
+			}
+	
+			this.noScrollRowEls = this.el.find('.fc-row:not(.fc-scroller *)'); // fake rows not within the scroller
+		},
+	
+	
+		// render the day-of-week headers
+		renderHead: function() {
+			this.headContainerEl =
+				this.el.find('.fc-head-container')
+					.html(this.timeGrid.renderHeadHtml());
+		},
+	
+	
+		// Unrenders the content of the view. Since we haven't separated skeleton rendering from date rendering,
+		// always completely kill each grid's rendering.
+		unrenderDates: function() {
+			this.timeGrid.unrenderDates();
+			this.timeGrid.removeElement();
+	
+			if (this.dayGrid) {
+				this.dayGrid.unrenderDates();
+				this.dayGrid.removeElement();
+			}
+		},
+	
+	
+		// Builds the HTML skeleton for the view.
+		// The day-grid and time-grid components will render inside containers defined by this HTML.
+		renderSkeletonHtml: function() {
+			return '' +
+				'<table>' +
+					'<thead class="fc-head">' +
+						'<tr>' +
+							'<td class="fc-head-container ' + this.widgetHeaderClass + '"></td>' +
+						'</tr>' +
+					'</thead>' +
+					'<tbody class="fc-body">' +
+						'<tr>' +
+							'<td class="' + this.widgetContentClass + '">' +
+								(this.dayGrid ?
+									'<div class="fc-day-grid"/>' +
+									'<hr class="fc-divider ' + this.widgetHeaderClass + '"/>' :
+									''
+									) +
+								'<div class="fc-time-grid-container">' +
+									'<div class="fc-time-grid"/>' +
+								'</div>' +
+							'</td>' +
+						'</tr>' +
+					'</tbody>' +
+				'</table>';
+		},
+	
+	
+		// Generates an HTML attribute string for setting the width of the axis, if it is known
+		axisStyleAttr: function() {
+			if (this.axisWidth !== null) {
+				 return 'style="width:' + this.axisWidth + 'px"';
+			}
+			return '';
+		},
+	
+	
+		/* Business Hours
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		renderBusinessHours: function() {
+			this.timeGrid.renderBusinessHours();
+	
+			if (this.dayGrid) {
+				this.dayGrid.renderBusinessHours();
+			}
+		},
+	
+	
+		unrenderBusinessHours: function() {
+			this.timeGrid.unrenderBusinessHours();
+	
+			if (this.dayGrid) {
+				this.dayGrid.unrenderBusinessHours();
+			}
+		},
+	
+	
+		/* Now Indicator
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		getNowIndicatorUnit: function() {
+			return this.timeGrid.getNowIndicatorUnit();
+		},
+	
+	
+		renderNowIndicator: function(date) {
+			this.timeGrid.renderNowIndicator(date);
+		},
+	
+	
+		unrenderNowIndicator: function() {
+			this.timeGrid.unrenderNowIndicator();
+		},
+	
+	
+		/* Dimensions
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		updateSize: function(isResize) {
+			this.timeGrid.updateSize(isResize);
+	
+			View.prototype.updateSize.call(this, isResize); // call the super-method
+		},
+	
+	
+		// Refreshes the horizontal dimensions of the view
+		updateWidth: function() {
+			// make all axis cells line up, and record the width so newly created axis cells will have it
+			this.axisWidth = matchCellWidths(this.el.find('.fc-axis'));
+		},
+	
+	
+		// Adjusts the vertical dimensions of the view to the specified values
+		setHeight: function(totalHeight, isAuto) {
+			var eventLimit;
+			var scrollerHeight;
+	
+			if (this.bottomRuleHeight === null) {
+				// calculate the height of the rule the very first time
+				this.bottomRuleHeight = this.bottomRuleEl.outerHeight();
+			}
+			this.bottomRuleEl.hide(); // .show() will be called later if this <hr> is necessary
+	
+			// reset all dimensions back to the original state
+			this.scrollerEl.css('overflow', '');
+			unsetScroller(this.scrollerEl);
+			uncompensateScroll(this.noScrollRowEls);
+	
+			// limit number of events in the all-day area
+			if (this.dayGrid) {
+				this.dayGrid.removeSegPopover(); // kill the "more" popover if displayed
+	
+				eventLimit = this.opt('eventLimit');
+				if (eventLimit && typeof eventLimit !== 'number') {
+					eventLimit = AGENDA_ALL_DAY_EVENT_LIMIT; // make sure "auto" goes to a real number
+				}
+				if (eventLimit) {
+					this.dayGrid.limitRows(eventLimit);
+				}
+			}
+	
+			if (!isAuto) { // should we force dimensions of the scroll container, or let the contents be natural height?
+	
+				scrollerHeight = this.computeScrollerHeight(totalHeight);
+				if (setPotentialScroller(this.scrollerEl, scrollerHeight)) { // using scrollbars?
+	
+					// make the all-day and header rows lines up
+					compensateScroll(this.noScrollRowEls, getScrollbarWidths(this.scrollerEl));
+	
+					// the scrollbar compensation might have changed text flow, which might affect height, so recalculate
+					// and reapply the desired height to the scroller.
+					scrollerHeight = this.computeScrollerHeight(totalHeight);
+					this.scrollerEl.height(scrollerHeight);
+				}
+				else { // no scrollbars
+					// still, force a height and display the bottom rule (marks the end of day)
+					this.scrollerEl.height(scrollerHeight).css('overflow', 'hidden'); // in case <hr> goes outside
+					this.bottomRuleEl.show();
+				}
+			}
+		},
+	
+	
+		// Computes the initial pre-configured scroll state prior to allowing the user to change it
+		computeInitialScroll: function() {
+			var scrollTime = moment.duration(this.opt('scrollTime'));
+			var top = this.timeGrid.computeTimeTop(scrollTime);
+	
+			// zoom can give weird floating-point values. rather scroll a little bit further
+			top = Math.ceil(top);
+	
+			if (top) {
+				top++; // to overcome top border that slots beyond the first have. looks better
+			}
+	
+			return top;
+		},
+	
+	
+		/* Hit Areas
+		------------------------------------------------------------------------------------------------------------------*/
+		// forward all hit-related method calls to the grids (dayGrid might not be defined)
+	
+	
+		prepareHits: function() {
+			this.timeGrid.prepareHits();
+			if (this.dayGrid) {
+				this.dayGrid.prepareHits();
+			}
+		},
+	
+	
+		releaseHits: function() {
+			this.timeGrid.releaseHits();
+			if (this.dayGrid) {
+				this.dayGrid.releaseHits();
+			}
+		},
+	
+	
+		queryHit: function(left, top) {
+			var hit = this.timeGrid.queryHit(left, top);
+	
+			if (!hit && this.dayGrid) {
+				hit = this.dayGrid.queryHit(left, top);
+			}
+	
+			return hit;
+		},
+	
+	
+		getHitSpan: function(hit) {
+			// TODO: hit.component is set as a hack to identify where the hit came from
+			return hit.component.getHitSpan(hit);
+		},
+	
+	
+		getHitEl: function(hit) {
+			// TODO: hit.component is set as a hack to identify where the hit came from
+			return hit.component.getHitEl(hit);
+		},
+	
+	
+		/* Events
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders events onto the view and populates the View's segment array
+		renderEvents: function(events) {
+			var dayEvents = [];
+			var timedEvents = [];
+			var daySegs = [];
+			var timedSegs;
+			var i;
+	
+			// separate the events into all-day and timed
+			for (i = 0; i < events.length; i++) {
+				if (events[i].allDay) {
+					dayEvents.push(events[i]);
+				}
+				else {
+					timedEvents.push(events[i]);
+				}
+			}
+	
+			// render the events in the subcomponents
+			timedSegs = this.timeGrid.renderEvents(timedEvents);
+			if (this.dayGrid) {
+				daySegs = this.dayGrid.renderEvents(dayEvents);
+			}
+	
+			// the all-day area is flexible and might have a lot of events, so shift the height
+			this.updateHeight();
+		},
+	
+	
+		// Retrieves all segment objects that are rendered in the view
+		getEventSegs: function() {
+			return this.timeGrid.getEventSegs().concat(
+				this.dayGrid ? this.dayGrid.getEventSegs() : []
+			);
+		},
+	
+	
+		// Unrenders all event elements and clears internal segment data
+		unrenderEvents: function() {
+	
+			// unrender the events in the subcomponents
+			this.timeGrid.unrenderEvents();
+			if (this.dayGrid) {
+				this.dayGrid.unrenderEvents();
+			}
+	
+			// we DON'T need to call updateHeight() because:
+			// A) a renderEvents() call always happens after this, which will eventually call updateHeight()
+			// B) in IE8, this causes a flash whenever events are rerendered
+		},
+	
+	
+		/* Dragging (for events and external elements)
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// A returned value of `true` signals that a mock "helper" event has been rendered.
+		renderDrag: function(dropLocation, seg) {
+			if (dropLocation.start.hasTime()) {
+				return this.timeGrid.renderDrag(dropLocation, seg);
+			}
+			else if (this.dayGrid) {
+				return this.dayGrid.renderDrag(dropLocation, seg);
+			}
+		},
+	
+	
+		unrenderDrag: function() {
+			this.timeGrid.unrenderDrag();
+			if (this.dayGrid) {
+				this.dayGrid.unrenderDrag();
+			}
+		},
+	
+	
+		/* Selection
+		------------------------------------------------------------------------------------------------------------------*/
+	
+	
+		// Renders a visual indication of a selection
+		renderSelection: function(span) {
+			if (span.start.hasTime() || span.end.hasTime()) {
+				this.timeGrid.renderSelection(span);
+			}
+			else if (this.dayGrid) {
+				this.dayGrid.renderSelection(span);
+			}
+		},
+	
+	
+		// Unrenders a visual indications of a selection
+		unrenderSelection: function() {
+			this.timeGrid.unrenderSelection();
+			if (this.dayGrid) {
+				this.dayGrid.unrenderSelection();
+			}
+		}
+	
+	});
+	
+	
+	// Methods that will customize the rendering behavior of the AgendaView's timeGrid
+	// TODO: move into TimeGrid
+	var agendaTimeGridMethods = {
+	
+	
+		// Generates the HTML that will go before the day-of week header cells
+		renderHeadIntroHtml: function() {
+			var view = this.view;
+			var weekText;
+	
+			if (view.opt('weekNumbers')) {
+				weekText = this.start.format(view.opt('smallWeekFormat'));
+	
+				return '' +
+					'<th class="fc-axis fc-week-number ' + view.widgetHeaderClass + '" ' + view.axisStyleAttr() + '>' +
+						'<span>' + // needed for matchCellWidths
+							htmlEscape(weekText) +
+						'</span>' +
+					'</th>';
+			}
+			else {
+				return '<th class="fc-axis ' + view.widgetHeaderClass + '" ' + view.axisStyleAttr() + '></th>';
+			}
+		},
+	
+	
+		// Generates the HTML that goes before the bg of the TimeGrid slot area. Long vertical column.
+		renderBgIntroHtml: function() {
+			var view = this.view;
+	
+			return '<td class="fc-axis ' + view.widgetContentClass + '" ' + view.axisStyleAttr() + '></td>';
+		},
+	
+	
+		// Generates the HTML that goes before all other types of cells.
+		// Affects content-skeleton, helper-skeleton, highlight-skeleton for both the time-grid and day-grid.
+		renderIntroHtml: function() {
+			var view = this.view;
+	
+			return '<td class="fc-axis" ' + view.axisStyleAttr() + '></td>';
+		}
+	
+	};
+	
+	
+	// Methods that will customize the rendering behavior of the AgendaView's dayGrid
+	var agendaDayGridMethods = {
+	
+	
+		// Generates the HTML that goes before the all-day cells
+		renderBgIntroHtml: function() {
+			var view = this.view;
+	
+			return '' +
+				'<td class="fc-axis ' + view.widgetContentClass + '" ' + view.axisStyleAttr() + '>' +
+					'<span>' + // needed for matchCellWidths
+						(view.opt('allDayHtml') || htmlEscape(view.opt('allDayText'))) +
+					'</span>' +
+				'</td>';
+		},
+	
+	
+		// Generates the HTML that goes before all other types of cells.
+		// Affects content-skeleton, helper-skeleton, highlight-skeleton for both the time-grid and day-grid.
+		renderIntroHtml: function() {
+			var view = this.view;
+	
+			return '<td class="fc-axis" ' + view.axisStyleAttr() + '></td>';
+		}
+	
+	};
+	
+	;;
+	
+	var AGENDA_ALL_DAY_EVENT_LIMIT = 5;
+	
+	// potential nice values for the slot-duration and interval-duration
+	// from largest to smallest
+	var AGENDA_STOCK_SUB_DURATIONS = [
+		{ hours: 1 },
+		{ minutes: 30 },
+		{ minutes: 15 },
+		{ seconds: 30 },
+		{ seconds: 15 }
+	];
+	
+	fcViews.agenda = {
+		'class': AgendaView,
+		defaults: {
+			allDaySlot: true,
+			allDayText: 'all-day',
+			slotDuration: '00:30:00',
+			minTime: '00:00:00',
+			maxTime: '24:00:00',
+			slotEventOverlap: true // a bad name. confused with overlap/constraint system
+		}
+	};
+	
+	fcViews.agendaDay = {
+		type: 'agenda',
+		duration: { days: 1 }
+	};
+	
+	fcViews.agendaWeek = {
+		type: 'agenda',
+		duration: { weeks: 1 }
+	};
+	;;
+	
+	return FC; // export for Node/CommonJS
+	});
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(module) {//! moment.js
+	//! version : 2.11.2
+	//! authors : Tim Wood, Iskren Chernev, Moment.js contributors
+	//! license : MIT
+	//! momentjs.com
+	
+	;(function (global, factory) {
+	     true ? module.exports = factory() :
+	    typeof define === 'function' && define.amd ? define(factory) :
+	    global.moment = factory()
+	}(this, function () { 'use strict';
+	
+	    var hookCallback;
+	
+	    function utils_hooks__hooks () {
+	        return hookCallback.apply(null, arguments);
+	    }
+	
+	    // This is done to register the method called with moment()
+	    // without creating circular dependencies.
+	    function setHookCallback (callback) {
+	        hookCallback = callback;
+	    }
+	
+	    function isArray(input) {
+	        return Object.prototype.toString.call(input) === '[object Array]';
+	    }
+	
+	    function isDate(input) {
+	        return input instanceof Date || Object.prototype.toString.call(input) === '[object Date]';
+	    }
+	
+	    function map(arr, fn) {
+	        var res = [], i;
+	        for (i = 0; i < arr.length; ++i) {
+	            res.push(fn(arr[i], i));
+	        }
+	        return res;
+	    }
+	
+	    function hasOwnProp(a, b) {
+	        return Object.prototype.hasOwnProperty.call(a, b);
+	    }
+	
+	    function extend(a, b) {
+	        for (var i in b) {
+	            if (hasOwnProp(b, i)) {
+	                a[i] = b[i];
+	            }
+	        }
+	
+	        if (hasOwnProp(b, 'toString')) {
+	            a.toString = b.toString;
+	        }
+	
+	        if (hasOwnProp(b, 'valueOf')) {
+	            a.valueOf = b.valueOf;
+	        }
+	
+	        return a;
+	    }
+	
+	    function create_utc__createUTC (input, format, locale, strict) {
+	        return createLocalOrUTC(input, format, locale, strict, true).utc();
+	    }
+	
+	    function defaultParsingFlags() {
+	        // We need to deep clone this object.
+	        return {
+	            empty           : false,
+	            unusedTokens    : [],
+	            unusedInput     : [],
+	            overflow        : -2,
+	            charsLeftOver   : 0,
+	            nullInput       : false,
+	            invalidMonth    : null,
+	            invalidFormat   : false,
+	            userInvalidated : false,
+	            iso             : false
+	        };
+	    }
+	
+	    function getParsingFlags(m) {
+	        if (m._pf == null) {
+	            m._pf = defaultParsingFlags();
+	        }
+	        return m._pf;
+	    }
+	
+	    function valid__isValid(m) {
+	        if (m._isValid == null) {
+	            var flags = getParsingFlags(m);
+	            m._isValid = !isNaN(m._d.getTime()) &&
+	                flags.overflow < 0 &&
+	                !flags.empty &&
+	                !flags.invalidMonth &&
+	                !flags.invalidWeekday &&
+	                !flags.nullInput &&
+	                !flags.invalidFormat &&
+	                !flags.userInvalidated;
+	
+	            if (m._strict) {
+	                m._isValid = m._isValid &&
+	                    flags.charsLeftOver === 0 &&
+	                    flags.unusedTokens.length === 0 &&
+	                    flags.bigHour === undefined;
+	            }
+	        }
+	        return m._isValid;
+	    }
+	
+	    function valid__createInvalid (flags) {
+	        var m = create_utc__createUTC(NaN);
+	        if (flags != null) {
+	            extend(getParsingFlags(m), flags);
+	        }
+	        else {
+	            getParsingFlags(m).userInvalidated = true;
+	        }
+	
+	        return m;
+	    }
+	
+	    function isUndefined(input) {
+	        return input === void 0;
+	    }
+	
+	    // Plugins that add properties should also add the key here (null value),
+	    // so we can properly clone ourselves.
+	    var momentProperties = utils_hooks__hooks.momentProperties = [];
+	
+	    function copyConfig(to, from) {
+	        var i, prop, val;
+	
+	        if (!isUndefined(from._isAMomentObject)) {
+	            to._isAMomentObject = from._isAMomentObject;
+	        }
+	        if (!isUndefined(from._i)) {
+	            to._i = from._i;
+	        }
+	        if (!isUndefined(from._f)) {
+	            to._f = from._f;
+	        }
+	        if (!isUndefined(from._l)) {
+	            to._l = from._l;
+	        }
+	        if (!isUndefined(from._strict)) {
+	            to._strict = from._strict;
+	        }
+	        if (!isUndefined(from._tzm)) {
+	            to._tzm = from._tzm;
+	        }
+	        if (!isUndefined(from._isUTC)) {
+	            to._isUTC = from._isUTC;
+	        }
+	        if (!isUndefined(from._offset)) {
+	            to._offset = from._offset;
+	        }
+	        if (!isUndefined(from._pf)) {
+	            to._pf = getParsingFlags(from);
+	        }
+	        if (!isUndefined(from._locale)) {
+	            to._locale = from._locale;
+	        }
+	
+	        if (momentProperties.length > 0) {
+	            for (i in momentProperties) {
+	                prop = momentProperties[i];
+	                val = from[prop];
+	                if (!isUndefined(val)) {
+	                    to[prop] = val;
+	                }
+	            }
+	        }
+	
+	        return to;
+	    }
+	
+	    var updateInProgress = false;
+	
+	    // Moment prototype object
+	    function Moment(config) {
+	        copyConfig(this, config);
+	        this._d = new Date(config._d != null ? config._d.getTime() : NaN);
+	        // Prevent infinite loop in case updateOffset creates new moment
+	        // objects.
+	        if (updateInProgress === false) {
+	            updateInProgress = true;
+	            utils_hooks__hooks.updateOffset(this);
+	            updateInProgress = false;
+	        }
+	    }
+	
+	    function isMoment (obj) {
+	        return obj instanceof Moment || (obj != null && obj._isAMomentObject != null);
+	    }
+	
+	    function absFloor (number) {
+	        if (number < 0) {
+	            return Math.ceil(number);
+	        } else {
+	            return Math.floor(number);
+	        }
+	    }
+	
+	    function toInt(argumentForCoercion) {
+	        var coercedNumber = +argumentForCoercion,
+	            value = 0;
+	
+	        if (coercedNumber !== 0 && isFinite(coercedNumber)) {
+	            value = absFloor(coercedNumber);
+	        }
+	
+	        return value;
+	    }
+	
+	    // compare two arrays, return the number of differences
+	    function compareArrays(array1, array2, dontConvert) {
+	        var len = Math.min(array1.length, array2.length),
+	            lengthDiff = Math.abs(array1.length - array2.length),
+	            diffs = 0,
+	            i;
+	        for (i = 0; i < len; i++) {
+	            if ((dontConvert && array1[i] !== array2[i]) ||
+	                (!dontConvert && toInt(array1[i]) !== toInt(array2[i]))) {
+	                diffs++;
+	            }
+	        }
+	        return diffs + lengthDiff;
+	    }
+	
+	    function Locale() {
+	    }
+	
+	    // internal storage for locale config files
+	    var locales = {};
+	    var globalLocale;
+	
+	    function normalizeLocale(key) {
+	        return key ? key.toLowerCase().replace('_', '-') : key;
+	    }
+	
+	    // pick the locale from the array
+	    // try ['en-au', 'en-gb'] as 'en-au', 'en-gb', 'en', as in move through the list trying each
+	    // substring from most specific to least, but move to the next array item if it's a more specific variant than the current root
+	    function chooseLocale(names) {
+	        var i = 0, j, next, locale, split;
+	
+	        while (i < names.length) {
+	            split = normalizeLocale(names[i]).split('-');
+	            j = split.length;
+	            next = normalizeLocale(names[i + 1]);
+	            next = next ? next.split('-') : null;
+	            while (j > 0) {
+	                locale = loadLocale(split.slice(0, j).join('-'));
+	                if (locale) {
+	                    return locale;
+	                }
+	                if (next && next.length >= j && compareArrays(split, next, true) >= j - 1) {
+	                    //the next array item is better than a shallower substring of this one
+	                    break;
+	                }
+	                j--;
+	            }
+	            i++;
+	        }
+	        return null;
+	    }
+	
+	    function loadLocale(name) {
+	        var oldLocale = null;
+	        // TODO: Find a better way to register and load all the locales in Node
+	        if (!locales[name] && (typeof module !== 'undefined') &&
+	                module && module.exports) {
+	            try {
+	                oldLocale = globalLocale._abbr;
+	                __webpack_require__(5)("./" + name);
+	                // because defineLocale currently also sets the global locale, we
+	                // want to undo that for lazy loaded locales
+	                locale_locales__getSetGlobalLocale(oldLocale);
+	            } catch (e) { }
+	        }
+	        return locales[name];
+	    }
+	
+	    // This function will load locale and then set the global locale.  If
+	    // no arguments are passed in, it will simply return the current global
+	    // locale key.
+	    function locale_locales__getSetGlobalLocale (key, values) {
+	        var data;
+	        if (key) {
+	            if (isUndefined(values)) {
+	                data = locale_locales__getLocale(key);
+	            }
+	            else {
+	                data = defineLocale(key, values);
+	            }
+	
+	            if (data) {
+	                // moment.duration._locale = moment._locale = data;
+	                globalLocale = data;
+	            }
+	        }
+	
+	        return globalLocale._abbr;
+	    }
+	
+	    function defineLocale (name, values) {
+	        if (values !== null) {
+	            values.abbr = name;
+	            locales[name] = locales[name] || new Locale();
+	            locales[name].set(values);
+	
+	            // backwards compat for now: also set the locale
+	            locale_locales__getSetGlobalLocale(name);
+	
+	            return locales[name];
+	        } else {
+	            // useful for testing
+	            delete locales[name];
+	            return null;
+	        }
+	    }
+	
+	    // returns locale data
+	    function locale_locales__getLocale (key) {
+	        var locale;
+	
+	        if (key && key._locale && key._locale._abbr) {
+	            key = key._locale._abbr;
+	        }
+	
+	        if (!key) {
+	            return globalLocale;
+	        }
+	
+	        if (!isArray(key)) {
+	            //short-circuit everything else
+	            locale = loadLocale(key);
+	            if (locale) {
+	                return locale;
+	            }
+	            key = [key];
+	        }
+	
+	        return chooseLocale(key);
+	    }
+	
+	    var aliases = {};
+	
+	    function addUnitAlias (unit, shorthand) {
+	        var lowerCase = unit.toLowerCase();
+	        aliases[lowerCase] = aliases[lowerCase + 's'] = aliases[shorthand] = unit;
+	    }
+	
+	    function normalizeUnits(units) {
+	        return typeof units === 'string' ? aliases[units] || aliases[units.toLowerCase()] : undefined;
+	    }
+	
+	    function normalizeObjectUnits(inputObject) {
+	        var normalizedInput = {},
+	            normalizedProp,
+	            prop;
+	
+	        for (prop in inputObject) {
+	            if (hasOwnProp(inputObject, prop)) {
+	                normalizedProp = normalizeUnits(prop);
+	                if (normalizedProp) {
+	                    normalizedInput[normalizedProp] = inputObject[prop];
+	                }
+	            }
+	        }
+	
+	        return normalizedInput;
+	    }
+	
+	    function isFunction(input) {
+	        return input instanceof Function || Object.prototype.toString.call(input) === '[object Function]';
+	    }
+	
+	    function makeGetSet (unit, keepTime) {
+	        return function (value) {
+	            if (value != null) {
+	                get_set__set(this, unit, value);
+	                utils_hooks__hooks.updateOffset(this, keepTime);
+	                return this;
+	            } else {
+	                return get_set__get(this, unit);
+	            }
+	        };
+	    }
+	
+	    function get_set__get (mom, unit) {
+	        return mom.isValid() ?
+	            mom._d['get' + (mom._isUTC ? 'UTC' : '') + unit]() : NaN;
+	    }
+	
+	    function get_set__set (mom, unit, value) {
+	        if (mom.isValid()) {
+	            mom._d['set' + (mom._isUTC ? 'UTC' : '') + unit](value);
+	        }
+	    }
+	
+	    // MOMENTS
+	
+	    function getSet (units, value) {
+	        var unit;
+	        if (typeof units === 'object') {
+	            for (unit in units) {
+	                this.set(unit, units[unit]);
+	            }
+	        } else {
+	            units = normalizeUnits(units);
+	            if (isFunction(this[units])) {
+	                return this[units](value);
+	            }
+	        }
+	        return this;
+	    }
+	
+	    function zeroFill(number, targetLength, forceSign) {
+	        var absNumber = '' + Math.abs(number),
+	            zerosToFill = targetLength - absNumber.length,
+	            sign = number >= 0;
+	        return (sign ? (forceSign ? '+' : '') : '-') +
+	            Math.pow(10, Math.max(0, zerosToFill)).toString().substr(1) + absNumber;
+	    }
+	
+	    var formattingTokens = /(\[[^\[]*\])|(\\)?([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|YYYYYY|YYYYY|YYYY|YY|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|.)/g;
+	
+	    var localFormattingTokens = /(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g;
+	
+	    var formatFunctions = {};
+	
+	    var formatTokenFunctions = {};
+	
+	    // token:    'M'
+	    // padded:   ['MM', 2]
+	    // ordinal:  'Mo'
+	    // callback: function () { this.month() + 1 }
+	    function addFormatToken (token, padded, ordinal, callback) {
+	        var func = callback;
+	        if (typeof callback === 'string') {
+	            func = function () {
+	                return this[callback]();
+	            };
+	        }
+	        if (token) {
+	            formatTokenFunctions[token] = func;
+	        }
+	        if (padded) {
+	            formatTokenFunctions[padded[0]] = function () {
+	                return zeroFill(func.apply(this, arguments), padded[1], padded[2]);
+	            };
+	        }
+	        if (ordinal) {
+	            formatTokenFunctions[ordinal] = function () {
+	                return this.localeData().ordinal(func.apply(this, arguments), token);
+	            };
+	        }
+	    }
+	
+	    function removeFormattingTokens(input) {
+	        if (input.match(/\[[\s\S]/)) {
+	            return input.replace(/^\[|\]$/g, '');
+	        }
+	        return input.replace(/\\/g, '');
+	    }
+	
+	    function makeFormatFunction(format) {
+	        var array = format.match(formattingTokens), i, length;
+	
+	        for (i = 0, length = array.length; i < length; i++) {
+	            if (formatTokenFunctions[array[i]]) {
+	                array[i] = formatTokenFunctions[array[i]];
+	            } else {
+	                array[i] = removeFormattingTokens(array[i]);
+	            }
+	        }
+	
+	        return function (mom) {
+	            var output = '';
+	            for (i = 0; i < length; i++) {
+	                output += array[i] instanceof Function ? array[i].call(mom, format) : array[i];
+	            }
+	            return output;
+	        };
+	    }
+	
+	    // format date using native date object
+	    function formatMoment(m, format) {
+	        if (!m.isValid()) {
+	            return m.localeData().invalidDate();
+	        }
+	
+	        format = expandFormat(format, m.localeData());
+	        formatFunctions[format] = formatFunctions[format] || makeFormatFunction(format);
+	
+	        return formatFunctions[format](m);
+	    }
+	
+	    function expandFormat(format, locale) {
+	        var i = 5;
+	
+	        function replaceLongDateFormatTokens(input) {
+	            return locale.longDateFormat(input) || input;
+	        }
+	
+	        localFormattingTokens.lastIndex = 0;
+	        while (i >= 0 && localFormattingTokens.test(format)) {
+	            format = format.replace(localFormattingTokens, replaceLongDateFormatTokens);
+	            localFormattingTokens.lastIndex = 0;
+	            i -= 1;
+	        }
+	
+	        return format;
+	    }
+	
+	    var match1         = /\d/;            //       0 - 9
+	    var match2         = /\d\d/;          //      00 - 99
+	    var match3         = /\d{3}/;         //     000 - 999
+	    var match4         = /\d{4}/;         //    0000 - 9999
+	    var match6         = /[+-]?\d{6}/;    // -999999 - 999999
+	    var match1to2      = /\d\d?/;         //       0 - 99
+	    var match3to4      = /\d\d\d\d?/;     //     999 - 9999
+	    var match5to6      = /\d\d\d\d\d\d?/; //   99999 - 999999
+	    var match1to3      = /\d{1,3}/;       //       0 - 999
+	    var match1to4      = /\d{1,4}/;       //       0 - 9999
+	    var match1to6      = /[+-]?\d{1,6}/;  // -999999 - 999999
+	
+	    var matchUnsigned  = /\d+/;           //       0 - inf
+	    var matchSigned    = /[+-]?\d+/;      //    -inf - inf
+	
+	    var matchOffset    = /Z|[+-]\d\d:?\d\d/gi; // +00:00 -00:00 +0000 -0000 or Z
+	    var matchShortOffset = /Z|[+-]\d\d(?::?\d\d)?/gi; // +00 -00 +00:00 -00:00 +0000 -0000 or Z
+	
+	    var matchTimestamp = /[+-]?\d+(\.\d{1,3})?/; // 123456789 123456789.123
+	
+	    // any word (or two) characters or numbers including two/three word month in arabic.
+	    // includes scottish gaelic two word and hyphenated months
+	    var matchWord = /[0-9]*['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2}/i;
+	
+	
+	    var regexes = {};
+	
+	    function addRegexToken (token, regex, strictRegex) {
+	        regexes[token] = isFunction(regex) ? regex : function (isStrict, localeData) {
+	            return (isStrict && strictRegex) ? strictRegex : regex;
+	        };
+	    }
+	
+	    function getParseRegexForToken (token, config) {
+	        if (!hasOwnProp(regexes, token)) {
+	            return new RegExp(unescapeFormat(token));
+	        }
+	
+	        return regexes[token](config._strict, config._locale);
+	    }
+	
+	    // Code from http://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
+	    function unescapeFormat(s) {
+	        return regexEscape(s.replace('\\', '').replace(/\\(\[)|\\(\])|\[([^\]\[]*)\]|\\(.)/g, function (matched, p1, p2, p3, p4) {
+	            return p1 || p2 || p3 || p4;
+	        }));
+	    }
+	
+	    function regexEscape(s) {
+	        return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+	    }
+	
+	    var tokens = {};
+	
+	    function addParseToken (token, callback) {
+	        var i, func = callback;
+	        if (typeof token === 'string') {
+	            token = [token];
+	        }
+	        if (typeof callback === 'number') {
+	            func = function (input, array) {
+	                array[callback] = toInt(input);
+	            };
+	        }
+	        for (i = 0; i < token.length; i++) {
+	            tokens[token[i]] = func;
+	        }
+	    }
+	
+	    function addWeekParseToken (token, callback) {
+	        addParseToken(token, function (input, array, config, token) {
+	            config._w = config._w || {};
+	            callback(input, config._w, config, token);
+	        });
+	    }
+	
+	    function addTimeToArrayFromToken(token, input, config) {
+	        if (input != null && hasOwnProp(tokens, token)) {
+	            tokens[token](input, config._a, config, token);
+	        }
+	    }
+	
+	    var YEAR = 0;
+	    var MONTH = 1;
+	    var DATE = 2;
+	    var HOUR = 3;
+	    var MINUTE = 4;
+	    var SECOND = 5;
+	    var MILLISECOND = 6;
+	    var WEEK = 7;
+	    var WEEKDAY = 8;
+	
+	    function daysInMonth(year, month) {
+	        return new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+	    }
+	
+	    // FORMATTING
+	
+	    addFormatToken('M', ['MM', 2], 'Mo', function () {
+	        return this.month() + 1;
+	    });
+	
+	    addFormatToken('MMM', 0, 0, function (format) {
+	        return this.localeData().monthsShort(this, format);
+	    });
+	
+	    addFormatToken('MMMM', 0, 0, function (format) {
+	        return this.localeData().months(this, format);
+	    });
+	
+	    // ALIASES
+	
+	    addUnitAlias('month', 'M');
+	
+	    // PARSING
+	
+	    addRegexToken('M',    match1to2);
+	    addRegexToken('MM',   match1to2, match2);
+	    addRegexToken('MMM',  function (isStrict, locale) {
+	        return locale.monthsShortRegex(isStrict);
+	    });
+	    addRegexToken('MMMM', function (isStrict, locale) {
+	        return locale.monthsRegex(isStrict);
+	    });
+	
+	    addParseToken(['M', 'MM'], function (input, array) {
+	        array[MONTH] = toInt(input) - 1;
+	    });
+	
+	    addParseToken(['MMM', 'MMMM'], function (input, array, config, token) {
+	        var month = config._locale.monthsParse(input, token, config._strict);
+	        // if we didn't find a month name, mark the date as invalid.
+	        if (month != null) {
+	            array[MONTH] = month;
+	        } else {
+	            getParsingFlags(config).invalidMonth = input;
+	        }
+	    });
+	
+	    // LOCALES
+	
+	    var MONTHS_IN_FORMAT = /D[oD]?(\[[^\[\]]*\]|\s+)+MMMM?/;
+	    var defaultLocaleMonths = 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_');
+	    function localeMonths (m, format) {
+	        return isArray(this._months) ? this._months[m.month()] :
+	            this._months[MONTHS_IN_FORMAT.test(format) ? 'format' : 'standalone'][m.month()];
+	    }
+	
+	    var defaultLocaleMonthsShort = 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_');
+	    function localeMonthsShort (m, format) {
+	        return isArray(this._monthsShort) ? this._monthsShort[m.month()] :
+	            this._monthsShort[MONTHS_IN_FORMAT.test(format) ? 'format' : 'standalone'][m.month()];
+	    }
+	
+	    function localeMonthsParse (monthName, format, strict) {
+	        var i, mom, regex;
+	
+	        if (!this._monthsParse) {
+	            this._monthsParse = [];
+	            this._longMonthsParse = [];
+	            this._shortMonthsParse = [];
+	        }
+	
+	        for (i = 0; i < 12; i++) {
+	            // make the regex if we don't have it already
+	            mom = create_utc__createUTC([2000, i]);
+	            if (strict && !this._longMonthsParse[i]) {
+	                this._longMonthsParse[i] = new RegExp('^' + this.months(mom, '').replace('.', '') + '$', 'i');
+	                this._shortMonthsParse[i] = new RegExp('^' + this.monthsShort(mom, '').replace('.', '') + '$', 'i');
+	            }
+	            if (!strict && !this._monthsParse[i]) {
+	                regex = '^' + this.months(mom, '') + '|^' + this.monthsShort(mom, '');
+	                this._monthsParse[i] = new RegExp(regex.replace('.', ''), 'i');
+	            }
+	            // test the regex
+	            if (strict && format === 'MMMM' && this._longMonthsParse[i].test(monthName)) {
+	                return i;
+	            } else if (strict && format === 'MMM' && this._shortMonthsParse[i].test(monthName)) {
+	                return i;
+	            } else if (!strict && this._monthsParse[i].test(monthName)) {
+	                return i;
+	            }
+	        }
+	    }
+	
+	    // MOMENTS
+	
+	    function setMonth (mom, value) {
+	        var dayOfMonth;
+	
+	        if (!mom.isValid()) {
+	            // No op
+	            return mom;
+	        }
+	
+	        // TODO: Move this out of here!
+	        if (typeof value === 'string') {
+	            value = mom.localeData().monthsParse(value);
+	            // TODO: Another silent failure?
+	            if (typeof value !== 'number') {
+	                return mom;
+	            }
+	        }
+	
+	        dayOfMonth = Math.min(mom.date(), daysInMonth(mom.year(), value));
+	        mom._d['set' + (mom._isUTC ? 'UTC' : '') + 'Month'](value, dayOfMonth);
+	        return mom;
+	    }
+	
+	    function getSetMonth (value) {
+	        if (value != null) {
+	            setMonth(this, value);
+	            utils_hooks__hooks.updateOffset(this, true);
+	            return this;
+	        } else {
+	            return get_set__get(this, 'Month');
+	        }
+	    }
+	
+	    function getDaysInMonth () {
+	        return daysInMonth(this.year(), this.month());
+	    }
+	
+	    var defaultMonthsShortRegex = matchWord;
+	    function monthsShortRegex (isStrict) {
+	        if (this._monthsParseExact) {
+	            if (!hasOwnProp(this, '_monthsRegex')) {
+	                computeMonthsParse.call(this);
+	            }
+	            if (isStrict) {
+	                return this._monthsShortStrictRegex;
+	            } else {
+	                return this._monthsShortRegex;
+	            }
+	        } else {
+	            return this._monthsShortStrictRegex && isStrict ?
+	                this._monthsShortStrictRegex : this._monthsShortRegex;
+	        }
+	    }
+	
+	    var defaultMonthsRegex = matchWord;
+	    function monthsRegex (isStrict) {
+	        if (this._monthsParseExact) {
+	            if (!hasOwnProp(this, '_monthsRegex')) {
+	                computeMonthsParse.call(this);
+	            }
+	            if (isStrict) {
+	                return this._monthsStrictRegex;
+	            } else {
+	                return this._monthsRegex;
+	            }
+	        } else {
+	            return this._monthsStrictRegex && isStrict ?
+	                this._monthsStrictRegex : this._monthsRegex;
+	        }
+	    }
+	
+	    function computeMonthsParse () {
+	        function cmpLenRev(a, b) {
+	            return b.length - a.length;
+	        }
+	
+	        var shortPieces = [], longPieces = [], mixedPieces = [],
+	            i, mom;
+	        for (i = 0; i < 12; i++) {
+	            // make the regex if we don't have it already
+	            mom = create_utc__createUTC([2000, i]);
+	            shortPieces.push(this.monthsShort(mom, ''));
+	            longPieces.push(this.months(mom, ''));
+	            mixedPieces.push(this.months(mom, ''));
+	            mixedPieces.push(this.monthsShort(mom, ''));
+	        }
+	        // Sorting makes sure if one month (or abbr) is a prefix of another it
+	        // will match the longer piece.
+	        shortPieces.sort(cmpLenRev);
+	        longPieces.sort(cmpLenRev);
+	        mixedPieces.sort(cmpLenRev);
+	        for (i = 0; i < 12; i++) {
+	            shortPieces[i] = regexEscape(shortPieces[i]);
+	            longPieces[i] = regexEscape(longPieces[i]);
+	            mixedPieces[i] = regexEscape(mixedPieces[i]);
+	        }
+	
+	        this._monthsRegex = new RegExp('^(' + mixedPieces.join('|') + ')', 'i');
+	        this._monthsShortRegex = this._monthsRegex;
+	        this._monthsStrictRegex = new RegExp('^(' + longPieces.join('|') + ')$', 'i');
+	        this._monthsShortStrictRegex = new RegExp('^(' + shortPieces.join('|') + ')$', 'i');
+	    }
+	
+	    function checkOverflow (m) {
+	        var overflow;
+	        var a = m._a;
+	
+	        if (a && getParsingFlags(m).overflow === -2) {
+	            overflow =
+	                a[MONTH]       < 0 || a[MONTH]       > 11  ? MONTH :
+	                a[DATE]        < 1 || a[DATE]        > daysInMonth(a[YEAR], a[MONTH]) ? DATE :
+	                a[HOUR]        < 0 || a[HOUR]        > 24 || (a[HOUR] === 24 && (a[MINUTE] !== 0 || a[SECOND] !== 0 || a[MILLISECOND] !== 0)) ? HOUR :
+	                a[MINUTE]      < 0 || a[MINUTE]      > 59  ? MINUTE :
+	                a[SECOND]      < 0 || a[SECOND]      > 59  ? SECOND :
+	                a[MILLISECOND] < 0 || a[MILLISECOND] > 999 ? MILLISECOND :
+	                -1;
+	
+	            if (getParsingFlags(m)._overflowDayOfYear && (overflow < YEAR || overflow > DATE)) {
+	                overflow = DATE;
+	            }
+	            if (getParsingFlags(m)._overflowWeeks && overflow === -1) {
+	                overflow = WEEK;
+	            }
+	            if (getParsingFlags(m)._overflowWeekday && overflow === -1) {
+	                overflow = WEEKDAY;
+	            }
+	
+	            getParsingFlags(m).overflow = overflow;
+	        }
+	
+	        return m;
+	    }
+	
+	    function warn(msg) {
+	        if (utils_hooks__hooks.suppressDeprecationWarnings === false &&
+	                (typeof console !==  'undefined') && console.warn) {
+	            console.warn('Deprecation warning: ' + msg);
+	        }
+	    }
+	
+	    function deprecate(msg, fn) {
+	        var firstTime = true;
+	
+	        return extend(function () {
+	            if (firstTime) {
+	                warn(msg + '\nArguments: ' + Array.prototype.slice.call(arguments).join(', ') + '\n' + (new Error()).stack);
+	                firstTime = false;
+	            }
+	            return fn.apply(this, arguments);
+	        }, fn);
+	    }
+	
+	    var deprecations = {};
+	
+	    function deprecateSimple(name, msg) {
+	        if (!deprecations[name]) {
+	            warn(msg);
+	            deprecations[name] = true;
+	        }
+	    }
+	
+	    utils_hooks__hooks.suppressDeprecationWarnings = false;
+	
+	    // iso 8601 regex
+	    // 0000-00-00 0000-W00 or 0000-W00-0 + T + 00 or 00:00 or 00:00:00 or 00:00:00.000 + +00:00 or +0000 or +00)
+	    var extendedIsoRegex = /^\s*((?:[+-]\d{6}|\d{4})-(?:\d\d-\d\d|W\d\d-\d|W\d\d|\d\d\d|\d\d))(?:(T| )(\d\d(?::\d\d(?::\d\d(?:[.,]\d+)?)?)?)([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?/;
+	    var basicIsoRegex = /^\s*((?:[+-]\d{6}|\d{4})(?:\d\d\d\d|W\d\d\d|W\d\d|\d\d\d|\d\d))(?:(T| )(\d\d(?:\d\d(?:\d\d(?:[.,]\d+)?)?)?)([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?/;
+	
+	    var tzRegex = /Z|[+-]\d\d(?::?\d\d)?/;
+	
+	    var isoDates = [
+	        ['YYYYYY-MM-DD', /[+-]\d{6}-\d\d-\d\d/],
+	        ['YYYY-MM-DD', /\d{4}-\d\d-\d\d/],
+	        ['GGGG-[W]WW-E', /\d{4}-W\d\d-\d/],
+	        ['GGGG-[W]WW', /\d{4}-W\d\d/, false],
+	        ['YYYY-DDD', /\d{4}-\d{3}/],
+	        ['YYYY-MM', /\d{4}-\d\d/, false],
+	        ['YYYYYYMMDD', /[+-]\d{10}/],
+	        ['YYYYMMDD', /\d{8}/],
+	        // YYYYMM is NOT allowed by the standard
+	        ['GGGG[W]WWE', /\d{4}W\d{3}/],
+	        ['GGGG[W]WW', /\d{4}W\d{2}/, false],
+	        ['YYYYDDD', /\d{7}/]
+	    ];
+	
+	    // iso time formats and regexes
+	    var isoTimes = [
+	        ['HH:mm:ss.SSSS', /\d\d:\d\d:\d\d\.\d+/],
+	        ['HH:mm:ss,SSSS', /\d\d:\d\d:\d\d,\d+/],
+	        ['HH:mm:ss', /\d\d:\d\d:\d\d/],
+	        ['HH:mm', /\d\d:\d\d/],
+	        ['HHmmss.SSSS', /\d\d\d\d\d\d\.\d+/],
+	        ['HHmmss,SSSS', /\d\d\d\d\d\d,\d+/],
+	        ['HHmmss', /\d\d\d\d\d\d/],
+	        ['HHmm', /\d\d\d\d/],
+	        ['HH', /\d\d/]
+	    ];
+	
+	    var aspNetJsonRegex = /^\/?Date\((\-?\d+)/i;
+	
+	    // date from iso format
+	    function configFromISO(config) {
+	        var i, l,
+	            string = config._i,
+	            match = extendedIsoRegex.exec(string) || basicIsoRegex.exec(string),
+	            allowTime, dateFormat, timeFormat, tzFormat;
+	
+	        if (match) {
+	            getParsingFlags(config).iso = true;
+	
+	            for (i = 0, l = isoDates.length; i < l; i++) {
+	                if (isoDates[i][1].exec(match[1])) {
+	                    dateFormat = isoDates[i][0];
+	                    allowTime = isoDates[i][2] !== false;
+	                    break;
+	                }
+	            }
+	            if (dateFormat == null) {
+	                config._isValid = false;
+	                return;
+	            }
+	            if (match[3]) {
+	                for (i = 0, l = isoTimes.length; i < l; i++) {
+	                    if (isoTimes[i][1].exec(match[3])) {
+	                        // match[2] should be 'T' or space
+	                        timeFormat = (match[2] || ' ') + isoTimes[i][0];
+	                        break;
+	                    }
+	                }
+	                if (timeFormat == null) {
+	                    config._isValid = false;
+	                    return;
+	                }
+	            }
+	            if (!allowTime && timeFormat != null) {
+	                config._isValid = false;
+	                return;
+	            }
+	            if (match[4]) {
+	                if (tzRegex.exec(match[4])) {
+	                    tzFormat = 'Z';
+	                } else {
+	                    config._isValid = false;
+	                    return;
+	                }
+	            }
+	            config._f = dateFormat + (timeFormat || '') + (tzFormat || '');
+	            configFromStringAndFormat(config);
+	        } else {
+	            config._isValid = false;
+	        }
+	    }
+	
+	    // date from iso format or fallback
+	    function configFromString(config) {
+	        var matched = aspNetJsonRegex.exec(config._i);
+	
+	        if (matched !== null) {
+	            config._d = new Date(+matched[1]);
+	            return;
+	        }
+	
+	        configFromISO(config);
+	        if (config._isValid === false) {
+	            delete config._isValid;
+	            utils_hooks__hooks.createFromInputFallback(config);
+	        }
+	    }
+	
+	    utils_hooks__hooks.createFromInputFallback = deprecate(
+	        'moment construction falls back to js Date. This is ' +
+	        'discouraged and will be removed in upcoming major ' +
+	        'release. Please refer to ' +
+	        'https://github.com/moment/moment/issues/1407 for more info.',
+	        function (config) {
+	            config._d = new Date(config._i + (config._useUTC ? ' UTC' : ''));
+	        }
+	    );
+	
+	    function createDate (y, m, d, h, M, s, ms) {
+	        //can't just apply() to create a date:
+	        //http://stackoverflow.com/questions/181348/instantiating-a-javascript-object-by-calling-prototype-constructor-apply
+	        var date = new Date(y, m, d, h, M, s, ms);
+	
+	        //the date constructor remaps years 0-99 to 1900-1999
+	        if (y < 100 && y >= 0 && isFinite(date.getFullYear())) {
+	            date.setFullYear(y);
+	        }
+	        return date;
+	    }
+	
+	    function createUTCDate (y) {
+	        var date = new Date(Date.UTC.apply(null, arguments));
+	
+	        //the Date.UTC function remaps years 0-99 to 1900-1999
+	        if (y < 100 && y >= 0 && isFinite(date.getUTCFullYear())) {
+	            date.setUTCFullYear(y);
+	        }
+	        return date;
+	    }
+	
+	    // FORMATTING
+	
+	    addFormatToken('Y', 0, 0, function () {
+	        var y = this.year();
+	        return y <= 9999 ? '' + y : '+' + y;
+	    });
+	
+	    addFormatToken(0, ['YY', 2], 0, function () {
+	        return this.year() % 100;
+	    });
+	
+	    addFormatToken(0, ['YYYY',   4],       0, 'year');
+	    addFormatToken(0, ['YYYYY',  5],       0, 'year');
+	    addFormatToken(0, ['YYYYYY', 6, true], 0, 'year');
+	
+	    // ALIASES
+	
+	    addUnitAlias('year', 'y');
+	
+	    // PARSING
+	
+	    addRegexToken('Y',      matchSigned);
+	    addRegexToken('YY',     match1to2, match2);
+	    addRegexToken('YYYY',   match1to4, match4);
+	    addRegexToken('YYYYY',  match1to6, match6);
+	    addRegexToken('YYYYYY', match1to6, match6);
+	
+	    addParseToken(['YYYYY', 'YYYYYY'], YEAR);
+	    addParseToken('YYYY', function (input, array) {
+	        array[YEAR] = input.length === 2 ? utils_hooks__hooks.parseTwoDigitYear(input) : toInt(input);
+	    });
+	    addParseToken('YY', function (input, array) {
+	        array[YEAR] = utils_hooks__hooks.parseTwoDigitYear(input);
+	    });
+	    addParseToken('Y', function (input, array) {
+	        array[YEAR] = parseInt(input, 10);
+	    });
+	
+	    // HELPERS
+	
+	    function daysInYear(year) {
+	        return isLeapYear(year) ? 366 : 365;
+	    }
+	
+	    function isLeapYear(year) {
+	        return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+	    }
+	
+	    // HOOKS
+	
+	    utils_hooks__hooks.parseTwoDigitYear = function (input) {
+	        return toInt(input) + (toInt(input) > 68 ? 1900 : 2000);
+	    };
+	
+	    // MOMENTS
+	
+	    var getSetYear = makeGetSet('FullYear', false);
+	
+	    function getIsLeapYear () {
+	        return isLeapYear(this.year());
+	    }
+	
+	    // start-of-first-week - start-of-year
+	    function firstWeekOffset(year, dow, doy) {
+	        var // first-week day -- which january is always in the first week (4 for iso, 1 for other)
+	            fwd = 7 + dow - doy,
+	            // first-week day local weekday -- which local weekday is fwd
+	            fwdlw = (7 + createUTCDate(year, 0, fwd).getUTCDay() - dow) % 7;
+	
+	        return -fwdlw + fwd - 1;
+	    }
+	
+	    //http://en.wikipedia.org/wiki/ISO_week_date#Calculating_a_date_given_the_year.2C_week_number_and_weekday
+	    function dayOfYearFromWeeks(year, week, weekday, dow, doy) {
+	        var localWeekday = (7 + weekday - dow) % 7,
+	            weekOffset = firstWeekOffset(year, dow, doy),
+	            dayOfYear = 1 + 7 * (week - 1) + localWeekday + weekOffset,
+	            resYear, resDayOfYear;
+	
+	        if (dayOfYear <= 0) {
+	            resYear = year - 1;
+	            resDayOfYear = daysInYear(resYear) + dayOfYear;
+	        } else if (dayOfYear > daysInYear(year)) {
+	            resYear = year + 1;
+	            resDayOfYear = dayOfYear - daysInYear(year);
+	        } else {
+	            resYear = year;
+	            resDayOfYear = dayOfYear;
+	        }
+	
+	        return {
+	            year: resYear,
+	            dayOfYear: resDayOfYear
+	        };
+	    }
+	
+	    function weekOfYear(mom, dow, doy) {
+	        var weekOffset = firstWeekOffset(mom.year(), dow, doy),
+	            week = Math.floor((mom.dayOfYear() - weekOffset - 1) / 7) + 1,
+	            resWeek, resYear;
+	
+	        if (week < 1) {
+	            resYear = mom.year() - 1;
+	            resWeek = week + weeksInYear(resYear, dow, doy);
+	        } else if (week > weeksInYear(mom.year(), dow, doy)) {
+	            resWeek = week - weeksInYear(mom.year(), dow, doy);
+	            resYear = mom.year() + 1;
+	        } else {
+	            resYear = mom.year();
+	            resWeek = week;
+	        }
+	
+	        return {
+	            week: resWeek,
+	            year: resYear
+	        };
+	    }
+	
+	    function weeksInYear(year, dow, doy) {
+	        var weekOffset = firstWeekOffset(year, dow, doy),
+	            weekOffsetNext = firstWeekOffset(year + 1, dow, doy);
+	        return (daysInYear(year) - weekOffset + weekOffsetNext) / 7;
+	    }
+	
+	    // Pick the first defined of two or three arguments.
+	    function defaults(a, b, c) {
+	        if (a != null) {
+	            return a;
+	        }
+	        if (b != null) {
+	            return b;
+	        }
+	        return c;
+	    }
+	
+	    function currentDateArray(config) {
+	        // hooks is actually the exported moment object
+	        var nowValue = new Date(utils_hooks__hooks.now());
+	        if (config._useUTC) {
+	            return [nowValue.getUTCFullYear(), nowValue.getUTCMonth(), nowValue.getUTCDate()];
+	        }
+	        return [nowValue.getFullYear(), nowValue.getMonth(), nowValue.getDate()];
+	    }
+	
+	    // convert an array to a date.
+	    // the array should mirror the parameters below
+	    // note: all values past the year are optional and will default to the lowest possible value.
+	    // [year, month, day , hour, minute, second, millisecond]
+	    function configFromArray (config) {
+	        var i, date, input = [], currentDate, yearToUse;
+	
+	        if (config._d) {
+	            return;
+	        }
+	
+	        currentDate = currentDateArray(config);
+	
+	        //compute day of the year from weeks and weekdays
+	        if (config._w && config._a[DATE] == null && config._a[MONTH] == null) {
+	            dayOfYearFromWeekInfo(config);
+	        }
+	
+	        //if the day of the year is set, figure out what it is
+	        if (config._dayOfYear) {
+	            yearToUse = defaults(config._a[YEAR], currentDate[YEAR]);
+	
+	            if (config._dayOfYear > daysInYear(yearToUse)) {
+	                getParsingFlags(config)._overflowDayOfYear = true;
+	            }
+	
+	            date = createUTCDate(yearToUse, 0, config._dayOfYear);
+	            config._a[MONTH] = date.getUTCMonth();
+	            config._a[DATE] = date.getUTCDate();
+	        }
+	
+	        // Default to current date.
+	        // * if no year, month, day of month are given, default to today
+	        // * if day of month is given, default month and year
+	        // * if month is given, default only year
+	        // * if year is given, don't default anything
+	        for (i = 0; i < 3 && config._a[i] == null; ++i) {
+	            config._a[i] = input[i] = currentDate[i];
+	        }
+	
+	        // Zero out whatever was not defaulted, including time
+	        for (; i < 7; i++) {
+	            config._a[i] = input[i] = (config._a[i] == null) ? (i === 2 ? 1 : 0) : config._a[i];
+	        }
+	
+	        // Check for 24:00:00.000
+	        if (config._a[HOUR] === 24 &&
+	                config._a[MINUTE] === 0 &&
+	                config._a[SECOND] === 0 &&
+	                config._a[MILLISECOND] === 0) {
+	            config._nextDay = true;
+	            config._a[HOUR] = 0;
+	        }
+	
+	        config._d = (config._useUTC ? createUTCDate : createDate).apply(null, input);
+	        // Apply timezone offset from input. The actual utcOffset can be changed
+	        // with parseZone.
+	        if (config._tzm != null) {
+	            config._d.setUTCMinutes(config._d.getUTCMinutes() - config._tzm);
+	        }
+	
+	        if (config._nextDay) {
+	            config._a[HOUR] = 24;
+	        }
+	    }
+	
+	    function dayOfYearFromWeekInfo(config) {
+	        var w, weekYear, week, weekday, dow, doy, temp, weekdayOverflow;
+	
+	        w = config._w;
+	        if (w.GG != null || w.W != null || w.E != null) {
+	            dow = 1;
+	            doy = 4;
+	
+	            // TODO: We need to take the current isoWeekYear, but that depends on
+	            // how we interpret now (local, utc, fixed offset). So create
+	            // a now version of current config (take local/utc/offset flags, and
+	            // create now).
+	            weekYear = defaults(w.GG, config._a[YEAR], weekOfYear(local__createLocal(), 1, 4).year);
+	            week = defaults(w.W, 1);
+	            weekday = defaults(w.E, 1);
+	            if (weekday < 1 || weekday > 7) {
+	                weekdayOverflow = true;
+	            }
+	        } else {
+	            dow = config._locale._week.dow;
+	            doy = config._locale._week.doy;
+	
+	            weekYear = defaults(w.gg, config._a[YEAR], weekOfYear(local__createLocal(), dow, doy).year);
+	            week = defaults(w.w, 1);
+	
+	            if (w.d != null) {
+	                // weekday -- low day numbers are considered next week
+	                weekday = w.d;
+	                if (weekday < 0 || weekday > 6) {
+	                    weekdayOverflow = true;
+	                }
+	            } else if (w.e != null) {
+	                // local weekday -- counting starts from begining of week
+	                weekday = w.e + dow;
+	                if (w.e < 0 || w.e > 6) {
+	                    weekdayOverflow = true;
+	                }
+	            } else {
+	                // default to begining of week
+	                weekday = dow;
+	            }
+	        }
+	        if (week < 1 || week > weeksInYear(weekYear, dow, doy)) {
+	            getParsingFlags(config)._overflowWeeks = true;
+	        } else if (weekdayOverflow != null) {
+	            getParsingFlags(config)._overflowWeekday = true;
+	        } else {
+	            temp = dayOfYearFromWeeks(weekYear, week, weekday, dow, doy);
+	            config._a[YEAR] = temp.year;
+	            config._dayOfYear = temp.dayOfYear;
+	        }
+	    }
+	
+	    // constant that refers to the ISO standard
+	    utils_hooks__hooks.ISO_8601 = function () {};
+	
+	    // date from string and format string
+	    function configFromStringAndFormat(config) {
+	        // TODO: Move this to another part of the creation flow to prevent circular deps
+	        if (config._f === utils_hooks__hooks.ISO_8601) {
+	            configFromISO(config);
+	            return;
+	        }
+	
+	        config._a = [];
+	        getParsingFlags(config).empty = true;
+	
+	        // This array is used to make a Date, either with `new Date` or `Date.UTC`
+	        var string = '' + config._i,
+	            i, parsedInput, tokens, token, skipped,
+	            stringLength = string.length,
+	            totalParsedInputLength = 0;
+	
+	        tokens = expandFormat(config._f, config._locale).match(formattingTokens) || [];
+	
+	        for (i = 0; i < tokens.length; i++) {
+	            token = tokens[i];
+	            parsedInput = (string.match(getParseRegexForToken(token, config)) || [])[0];
+	            // console.log('token', token, 'parsedInput', parsedInput,
+	            //         'regex', getParseRegexForToken(token, config));
+	            if (parsedInput) {
+	                skipped = string.substr(0, string.indexOf(parsedInput));
+	                if (skipped.length > 0) {
+	                    getParsingFlags(config).unusedInput.push(skipped);
+	                }
+	                string = string.slice(string.indexOf(parsedInput) + parsedInput.length);
+	                totalParsedInputLength += parsedInput.length;
+	            }
+	            // don't parse if it's not a known token
+	            if (formatTokenFunctions[token]) {
+	                if (parsedInput) {
+	                    getParsingFlags(config).empty = false;
+	                }
+	                else {
+	                    getParsingFlags(config).unusedTokens.push(token);
+	                }
+	                addTimeToArrayFromToken(token, parsedInput, config);
+	            }
+	            else if (config._strict && !parsedInput) {
+	                getParsingFlags(config).unusedTokens.push(token);
+	            }
+	        }
+	
+	        // add remaining unparsed input length to the string
+	        getParsingFlags(config).charsLeftOver = stringLength - totalParsedInputLength;
+	        if (string.length > 0) {
+	            getParsingFlags(config).unusedInput.push(string);
+	        }
+	
+	        // clear _12h flag if hour is <= 12
+	        if (getParsingFlags(config).bigHour === true &&
+	                config._a[HOUR] <= 12 &&
+	                config._a[HOUR] > 0) {
+	            getParsingFlags(config).bigHour = undefined;
+	        }
+	        // handle meridiem
+	        config._a[HOUR] = meridiemFixWrap(config._locale, config._a[HOUR], config._meridiem);
+	
+	        configFromArray(config);
+	        checkOverflow(config);
+	    }
+	
+	
+	    function meridiemFixWrap (locale, hour, meridiem) {
+	        var isPm;
+	
+	        if (meridiem == null) {
+	            // nothing to do
+	            return hour;
+	        }
+	        if (locale.meridiemHour != null) {
+	            return locale.meridiemHour(hour, meridiem);
+	        } else if (locale.isPM != null) {
+	            // Fallback
+	            isPm = locale.isPM(meridiem);
+	            if (isPm && hour < 12) {
+	                hour += 12;
+	            }
+	            if (!isPm && hour === 12) {
+	                hour = 0;
+	            }
+	            return hour;
+	        } else {
+	            // this is not supposed to happen
+	            return hour;
+	        }
+	    }
+	
+	    // date from string and array of format strings
+	    function configFromStringAndArray(config) {
+	        var tempConfig,
+	            bestMoment,
+	
+	            scoreToBeat,
+	            i,
+	            currentScore;
+	
+	        if (config._f.length === 0) {
+	            getParsingFlags(config).invalidFormat = true;
+	            config._d = new Date(NaN);
+	            return;
+	        }
+	
+	        for (i = 0; i < config._f.length; i++) {
+	            currentScore = 0;
+	            tempConfig = copyConfig({}, config);
+	            if (config._useUTC != null) {
+	                tempConfig._useUTC = config._useUTC;
+	            }
+	            tempConfig._f = config._f[i];
+	            configFromStringAndFormat(tempConfig);
+	
+	            if (!valid__isValid(tempConfig)) {
+	                continue;
+	            }
+	
+	            // if there is any input that was not parsed add a penalty for that format
+	            currentScore += getParsingFlags(tempConfig).charsLeftOver;
+	
+	            //or tokens
+	            currentScore += getParsingFlags(tempConfig).unusedTokens.length * 10;
+	
+	            getParsingFlags(tempConfig).score = currentScore;
+	
+	            if (scoreToBeat == null || currentScore < scoreToBeat) {
+	                scoreToBeat = currentScore;
+	                bestMoment = tempConfig;
+	            }
+	        }
+	
+	        extend(config, bestMoment || tempConfig);
+	    }
+	
+	    function configFromObject(config) {
+	        if (config._d) {
+	            return;
+	        }
+	
+	        var i = normalizeObjectUnits(config._i);
+	        config._a = map([i.year, i.month, i.day || i.date, i.hour, i.minute, i.second, i.millisecond], function (obj) {
+	            return obj && parseInt(obj, 10);
+	        });
+	
+	        configFromArray(config);
+	    }
+	
+	    function createFromConfig (config) {
+	        var res = new Moment(checkOverflow(prepareConfig(config)));
+	        if (res._nextDay) {
+	            // Adding is smart enough around DST
+	            res.add(1, 'd');
+	            res._nextDay = undefined;
+	        }
+	
+	        return res;
+	    }
+	
+	    function prepareConfig (config) {
+	        var input = config._i,
+	            format = config._f;
+	
+	        config._locale = config._locale || locale_locales__getLocale(config._l);
+	
+	        if (input === null || (format === undefined && input === '')) {
+	            return valid__createInvalid({nullInput: true});
+	        }
+	
+	        if (typeof input === 'string') {
+	            config._i = input = config._locale.preparse(input);
+	        }
+	
+	        if (isMoment(input)) {
+	            return new Moment(checkOverflow(input));
+	        } else if (isArray(format)) {
+	            configFromStringAndArray(config);
+	        } else if (format) {
+	            configFromStringAndFormat(config);
+	        } else if (isDate(input)) {
+	            config._d = input;
+	        } else {
+	            configFromInput(config);
+	        }
+	
+	        if (!valid__isValid(config)) {
+	            config._d = null;
+	        }
+	
+	        return config;
+	    }
+	
+	    function configFromInput(config) {
+	        var input = config._i;
+	        if (input === undefined) {
+	            config._d = new Date(utils_hooks__hooks.now());
+	        } else if (isDate(input)) {
+	            config._d = new Date(+input);
+	        } else if (typeof input === 'string') {
+	            configFromString(config);
+	        } else if (isArray(input)) {
+	            config._a = map(input.slice(0), function (obj) {
+	                return parseInt(obj, 10);
+	            });
+	            configFromArray(config);
+	        } else if (typeof(input) === 'object') {
+	            configFromObject(config);
+	        } else if (typeof(input) === 'number') {
+	            // from milliseconds
+	            config._d = new Date(input);
+	        } else {
+	            utils_hooks__hooks.createFromInputFallback(config);
+	        }
+	    }
+	
+	    function createLocalOrUTC (input, format, locale, strict, isUTC) {
+	        var c = {};
+	
+	        if (typeof(locale) === 'boolean') {
+	            strict = locale;
+	            locale = undefined;
+	        }
+	        // object construction must be done this way.
+	        // https://github.com/moment/moment/issues/1423
+	        c._isAMomentObject = true;
+	        c._useUTC = c._isUTC = isUTC;
+	        c._l = locale;
+	        c._i = input;
+	        c._f = format;
+	        c._strict = strict;
+	
+	        return createFromConfig(c);
+	    }
+	
+	    function local__createLocal (input, format, locale, strict) {
+	        return createLocalOrUTC(input, format, locale, strict, false);
+	    }
+	
+	    var prototypeMin = deprecate(
+	         'moment().min is deprecated, use moment.min instead. https://github.com/moment/moment/issues/1548',
+	         function () {
+	             var other = local__createLocal.apply(null, arguments);
+	             if (this.isValid() && other.isValid()) {
+	                 return other < this ? this : other;
+	             } else {
+	                 return valid__createInvalid();
+	             }
+	         }
+	     );
+	
+	    var prototypeMax = deprecate(
+	        'moment().max is deprecated, use moment.max instead. https://github.com/moment/moment/issues/1548',
+	        function () {
+	            var other = local__createLocal.apply(null, arguments);
+	            if (this.isValid() && other.isValid()) {
+	                return other > this ? this : other;
+	            } else {
+	                return valid__createInvalid();
+	            }
+	        }
+	    );
+	
+	    // Pick a moment m from moments so that m[fn](other) is true for all
+	    // other. This relies on the function fn to be transitive.
+	    //
+	    // moments should either be an array of moment objects or an array, whose
+	    // first element is an array of moment objects.
+	    function pickBy(fn, moments) {
+	        var res, i;
+	        if (moments.length === 1 && isArray(moments[0])) {
+	            moments = moments[0];
+	        }
+	        if (!moments.length) {
+	            return local__createLocal();
+	        }
+	        res = moments[0];
+	        for (i = 1; i < moments.length; ++i) {
+	            if (!moments[i].isValid() || moments[i][fn](res)) {
+	                res = moments[i];
+	            }
+	        }
+	        return res;
+	    }
+	
+	    // TODO: Use [].sort instead?
+	    function min () {
+	        var args = [].slice.call(arguments, 0);
+	
+	        return pickBy('isBefore', args);
+	    }
+	
+	    function max () {
+	        var args = [].slice.call(arguments, 0);
+	
+	        return pickBy('isAfter', args);
+	    }
+	
+	    var now = function () {
+	        return Date.now ? Date.now() : +(new Date());
+	    };
+	
+	    function Duration (duration) {
+	        var normalizedInput = normalizeObjectUnits(duration),
+	            years = normalizedInput.year || 0,
+	            quarters = normalizedInput.quarter || 0,
+	            months = normalizedInput.month || 0,
+	            weeks = normalizedInput.week || 0,
+	            days = normalizedInput.day || 0,
+	            hours = normalizedInput.hour || 0,
+	            minutes = normalizedInput.minute || 0,
+	            seconds = normalizedInput.second || 0,
+	            milliseconds = normalizedInput.millisecond || 0;
+	
+	        // representation for dateAddRemove
+	        this._milliseconds = +milliseconds +
+	            seconds * 1e3 + // 1000
+	            minutes * 6e4 + // 1000 * 60
+	            hours * 36e5; // 1000 * 60 * 60
+	        // Because of dateAddRemove treats 24 hours as different from a
+	        // day when working around DST, we need to store them separately
+	        this._days = +days +
+	            weeks * 7;
+	        // It is impossible translate months into days without knowing
+	        // which months you are are talking about, so we have to store
+	        // it separately.
+	        this._months = +months +
+	            quarters * 3 +
+	            years * 12;
+	
+	        this._data = {};
+	
+	        this._locale = locale_locales__getLocale();
+	
+	        this._bubble();
+	    }
+	
+	    function isDuration (obj) {
+	        return obj instanceof Duration;
+	    }
+	
+	    // FORMATTING
+	
+	    function offset (token, separator) {
+	        addFormatToken(token, 0, 0, function () {
+	            var offset = this.utcOffset();
+	            var sign = '+';
+	            if (offset < 0) {
+	                offset = -offset;
+	                sign = '-';
+	            }
+	            return sign + zeroFill(~~(offset / 60), 2) + separator + zeroFill(~~(offset) % 60, 2);
+	        });
+	    }
+	
+	    offset('Z', ':');
+	    offset('ZZ', '');
+	
+	    // PARSING
+	
+	    addRegexToken('Z',  matchShortOffset);
+	    addRegexToken('ZZ', matchShortOffset);
+	    addParseToken(['Z', 'ZZ'], function (input, array, config) {
+	        config._useUTC = true;
+	        config._tzm = offsetFromString(matchShortOffset, input);
+	    });
+	
+	    // HELPERS
+	
+	    // timezone chunker
+	    // '+10:00' > ['10',  '00']
+	    // '-1530'  > ['-15', '30']
+	    var chunkOffset = /([\+\-]|\d\d)/gi;
+	
+	    function offsetFromString(matcher, string) {
+	        var matches = ((string || '').match(matcher) || []);
+	        var chunk   = matches[matches.length - 1] || [];
+	        var parts   = (chunk + '').match(chunkOffset) || ['-', 0, 0];
+	        var minutes = +(parts[1] * 60) + toInt(parts[2]);
+	
+	        return parts[0] === '+' ? minutes : -minutes;
+	    }
+	
+	    // Return a moment from input, that is local/utc/zone equivalent to model.
+	    function cloneWithOffset(input, model) {
+	        var res, diff;
+	        if (model._isUTC) {
+	            res = model.clone();
+	            diff = (isMoment(input) || isDate(input) ? +input : +local__createLocal(input)) - (+res);
+	            // Use low-level api, because this fn is low-level api.
+	            res._d.setTime(+res._d + diff);
+	            utils_hooks__hooks.updateOffset(res, false);
+	            return res;
+	        } else {
+	            return local__createLocal(input).local();
+	        }
+	    }
+	
+	    function getDateOffset (m) {
+	        // On Firefox.24 Date#getTimezoneOffset returns a floating point.
+	        // https://github.com/moment/moment/pull/1871
+	        return -Math.round(m._d.getTimezoneOffset() / 15) * 15;
+	    }
+	
+	    // HOOKS
+	
+	    // This function will be called whenever a moment is mutated.
+	    // It is intended to keep the offset in sync with the timezone.
+	    utils_hooks__hooks.updateOffset = function () {};
+	
+	    // MOMENTS
+	
+	    // keepLocalTime = true means only change the timezone, without
+	    // affecting the local hour. So 5:31:26 +0300 --[utcOffset(2, true)]-->
+	    // 5:31:26 +0200 It is possible that 5:31:26 doesn't exist with offset
+	    // +0200, so we adjust the time as needed, to be valid.
+	    //
+	    // Keeping the time actually adds/subtracts (one hour)
+	    // from the actual represented time. That is why we call updateOffset
+	    // a second time. In case it wants us to change the offset again
+	    // _changeInProgress == true case, then we have to adjust, because
+	    // there is no such time in the given timezone.
+	    function getSetOffset (input, keepLocalTime) {
+	        var offset = this._offset || 0,
+	            localAdjust;
+	        if (!this.isValid()) {
+	            return input != null ? this : NaN;
+	        }
+	        if (input != null) {
+	            if (typeof input === 'string') {
+	                input = offsetFromString(matchShortOffset, input);
+	            } else if (Math.abs(input) < 16) {
+	                input = input * 60;
+	            }
+	            if (!this._isUTC && keepLocalTime) {
+	                localAdjust = getDateOffset(this);
+	            }
+	            this._offset = input;
+	            this._isUTC = true;
+	            if (localAdjust != null) {
+	                this.add(localAdjust, 'm');
+	            }
+	            if (offset !== input) {
+	                if (!keepLocalTime || this._changeInProgress) {
+	                    add_subtract__addSubtract(this, create__createDuration(input - offset, 'm'), 1, false);
+	                } else if (!this._changeInProgress) {
+	                    this._changeInProgress = true;
+	                    utils_hooks__hooks.updateOffset(this, true);
+	                    this._changeInProgress = null;
+	                }
+	            }
+	            return this;
+	        } else {
+	            return this._isUTC ? offset : getDateOffset(this);
+	        }
+	    }
+	
+	    function getSetZone (input, keepLocalTime) {
+	        if (input != null) {
+	            if (typeof input !== 'string') {
+	                input = -input;
+	            }
+	
+	            this.utcOffset(input, keepLocalTime);
+	
+	            return this;
+	        } else {
+	            return -this.utcOffset();
+	        }
+	    }
+	
+	    function setOffsetToUTC (keepLocalTime) {
+	        return this.utcOffset(0, keepLocalTime);
+	    }
+	
+	    function setOffsetToLocal (keepLocalTime) {
+	        if (this._isUTC) {
+	            this.utcOffset(0, keepLocalTime);
+	            this._isUTC = false;
+	
+	            if (keepLocalTime) {
+	                this.subtract(getDateOffset(this), 'm');
+	            }
+	        }
+	        return this;
+	    }
+	
+	    function setOffsetToParsedOffset () {
+	        if (this._tzm) {
+	            this.utcOffset(this._tzm);
+	        } else if (typeof this._i === 'string') {
+	            this.utcOffset(offsetFromString(matchOffset, this._i));
+	        }
+	        return this;
+	    }
+	
+	    function hasAlignedHourOffset (input) {
+	        if (!this.isValid()) {
+	            return false;
+	        }
+	        input = input ? local__createLocal(input).utcOffset() : 0;
+	
+	        return (this.utcOffset() - input) % 60 === 0;
+	    }
+	
+	    function isDaylightSavingTime () {
+	        return (
+	            this.utcOffset() > this.clone().month(0).utcOffset() ||
+	            this.utcOffset() > this.clone().month(5).utcOffset()
+	        );
+	    }
+	
+	    function isDaylightSavingTimeShifted () {
+	        if (!isUndefined(this._isDSTShifted)) {
+	            return this._isDSTShifted;
+	        }
+	
+	        var c = {};
+	
+	        copyConfig(c, this);
+	        c = prepareConfig(c);
+	
+	        if (c._a) {
+	            var other = c._isUTC ? create_utc__createUTC(c._a) : local__createLocal(c._a);
+	            this._isDSTShifted = this.isValid() &&
+	                compareArrays(c._a, other.toArray()) > 0;
+	        } else {
+	            this._isDSTShifted = false;
+	        }
+	
+	        return this._isDSTShifted;
+	    }
+	
+	    function isLocal () {
+	        return this.isValid() ? !this._isUTC : false;
+	    }
+	
+	    function isUtcOffset () {
+	        return this.isValid() ? this._isUTC : false;
+	    }
+	
+	    function isUtc () {
+	        return this.isValid() ? this._isUTC && this._offset === 0 : false;
+	    }
+	
+	    // ASP.NET json date format regex
+	    var aspNetRegex = /^(\-)?(?:(\d*)[. ])?(\d+)\:(\d+)(?:\:(\d+)\.?(\d{3})?\d*)?$/;
+	
+	    // from http://docs.closure-library.googlecode.com/git/closure_goog_date_date.js.source.html
+	    // somewhat more in line with 4.4.3.2 2004 spec, but allows decimal anywhere
+	    var isoRegex = /^(-)?P(?:(?:([0-9,.]*)Y)?(?:([0-9,.]*)M)?(?:([0-9,.]*)D)?(?:T(?:([0-9,.]*)H)?(?:([0-9,.]*)M)?(?:([0-9,.]*)S)?)?|([0-9,.]*)W)$/;
+	
+	    function create__createDuration (input, key) {
+	        var duration = input,
+	            // matching against regexp is expensive, do it on demand
+	            match = null,
+	            sign,
+	            ret,
+	            diffRes;
+	
+	        if (isDuration(input)) {
+	            duration = {
+	                ms : input._milliseconds,
+	                d  : input._days,
+	                M  : input._months
+	            };
+	        } else if (typeof input === 'number') {
+	            duration = {};
+	            if (key) {
+	                duration[key] = input;
+	            } else {
+	                duration.milliseconds = input;
+	            }
+	        } else if (!!(match = aspNetRegex.exec(input))) {
+	            sign = (match[1] === '-') ? -1 : 1;
+	            duration = {
+	                y  : 0,
+	                d  : toInt(match[DATE])        * sign,
+	                h  : toInt(match[HOUR])        * sign,
+	                m  : toInt(match[MINUTE])      * sign,
+	                s  : toInt(match[SECOND])      * sign,
+	                ms : toInt(match[MILLISECOND]) * sign
+	            };
+	        } else if (!!(match = isoRegex.exec(input))) {
+	            sign = (match[1] === '-') ? -1 : 1;
+	            duration = {
+	                y : parseIso(match[2], sign),
+	                M : parseIso(match[3], sign),
+	                d : parseIso(match[4], sign),
+	                h : parseIso(match[5], sign),
+	                m : parseIso(match[6], sign),
+	                s : parseIso(match[7], sign),
+	                w : parseIso(match[8], sign)
+	            };
+	        } else if (duration == null) {// checks for null or undefined
+	            duration = {};
+	        } else if (typeof duration === 'object' && ('from' in duration || 'to' in duration)) {
+	            diffRes = momentsDifference(local__createLocal(duration.from), local__createLocal(duration.to));
+	
+	            duration = {};
+	            duration.ms = diffRes.milliseconds;
+	            duration.M = diffRes.months;
+	        }
+	
+	        ret = new Duration(duration);
+	
+	        if (isDuration(input) && hasOwnProp(input, '_locale')) {
+	            ret._locale = input._locale;
+	        }
+	
+	        return ret;
+	    }
+	
+	    create__createDuration.fn = Duration.prototype;
+	
+	    function parseIso (inp, sign) {
+	        // We'd normally use ~~inp for this, but unfortunately it also
+	        // converts floats to ints.
+	        // inp may be undefined, so careful calling replace on it.
+	        var res = inp && parseFloat(inp.replace(',', '.'));
+	        // apply sign while we're at it
+	        return (isNaN(res) ? 0 : res) * sign;
+	    }
+	
+	    function positiveMomentsDifference(base, other) {
+	        var res = {milliseconds: 0, months: 0};
+	
+	        res.months = other.month() - base.month() +
+	            (other.year() - base.year()) * 12;
+	        if (base.clone().add(res.months, 'M').isAfter(other)) {
+	            --res.months;
+	        }
+	
+	        res.milliseconds = +other - +(base.clone().add(res.months, 'M'));
+	
+	        return res;
+	    }
+	
+	    function momentsDifference(base, other) {
+	        var res;
+	        if (!(base.isValid() && other.isValid())) {
+	            return {milliseconds: 0, months: 0};
+	        }
+	
+	        other = cloneWithOffset(other, base);
+	        if (base.isBefore(other)) {
+	            res = positiveMomentsDifference(base, other);
+	        } else {
+	            res = positiveMomentsDifference(other, base);
+	            res.milliseconds = -res.milliseconds;
+	            res.months = -res.months;
+	        }
+	
+	        return res;
+	    }
+	
+	    // TODO: remove 'name' arg after deprecation is removed
+	    function createAdder(direction, name) {
+	        return function (val, period) {
+	            var dur, tmp;
+	            //invert the arguments, but complain about it
+	            if (period !== null && !isNaN(+period)) {
+	                deprecateSimple(name, 'moment().' + name  + '(period, number) is deprecated. Please use moment().' + name + '(number, period).');
+	                tmp = val; val = period; period = tmp;
+	            }
+	
+	            val = typeof val === 'string' ? +val : val;
+	            dur = create__createDuration(val, period);
+	            add_subtract__addSubtract(this, dur, direction);
+	            return this;
+	        };
+	    }
+	
+	    function add_subtract__addSubtract (mom, duration, isAdding, updateOffset) {
+	        var milliseconds = duration._milliseconds,
+	            days = duration._days,
+	            months = duration._months;
+	
+	        if (!mom.isValid()) {
+	            // No op
+	            return;
+	        }
+	
+	        updateOffset = updateOffset == null ? true : updateOffset;
+	
+	        if (milliseconds) {
+	            mom._d.setTime(+mom._d + milliseconds * isAdding);
+	        }
+	        if (days) {
+	            get_set__set(mom, 'Date', get_set__get(mom, 'Date') + days * isAdding);
+	        }
+	        if (months) {
+	            setMonth(mom, get_set__get(mom, 'Month') + months * isAdding);
+	        }
+	        if (updateOffset) {
+	            utils_hooks__hooks.updateOffset(mom, days || months);
+	        }
+	    }
+	
+	    var add_subtract__add      = createAdder(1, 'add');
+	    var add_subtract__subtract = createAdder(-1, 'subtract');
+	
+	    function moment_calendar__calendar (time, formats) {
+	        // We want to compare the start of today, vs this.
+	        // Getting start-of-today depends on whether we're local/utc/offset or not.
+	        var now = time || local__createLocal(),
+	            sod = cloneWithOffset(now, this).startOf('day'),
+	            diff = this.diff(sod, 'days', true),
+	            format = diff < -6 ? 'sameElse' :
+	                diff < -1 ? 'lastWeek' :
+	                diff < 0 ? 'lastDay' :
+	                diff < 1 ? 'sameDay' :
+	                diff < 2 ? 'nextDay' :
+	                diff < 7 ? 'nextWeek' : 'sameElse';
+	
+	        var output = formats && (isFunction(formats[format]) ? formats[format]() : formats[format]);
+	
+	        return this.format(output || this.localeData().calendar(format, this, local__createLocal(now)));
+	    }
+	
+	    function clone () {
+	        return new Moment(this);
+	    }
+	
+	    function isAfter (input, units) {
+	        var localInput = isMoment(input) ? input : local__createLocal(input);
+	        if (!(this.isValid() && localInput.isValid())) {
+	            return false;
+	        }
+	        units = normalizeUnits(!isUndefined(units) ? units : 'millisecond');
+	        if (units === 'millisecond') {
+	            return +this > +localInput;
+	        } else {
+	            return +localInput < +this.clone().startOf(units);
+	        }
+	    }
+	
+	    function isBefore (input, units) {
+	        var localInput = isMoment(input) ? input : local__createLocal(input);
+	        if (!(this.isValid() && localInput.isValid())) {
+	            return false;
+	        }
+	        units = normalizeUnits(!isUndefined(units) ? units : 'millisecond');
+	        if (units === 'millisecond') {
+	            return +this < +localInput;
+	        } else {
+	            return +this.clone().endOf(units) < +localInput;
+	        }
+	    }
+	
+	    function isBetween (from, to, units) {
+	        return this.isAfter(from, units) && this.isBefore(to, units);
+	    }
+	
+	    function isSame (input, units) {
+	        var localInput = isMoment(input) ? input : local__createLocal(input),
+	            inputMs;
+	        if (!(this.isValid() && localInput.isValid())) {
+	            return false;
+	        }
+	        units = normalizeUnits(units || 'millisecond');
+	        if (units === 'millisecond') {
+	            return +this === +localInput;
+	        } else {
+	            inputMs = +localInput;
+	            return +(this.clone().startOf(units)) <= inputMs && inputMs <= +(this.clone().endOf(units));
+	        }
+	    }
+	
+	    function isSameOrAfter (input, units) {
+	        return this.isSame(input, units) || this.isAfter(input,units);
+	    }
+	
+	    function isSameOrBefore (input, units) {
+	        return this.isSame(input, units) || this.isBefore(input,units);
+	    }
+	
+	    function diff (input, units, asFloat) {
+	        var that,
+	            zoneDelta,
+	            delta, output;
+	
+	        if (!this.isValid()) {
+	            return NaN;
+	        }
+	
+	        that = cloneWithOffset(input, this);
+	
+	        if (!that.isValid()) {
+	            return NaN;
+	        }
+	
+	        zoneDelta = (that.utcOffset() - this.utcOffset()) * 6e4;
+	
+	        units = normalizeUnits(units);
+	
+	        if (units === 'year' || units === 'month' || units === 'quarter') {
+	            output = monthDiff(this, that);
+	            if (units === 'quarter') {
+	                output = output / 3;
+	            } else if (units === 'year') {
+	                output = output / 12;
+	            }
+	        } else {
+	            delta = this - that;
+	            output = units === 'second' ? delta / 1e3 : // 1000
+	                units === 'minute' ? delta / 6e4 : // 1000 * 60
+	                units === 'hour' ? delta / 36e5 : // 1000 * 60 * 60
+	                units === 'day' ? (delta - zoneDelta) / 864e5 : // 1000 * 60 * 60 * 24, negate dst
+	                units === 'week' ? (delta - zoneDelta) / 6048e5 : // 1000 * 60 * 60 * 24 * 7, negate dst
+	                delta;
+	        }
+	        return asFloat ? output : absFloor(output);
+	    }
+	
+	    function monthDiff (a, b) {
+	        // difference in months
+	        var wholeMonthDiff = ((b.year() - a.year()) * 12) + (b.month() - a.month()),
+	            // b is in (anchor - 1 month, anchor + 1 month)
+	            anchor = a.clone().add(wholeMonthDiff, 'months'),
+	            anchor2, adjust;
+	
+	        if (b - anchor < 0) {
+	            anchor2 = a.clone().add(wholeMonthDiff - 1, 'months');
+	            // linear across the month
+	            adjust = (b - anchor) / (anchor - anchor2);
+	        } else {
+	            anchor2 = a.clone().add(wholeMonthDiff + 1, 'months');
+	            // linear across the month
+	            adjust = (b - anchor) / (anchor2 - anchor);
+	        }
+	
+	        return -(wholeMonthDiff + adjust);
+	    }
+	
+	    utils_hooks__hooks.defaultFormat = 'YYYY-MM-DDTHH:mm:ssZ';
+	
+	    function toString () {
+	        return this.clone().locale('en').format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
+	    }
+	
+	    function moment_format__toISOString () {
+	        var m = this.clone().utc();
+	        if (0 < m.year() && m.year() <= 9999) {
+	            if (isFunction(Date.prototype.toISOString)) {
+	                // native implementation is ~50x faster, use it when we can
+	                return this.toDate().toISOString();
+	            } else {
+	                return formatMoment(m, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
+	            }
+	        } else {
+	            return formatMoment(m, 'YYYYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
+	        }
+	    }
+	
+	    function format (inputString) {
+	        var output = formatMoment(this, inputString || utils_hooks__hooks.defaultFormat);
+	        return this.localeData().postformat(output);
+	    }
+	
+	    function from (time, withoutSuffix) {
+	        if (this.isValid() &&
+	                ((isMoment(time) && time.isValid()) ||
+	                 local__createLocal(time).isValid())) {
+	            return create__createDuration({to: this, from: time}).locale(this.locale()).humanize(!withoutSuffix);
+	        } else {
+	            return this.localeData().invalidDate();
+	        }
+	    }
+	
+	    function fromNow (withoutSuffix) {
+	        return this.from(local__createLocal(), withoutSuffix);
+	    }
+	
+	    function to (time, withoutSuffix) {
+	        if (this.isValid() &&
+	                ((isMoment(time) && time.isValid()) ||
+	                 local__createLocal(time).isValid())) {
+	            return create__createDuration({from: this, to: time}).locale(this.locale()).humanize(!withoutSuffix);
+	        } else {
+	            return this.localeData().invalidDate();
+	        }
+	    }
+	
+	    function toNow (withoutSuffix) {
+	        return this.to(local__createLocal(), withoutSuffix);
+	    }
+	
+	    // If passed a locale key, it will set the locale for this
+	    // instance.  Otherwise, it will return the locale configuration
+	    // variables for this instance.
+	    function locale (key) {
+	        var newLocaleData;
+	
+	        if (key === undefined) {
+	            return this._locale._abbr;
+	        } else {
+	            newLocaleData = locale_locales__getLocale(key);
+	            if (newLocaleData != null) {
+	                this._locale = newLocaleData;
+	            }
+	            return this;
+	        }
+	    }
+	
+	    var lang = deprecate(
+	        'moment().lang() is deprecated. Instead, use moment().localeData() to get the language configuration. Use moment().locale() to change languages.',
+	        function (key) {
+	            if (key === undefined) {
+	                return this.localeData();
+	            } else {
+	                return this.locale(key);
+	            }
+	        }
+	    );
+	
+	    function localeData () {
+	        return this._locale;
+	    }
+	
+	    function startOf (units) {
+	        units = normalizeUnits(units);
+	        // the following switch intentionally omits break keywords
+	        // to utilize falling through the cases.
+	        switch (units) {
+	        case 'year':
+	            this.month(0);
+	            /* falls through */
+	        case 'quarter':
+	        case 'month':
+	            this.date(1);
+	            /* falls through */
+	        case 'week':
+	        case 'isoWeek':
+	        case 'day':
+	            this.hours(0);
+	            /* falls through */
+	        case 'hour':
+	            this.minutes(0);
+	            /* falls through */
+	        case 'minute':
+	            this.seconds(0);
+	            /* falls through */
+	        case 'second':
+	            this.milliseconds(0);
+	        }
+	
+	        // weeks are a special case
+	        if (units === 'week') {
+	            this.weekday(0);
+	        }
+	        if (units === 'isoWeek') {
+	            this.isoWeekday(1);
+	        }
+	
+	        // quarters are also special
+	        if (units === 'quarter') {
+	            this.month(Math.floor(this.month() / 3) * 3);
+	        }
+	
+	        return this;
+	    }
+	
+	    function endOf (units) {
+	        units = normalizeUnits(units);
+	        if (units === undefined || units === 'millisecond') {
+	            return this;
+	        }
+	        return this.startOf(units).add(1, (units === 'isoWeek' ? 'week' : units)).subtract(1, 'ms');
+	    }
+	
+	    function to_type__valueOf () {
+	        return +this._d - ((this._offset || 0) * 60000);
+	    }
+	
+	    function unix () {
+	        return Math.floor(+this / 1000);
+	    }
+	
+	    function toDate () {
+	        return this._offset ? new Date(+this) : this._d;
+	    }
+	
+	    function toArray () {
+	        var m = this;
+	        return [m.year(), m.month(), m.date(), m.hour(), m.minute(), m.second(), m.millisecond()];
+	    }
+	
+	    function toObject () {
+	        var m = this;
+	        return {
+	            years: m.year(),
+	            months: m.month(),
+	            date: m.date(),
+	            hours: m.hours(),
+	            minutes: m.minutes(),
+	            seconds: m.seconds(),
+	            milliseconds: m.milliseconds()
+	        };
+	    }
+	
+	    function toJSON () {
+	        // JSON.stringify(new Date(NaN)) === 'null'
+	        return this.isValid() ? this.toISOString() : 'null';
+	    }
+	
+	    function moment_valid__isValid () {
+	        return valid__isValid(this);
+	    }
+	
+	    function parsingFlags () {
+	        return extend({}, getParsingFlags(this));
+	    }
+	
+	    function invalidAt () {
+	        return getParsingFlags(this).overflow;
+	    }
+	
+	    function creationData() {
+	        return {
+	            input: this._i,
+	            format: this._f,
+	            locale: this._locale,
+	            isUTC: this._isUTC,
+	            strict: this._strict
+	        };
+	    }
+	
+	    // FORMATTING
+	
+	    addFormatToken(0, ['gg', 2], 0, function () {
+	        return this.weekYear() % 100;
+	    });
+	
+	    addFormatToken(0, ['GG', 2], 0, function () {
+	        return this.isoWeekYear() % 100;
+	    });
+	
+	    function addWeekYearFormatToken (token, getter) {
+	        addFormatToken(0, [token, token.length], 0, getter);
+	    }
+	
+	    addWeekYearFormatToken('gggg',     'weekYear');
+	    addWeekYearFormatToken('ggggg',    'weekYear');
+	    addWeekYearFormatToken('GGGG',  'isoWeekYear');
+	    addWeekYearFormatToken('GGGGG', 'isoWeekYear');
+	
+	    // ALIASES
+	
+	    addUnitAlias('weekYear', 'gg');
+	    addUnitAlias('isoWeekYear', 'GG');
+	
+	    // PARSING
+	
+	    addRegexToken('G',      matchSigned);
+	    addRegexToken('g',      matchSigned);
+	    addRegexToken('GG',     match1to2, match2);
+	    addRegexToken('gg',     match1to2, match2);
+	    addRegexToken('GGGG',   match1to4, match4);
+	    addRegexToken('gggg',   match1to4, match4);
+	    addRegexToken('GGGGG',  match1to6, match6);
+	    addRegexToken('ggggg',  match1to6, match6);
+	
+	    addWeekParseToken(['gggg', 'ggggg', 'GGGG', 'GGGGG'], function (input, week, config, token) {
+	        week[token.substr(0, 2)] = toInt(input);
+	    });
+	
+	    addWeekParseToken(['gg', 'GG'], function (input, week, config, token) {
+	        week[token] = utils_hooks__hooks.parseTwoDigitYear(input);
+	    });
+	
+	    // MOMENTS
+	
+	    function getSetWeekYear (input) {
+	        return getSetWeekYearHelper.call(this,
+	                input,
+	                this.week(),
+	                this.weekday(),
+	                this.localeData()._week.dow,
+	                this.localeData()._week.doy);
+	    }
+	
+	    function getSetISOWeekYear (input) {
+	        return getSetWeekYearHelper.call(this,
+	                input, this.isoWeek(), this.isoWeekday(), 1, 4);
+	    }
+	
+	    function getISOWeeksInYear () {
+	        return weeksInYear(this.year(), 1, 4);
+	    }
+	
+	    function getWeeksInYear () {
+	        var weekInfo = this.localeData()._week;
+	        return weeksInYear(this.year(), weekInfo.dow, weekInfo.doy);
+	    }
+	
+	    function getSetWeekYearHelper(input, week, weekday, dow, doy) {
+	        var weeksTarget;
+	        if (input == null) {
+	            return weekOfYear(this, dow, doy).year;
+	        } else {
+	            weeksTarget = weeksInYear(input, dow, doy);
+	            if (week > weeksTarget) {
+	                week = weeksTarget;
+	            }
+	            return setWeekAll.call(this, input, week, weekday, dow, doy);
+	        }
+	    }
+	
+	    function setWeekAll(weekYear, week, weekday, dow, doy) {
+	        var dayOfYearData = dayOfYearFromWeeks(weekYear, week, weekday, dow, doy),
+	            date = createUTCDate(dayOfYearData.year, 0, dayOfYearData.dayOfYear);
+	
+	        // console.log("got", weekYear, week, weekday, "set", date.toISOString());
+	        this.year(date.getUTCFullYear());
+	        this.month(date.getUTCMonth());
+	        this.date(date.getUTCDate());
+	        return this;
+	    }
+	
+	    // FORMATTING
+	
+	    addFormatToken('Q', 0, 'Qo', 'quarter');
+	
+	    // ALIASES
+	
+	    addUnitAlias('quarter', 'Q');
+	
+	    // PARSING
+	
+	    addRegexToken('Q', match1);
+	    addParseToken('Q', function (input, array) {
+	        array[MONTH] = (toInt(input) - 1) * 3;
+	    });
+	
+	    // MOMENTS
+	
+	    function getSetQuarter (input) {
+	        return input == null ? Math.ceil((this.month() + 1) / 3) : this.month((input - 1) * 3 + this.month() % 3);
+	    }
+	
+	    // FORMATTING
+	
+	    addFormatToken('w', ['ww', 2], 'wo', 'week');
+	    addFormatToken('W', ['WW', 2], 'Wo', 'isoWeek');
+	
+	    // ALIASES
+	
+	    addUnitAlias('week', 'w');
+	    addUnitAlias('isoWeek', 'W');
+	
+	    // PARSING
+	
+	    addRegexToken('w',  match1to2);
+	    addRegexToken('ww', match1to2, match2);
+	    addRegexToken('W',  match1to2);
+	    addRegexToken('WW', match1to2, match2);
+	
+	    addWeekParseToken(['w', 'ww', 'W', 'WW'], function (input, week, config, token) {
+	        week[token.substr(0, 1)] = toInt(input);
+	    });
+	
+	    // HELPERS
+	
+	    // LOCALES
+	
+	    function localeWeek (mom) {
+	        return weekOfYear(mom, this._week.dow, this._week.doy).week;
+	    }
+	
+	    var defaultLocaleWeek = {
+	        dow : 0, // Sunday is the first day of the week.
+	        doy : 6  // The week that contains Jan 1st is the first week of the year.
+	    };
+	
+	    function localeFirstDayOfWeek () {
+	        return this._week.dow;
+	    }
+	
+	    function localeFirstDayOfYear () {
+	        return this._week.doy;
+	    }
+	
+	    // MOMENTS
+	
+	    function getSetWeek (input) {
+	        var week = this.localeData().week(this);
+	        return input == null ? week : this.add((input - week) * 7, 'd');
+	    }
+	
+	    function getSetISOWeek (input) {
+	        var week = weekOfYear(this, 1, 4).week;
+	        return input == null ? week : this.add((input - week) * 7, 'd');
+	    }
+	
+	    // FORMATTING
+	
+	    addFormatToken('D', ['DD', 2], 'Do', 'date');
+	
+	    // ALIASES
+	
+	    addUnitAlias('date', 'D');
+	
+	    // PARSING
+	
+	    addRegexToken('D',  match1to2);
+	    addRegexToken('DD', match1to2, match2);
+	    addRegexToken('Do', function (isStrict, locale) {
+	        return isStrict ? locale._ordinalParse : locale._ordinalParseLenient;
+	    });
+	
+	    addParseToken(['D', 'DD'], DATE);
+	    addParseToken('Do', function (input, array) {
+	        array[DATE] = toInt(input.match(match1to2)[0], 10);
+	    });
+	
+	    // MOMENTS
+	
+	    var getSetDayOfMonth = makeGetSet('Date', true);
+	
+	    // FORMATTING
+	
+	    addFormatToken('d', 0, 'do', 'day');
+	
+	    addFormatToken('dd', 0, 0, function (format) {
+	        return this.localeData().weekdaysMin(this, format);
+	    });
+	
+	    addFormatToken('ddd', 0, 0, function (format) {
+	        return this.localeData().weekdaysShort(this, format);
+	    });
+	
+	    addFormatToken('dddd', 0, 0, function (format) {
+	        return this.localeData().weekdays(this, format);
+	    });
+	
+	    addFormatToken('e', 0, 0, 'weekday');
+	    addFormatToken('E', 0, 0, 'isoWeekday');
+	
+	    // ALIASES
+	
+	    addUnitAlias('day', 'd');
+	    addUnitAlias('weekday', 'e');
+	    addUnitAlias('isoWeekday', 'E');
+	
+	    // PARSING
+	
+	    addRegexToken('d',    match1to2);
+	    addRegexToken('e',    match1to2);
+	    addRegexToken('E',    match1to2);
+	    addRegexToken('dd',   matchWord);
+	    addRegexToken('ddd',  matchWord);
+	    addRegexToken('dddd', matchWord);
+	
+	    addWeekParseToken(['dd', 'ddd', 'dddd'], function (input, week, config, token) {
+	        var weekday = config._locale.weekdaysParse(input, token, config._strict);
+	        // if we didn't get a weekday name, mark the date as invalid
+	        if (weekday != null) {
+	            week.d = weekday;
+	        } else {
+	            getParsingFlags(config).invalidWeekday = input;
+	        }
+	    });
+	
+	    addWeekParseToken(['d', 'e', 'E'], function (input, week, config, token) {
+	        week[token] = toInt(input);
+	    });
+	
+	    // HELPERS
+	
+	    function parseWeekday(input, locale) {
+	        if (typeof input !== 'string') {
+	            return input;
+	        }
+	
+	        if (!isNaN(input)) {
+	            return parseInt(input, 10);
+	        }
+	
+	        input = locale.weekdaysParse(input);
+	        if (typeof input === 'number') {
+	            return input;
+	        }
+	
+	        return null;
+	    }
+	
+	    // LOCALES
+	
+	    var defaultLocaleWeekdays = 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_');
+	    function localeWeekdays (m, format) {
+	        return isArray(this._weekdays) ? this._weekdays[m.day()] :
+	            this._weekdays[this._weekdays.isFormat.test(format) ? 'format' : 'standalone'][m.day()];
+	    }
+	
+	    var defaultLocaleWeekdaysShort = 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_');
+	    function localeWeekdaysShort (m) {
+	        return this._weekdaysShort[m.day()];
+	    }
+	
+	    var defaultLocaleWeekdaysMin = 'Su_Mo_Tu_We_Th_Fr_Sa'.split('_');
+	    function localeWeekdaysMin (m) {
+	        return this._weekdaysMin[m.day()];
+	    }
+	
+	    function localeWeekdaysParse (weekdayName, format, strict) {
+	        var i, mom, regex;
+	
+	        if (!this._weekdaysParse) {
+	            this._weekdaysParse = [];
+	            this._minWeekdaysParse = [];
+	            this._shortWeekdaysParse = [];
+	            this._fullWeekdaysParse = [];
+	        }
+	
+	        for (i = 0; i < 7; i++) {
+	            // make the regex if we don't have it already
+	
+	            mom = local__createLocal([2000, 1]).day(i);
+	            if (strict && !this._fullWeekdaysParse[i]) {
+	                this._fullWeekdaysParse[i] = new RegExp('^' + this.weekdays(mom, '').replace('.', '\.?') + '$', 'i');
+	                this._shortWeekdaysParse[i] = new RegExp('^' + this.weekdaysShort(mom, '').replace('.', '\.?') + '$', 'i');
+	                this._minWeekdaysParse[i] = new RegExp('^' + this.weekdaysMin(mom, '').replace('.', '\.?') + '$', 'i');
+	            }
+	            if (!this._weekdaysParse[i]) {
+	                regex = '^' + this.weekdays(mom, '') + '|^' + this.weekdaysShort(mom, '') + '|^' + this.weekdaysMin(mom, '');
+	                this._weekdaysParse[i] = new RegExp(regex.replace('.', ''), 'i');
+	            }
+	            // test the regex
+	            if (strict && format === 'dddd' && this._fullWeekdaysParse[i].test(weekdayName)) {
+	                return i;
+	            } else if (strict && format === 'ddd' && this._shortWeekdaysParse[i].test(weekdayName)) {
+	                return i;
+	            } else if (strict && format === 'dd' && this._minWeekdaysParse[i].test(weekdayName)) {
+	                return i;
+	            } else if (!strict && this._weekdaysParse[i].test(weekdayName)) {
+	                return i;
+	            }
+	        }
+	    }
+	
+	    // MOMENTS
+	
+	    function getSetDayOfWeek (input) {
+	        if (!this.isValid()) {
+	            return input != null ? this : NaN;
+	        }
+	        var day = this._isUTC ? this._d.getUTCDay() : this._d.getDay();
+	        if (input != null) {
+	            input = parseWeekday(input, this.localeData());
+	            return this.add(input - day, 'd');
+	        } else {
+	            return day;
+	        }
+	    }
+	
+	    function getSetLocaleDayOfWeek (input) {
+	        if (!this.isValid()) {
+	            return input != null ? this : NaN;
+	        }
+	        var weekday = (this.day() + 7 - this.localeData()._week.dow) % 7;
+	        return input == null ? weekday : this.add(input - weekday, 'd');
+	    }
+	
+	    function getSetISODayOfWeek (input) {
+	        if (!this.isValid()) {
+	            return input != null ? this : NaN;
+	        }
+	        // behaves the same as moment#day except
+	        // as a getter, returns 7 instead of 0 (1-7 range instead of 0-6)
+	        // as a setter, sunday should belong to the previous week.
+	        return input == null ? this.day() || 7 : this.day(this.day() % 7 ? input : input - 7);
+	    }
+	
+	    // FORMATTING
+	
+	    addFormatToken('DDD', ['DDDD', 3], 'DDDo', 'dayOfYear');
+	
+	    // ALIASES
+	
+	    addUnitAlias('dayOfYear', 'DDD');
+	
+	    // PARSING
+	
+	    addRegexToken('DDD',  match1to3);
+	    addRegexToken('DDDD', match3);
+	    addParseToken(['DDD', 'DDDD'], function (input, array, config) {
+	        config._dayOfYear = toInt(input);
+	    });
+	
+	    // HELPERS
+	
+	    // MOMENTS
+	
+	    function getSetDayOfYear (input) {
+	        var dayOfYear = Math.round((this.clone().startOf('day') - this.clone().startOf('year')) / 864e5) + 1;
+	        return input == null ? dayOfYear : this.add((input - dayOfYear), 'd');
+	    }
+	
+	    // FORMATTING
+	
+	    function hFormat() {
+	        return this.hours() % 12 || 12;
+	    }
+	
+	    addFormatToken('H', ['HH', 2], 0, 'hour');
+	    addFormatToken('h', ['hh', 2], 0, hFormat);
+	
+	    addFormatToken('hmm', 0, 0, function () {
+	        return '' + hFormat.apply(this) + zeroFill(this.minutes(), 2);
+	    });
+	
+	    addFormatToken('hmmss', 0, 0, function () {
+	        return '' + hFormat.apply(this) + zeroFill(this.minutes(), 2) +
+	            zeroFill(this.seconds(), 2);
+	    });
+	
+	    addFormatToken('Hmm', 0, 0, function () {
+	        return '' + this.hours() + zeroFill(this.minutes(), 2);
+	    });
+	
+	    addFormatToken('Hmmss', 0, 0, function () {
+	        return '' + this.hours() + zeroFill(this.minutes(), 2) +
+	            zeroFill(this.seconds(), 2);
+	    });
+	
+	    function meridiem (token, lowercase) {
+	        addFormatToken(token, 0, 0, function () {
+	            return this.localeData().meridiem(this.hours(), this.minutes(), lowercase);
+	        });
+	    }
+	
+	    meridiem('a', true);
+	    meridiem('A', false);
+	
+	    // ALIASES
+	
+	    addUnitAlias('hour', 'h');
+	
+	    // PARSING
+	
+	    function matchMeridiem (isStrict, locale) {
+	        return locale._meridiemParse;
+	    }
+	
+	    addRegexToken('a',  matchMeridiem);
+	    addRegexToken('A',  matchMeridiem);
+	    addRegexToken('H',  match1to2);
+	    addRegexToken('h',  match1to2);
+	    addRegexToken('HH', match1to2, match2);
+	    addRegexToken('hh', match1to2, match2);
+	
+	    addRegexToken('hmm', match3to4);
+	    addRegexToken('hmmss', match5to6);
+	    addRegexToken('Hmm', match3to4);
+	    addRegexToken('Hmmss', match5to6);
+	
+	    addParseToken(['H', 'HH'], HOUR);
+	    addParseToken(['a', 'A'], function (input, array, config) {
+	        config._isPm = config._locale.isPM(input);
+	        config._meridiem = input;
+	    });
+	    addParseToken(['h', 'hh'], function (input, array, config) {
+	        array[HOUR] = toInt(input);
+	        getParsingFlags(config).bigHour = true;
+	    });
+	    addParseToken('hmm', function (input, array, config) {
+	        var pos = input.length - 2;
+	        array[HOUR] = toInt(input.substr(0, pos));
+	        array[MINUTE] = toInt(input.substr(pos));
+	        getParsingFlags(config).bigHour = true;
+	    });
+	    addParseToken('hmmss', function (input, array, config) {
+	        var pos1 = input.length - 4;
+	        var pos2 = input.length - 2;
+	        array[HOUR] = toInt(input.substr(0, pos1));
+	        array[MINUTE] = toInt(input.substr(pos1, 2));
+	        array[SECOND] = toInt(input.substr(pos2));
+	        getParsingFlags(config).bigHour = true;
+	    });
+	    addParseToken('Hmm', function (input, array, config) {
+	        var pos = input.length - 2;
+	        array[HOUR] = toInt(input.substr(0, pos));
+	        array[MINUTE] = toInt(input.substr(pos));
+	    });
+	    addParseToken('Hmmss', function (input, array, config) {
+	        var pos1 = input.length - 4;
+	        var pos2 = input.length - 2;
+	        array[HOUR] = toInt(input.substr(0, pos1));
+	        array[MINUTE] = toInt(input.substr(pos1, 2));
+	        array[SECOND] = toInt(input.substr(pos2));
+	    });
+	
+	    // LOCALES
+	
+	    function localeIsPM (input) {
+	        // IE8 Quirks Mode & IE7 Standards Mode do not allow accessing strings like arrays
+	        // Using charAt should be more compatible.
+	        return ((input + '').toLowerCase().charAt(0) === 'p');
+	    }
+	
+	    var defaultLocaleMeridiemParse = /[ap]\.?m?\.?/i;
+	    function localeMeridiem (hours, minutes, isLower) {
+	        if (hours > 11) {
+	            return isLower ? 'pm' : 'PM';
+	        } else {
+	            return isLower ? 'am' : 'AM';
+	        }
+	    }
+	
+	
+	    // MOMENTS
+	
+	    // Setting the hour should keep the time, because the user explicitly
+	    // specified which hour he wants. So trying to maintain the same hour (in
+	    // a new timezone) makes sense. Adding/subtracting hours does not follow
+	    // this rule.
+	    var getSetHour = makeGetSet('Hours', true);
+	
+	    // FORMATTING
+	
+	    addFormatToken('m', ['mm', 2], 0, 'minute');
+	
+	    // ALIASES
+	
+	    addUnitAlias('minute', 'm');
+	
+	    // PARSING
+	
+	    addRegexToken('m',  match1to2);
+	    addRegexToken('mm', match1to2, match2);
+	    addParseToken(['m', 'mm'], MINUTE);
+	
+	    // MOMENTS
+	
+	    var getSetMinute = makeGetSet('Minutes', false);
+	
+	    // FORMATTING
+	
+	    addFormatToken('s', ['ss', 2], 0, 'second');
+	
+	    // ALIASES
+	
+	    addUnitAlias('second', 's');
+	
+	    // PARSING
+	
+	    addRegexToken('s',  match1to2);
+	    addRegexToken('ss', match1to2, match2);
+	    addParseToken(['s', 'ss'], SECOND);
+	
+	    // MOMENTS
+	
+	    var getSetSecond = makeGetSet('Seconds', false);
+	
+	    // FORMATTING
+	
+	    addFormatToken('S', 0, 0, function () {
+	        return ~~(this.millisecond() / 100);
+	    });
+	
+	    addFormatToken(0, ['SS', 2], 0, function () {
+	        return ~~(this.millisecond() / 10);
+	    });
+	
+	    addFormatToken(0, ['SSS', 3], 0, 'millisecond');
+	    addFormatToken(0, ['SSSS', 4], 0, function () {
+	        return this.millisecond() * 10;
+	    });
+	    addFormatToken(0, ['SSSSS', 5], 0, function () {
+	        return this.millisecond() * 100;
+	    });
+	    addFormatToken(0, ['SSSSSS', 6], 0, function () {
+	        return this.millisecond() * 1000;
+	    });
+	    addFormatToken(0, ['SSSSSSS', 7], 0, function () {
+	        return this.millisecond() * 10000;
+	    });
+	    addFormatToken(0, ['SSSSSSSS', 8], 0, function () {
+	        return this.millisecond() * 100000;
+	    });
+	    addFormatToken(0, ['SSSSSSSSS', 9], 0, function () {
+	        return this.millisecond() * 1000000;
+	    });
+	
+	
+	    // ALIASES
+	
+	    addUnitAlias('millisecond', 'ms');
+	
+	    // PARSING
+	
+	    addRegexToken('S',    match1to3, match1);
+	    addRegexToken('SS',   match1to3, match2);
+	    addRegexToken('SSS',  match1to3, match3);
+	
+	    var token;
+	    for (token = 'SSSS'; token.length <= 9; token += 'S') {
+	        addRegexToken(token, matchUnsigned);
+	    }
+	
+	    function parseMs(input, array) {
+	        array[MILLISECOND] = toInt(('0.' + input) * 1000);
+	    }
+	
+	    for (token = 'S'; token.length <= 9; token += 'S') {
+	        addParseToken(token, parseMs);
+	    }
+	    // MOMENTS
+	
+	    var getSetMillisecond = makeGetSet('Milliseconds', false);
+	
+	    // FORMATTING
+	
+	    addFormatToken('z',  0, 0, 'zoneAbbr');
+	    addFormatToken('zz', 0, 0, 'zoneName');
+	
+	    // MOMENTS
+	
+	    function getZoneAbbr () {
+	        return this._isUTC ? 'UTC' : '';
+	    }
+	
+	    function getZoneName () {
+	        return this._isUTC ? 'Coordinated Universal Time' : '';
+	    }
+	
+	    var momentPrototype__proto = Moment.prototype;
+	
+	    momentPrototype__proto.add               = add_subtract__add;
+	    momentPrototype__proto.calendar          = moment_calendar__calendar;
+	    momentPrototype__proto.clone             = clone;
+	    momentPrototype__proto.diff              = diff;
+	    momentPrototype__proto.endOf             = endOf;
+	    momentPrototype__proto.format            = format;
+	    momentPrototype__proto.from              = from;
+	    momentPrototype__proto.fromNow           = fromNow;
+	    momentPrototype__proto.to                = to;
+	    momentPrototype__proto.toNow             = toNow;
+	    momentPrototype__proto.get               = getSet;
+	    momentPrototype__proto.invalidAt         = invalidAt;
+	    momentPrototype__proto.isAfter           = isAfter;
+	    momentPrototype__proto.isBefore          = isBefore;
+	    momentPrototype__proto.isBetween         = isBetween;
+	    momentPrototype__proto.isSame            = isSame;
+	    momentPrototype__proto.isSameOrAfter     = isSameOrAfter;
+	    momentPrototype__proto.isSameOrBefore    = isSameOrBefore;
+	    momentPrototype__proto.isValid           = moment_valid__isValid;
+	    momentPrototype__proto.lang              = lang;
+	    momentPrototype__proto.locale            = locale;
+	    momentPrototype__proto.localeData        = localeData;
+	    momentPrototype__proto.max               = prototypeMax;
+	    momentPrototype__proto.min               = prototypeMin;
+	    momentPrototype__proto.parsingFlags      = parsingFlags;
+	    momentPrototype__proto.set               = getSet;
+	    momentPrototype__proto.startOf           = startOf;
+	    momentPrototype__proto.subtract          = add_subtract__subtract;
+	    momentPrototype__proto.toArray           = toArray;
+	    momentPrototype__proto.toObject          = toObject;
+	    momentPrototype__proto.toDate            = toDate;
+	    momentPrototype__proto.toISOString       = moment_format__toISOString;
+	    momentPrototype__proto.toJSON            = toJSON;
+	    momentPrototype__proto.toString          = toString;
+	    momentPrototype__proto.unix              = unix;
+	    momentPrototype__proto.valueOf           = to_type__valueOf;
+	    momentPrototype__proto.creationData      = creationData;
+	
+	    // Year
+	    momentPrototype__proto.year       = getSetYear;
+	    momentPrototype__proto.isLeapYear = getIsLeapYear;
+	
+	    // Week Year
+	    momentPrototype__proto.weekYear    = getSetWeekYear;
+	    momentPrototype__proto.isoWeekYear = getSetISOWeekYear;
+	
+	    // Quarter
+	    momentPrototype__proto.quarter = momentPrototype__proto.quarters = getSetQuarter;
+	
+	    // Month
+	    momentPrototype__proto.month       = getSetMonth;
+	    momentPrototype__proto.daysInMonth = getDaysInMonth;
+	
+	    // Week
+	    momentPrototype__proto.week           = momentPrototype__proto.weeks        = getSetWeek;
+	    momentPrototype__proto.isoWeek        = momentPrototype__proto.isoWeeks     = getSetISOWeek;
+	    momentPrototype__proto.weeksInYear    = getWeeksInYear;
+	    momentPrototype__proto.isoWeeksInYear = getISOWeeksInYear;
+	
+	    // Day
+	    momentPrototype__proto.date       = getSetDayOfMonth;
+	    momentPrototype__proto.day        = momentPrototype__proto.days             = getSetDayOfWeek;
+	    momentPrototype__proto.weekday    = getSetLocaleDayOfWeek;
+	    momentPrototype__proto.isoWeekday = getSetISODayOfWeek;
+	    momentPrototype__proto.dayOfYear  = getSetDayOfYear;
+	
+	    // Hour
+	    momentPrototype__proto.hour = momentPrototype__proto.hours = getSetHour;
+	
+	    // Minute
+	    momentPrototype__proto.minute = momentPrototype__proto.minutes = getSetMinute;
+	
+	    // Second
+	    momentPrototype__proto.second = momentPrototype__proto.seconds = getSetSecond;
+	
+	    // Millisecond
+	    momentPrototype__proto.millisecond = momentPrototype__proto.milliseconds = getSetMillisecond;
+	
+	    // Offset
+	    momentPrototype__proto.utcOffset            = getSetOffset;
+	    momentPrototype__proto.utc                  = setOffsetToUTC;
+	    momentPrototype__proto.local                = setOffsetToLocal;
+	    momentPrototype__proto.parseZone            = setOffsetToParsedOffset;
+	    momentPrototype__proto.hasAlignedHourOffset = hasAlignedHourOffset;
+	    momentPrototype__proto.isDST                = isDaylightSavingTime;
+	    momentPrototype__proto.isDSTShifted         = isDaylightSavingTimeShifted;
+	    momentPrototype__proto.isLocal              = isLocal;
+	    momentPrototype__proto.isUtcOffset          = isUtcOffset;
+	    momentPrototype__proto.isUtc                = isUtc;
+	    momentPrototype__proto.isUTC                = isUtc;
+	
+	    // Timezone
+	    momentPrototype__proto.zoneAbbr = getZoneAbbr;
+	    momentPrototype__proto.zoneName = getZoneName;
+	
+	    // Deprecations
+	    momentPrototype__proto.dates  = deprecate('dates accessor is deprecated. Use date instead.', getSetDayOfMonth);
+	    momentPrototype__proto.months = deprecate('months accessor is deprecated. Use month instead', getSetMonth);
+	    momentPrototype__proto.years  = deprecate('years accessor is deprecated. Use year instead', getSetYear);
+	    momentPrototype__proto.zone   = deprecate('moment().zone is deprecated, use moment().utcOffset instead. https://github.com/moment/moment/issues/1779', getSetZone);
+	
+	    var momentPrototype = momentPrototype__proto;
+	
+	    function moment__createUnix (input) {
+	        return local__createLocal(input * 1000);
+	    }
+	
+	    function moment__createInZone () {
+	        return local__createLocal.apply(null, arguments).parseZone();
+	    }
+	
+	    var defaultCalendar = {
+	        sameDay : '[Today at] LT',
+	        nextDay : '[Tomorrow at] LT',
+	        nextWeek : 'dddd [at] LT',
+	        lastDay : '[Yesterday at] LT',
+	        lastWeek : '[Last] dddd [at] LT',
+	        sameElse : 'L'
+	    };
+	
+	    function locale_calendar__calendar (key, mom, now) {
+	        var output = this._calendar[key];
+	        return isFunction(output) ? output.call(mom, now) : output;
+	    }
+	
+	    var defaultLongDateFormat = {
+	        LTS  : 'h:mm:ss A',
+	        LT   : 'h:mm A',
+	        L    : 'MM/DD/YYYY',
+	        LL   : 'MMMM D, YYYY',
+	        LLL  : 'MMMM D, YYYY h:mm A',
+	        LLLL : 'dddd, MMMM D, YYYY h:mm A'
+	    };
+	
+	    function longDateFormat (key) {
+	        var format = this._longDateFormat[key],
+	            formatUpper = this._longDateFormat[key.toUpperCase()];
+	
+	        if (format || !formatUpper) {
+	            return format;
+	        }
+	
+	        this._longDateFormat[key] = formatUpper.replace(/MMMM|MM|DD|dddd/g, function (val) {
+	            return val.slice(1);
+	        });
+	
+	        return this._longDateFormat[key];
+	    }
+	
+	    var defaultInvalidDate = 'Invalid date';
+	
+	    function invalidDate () {
+	        return this._invalidDate;
+	    }
+	
+	    var defaultOrdinal = '%d';
+	    var defaultOrdinalParse = /\d{1,2}/;
+	
+	    function ordinal (number) {
+	        return this._ordinal.replace('%d', number);
+	    }
+	
+	    function preParsePostFormat (string) {
+	        return string;
+	    }
+	
+	    var defaultRelativeTime = {
+	        future : 'in %s',
+	        past   : '%s ago',
+	        s  : 'a few seconds',
+	        m  : 'a minute',
+	        mm : '%d minutes',
+	        h  : 'an hour',
+	        hh : '%d hours',
+	        d  : 'a day',
+	        dd : '%d days',
+	        M  : 'a month',
+	        MM : '%d months',
+	        y  : 'a year',
+	        yy : '%d years'
+	    };
+	
+	    function relative__relativeTime (number, withoutSuffix, string, isFuture) {
+	        var output = this._relativeTime[string];
+	        return (isFunction(output)) ?
+	            output(number, withoutSuffix, string, isFuture) :
+	            output.replace(/%d/i, number);
+	    }
+	
+	    function pastFuture (diff, output) {
+	        var format = this._relativeTime[diff > 0 ? 'future' : 'past'];
+	        return isFunction(format) ? format(output) : format.replace(/%s/i, output);
+	    }
+	
+	    function locale_set__set (config) {
+	        var prop, i;
+	        for (i in config) {
+	            prop = config[i];
+	            if (isFunction(prop)) {
+	                this[i] = prop;
+	            } else {
+	                this['_' + i] = prop;
+	            }
+	        }
+	        // Lenient ordinal parsing accepts just a number in addition to
+	        // number + (possibly) stuff coming from _ordinalParseLenient.
+	        this._ordinalParseLenient = new RegExp(this._ordinalParse.source + '|' + (/\d{1,2}/).source);
+	    }
+	
+	    var prototype__proto = Locale.prototype;
+	
+	    prototype__proto._calendar       = defaultCalendar;
+	    prototype__proto.calendar        = locale_calendar__calendar;
+	    prototype__proto._longDateFormat = defaultLongDateFormat;
+	    prototype__proto.longDateFormat  = longDateFormat;
+	    prototype__proto._invalidDate    = defaultInvalidDate;
+	    prototype__proto.invalidDate     = invalidDate;
+	    prototype__proto._ordinal        = defaultOrdinal;
+	    prototype__proto.ordinal         = ordinal;
+	    prototype__proto._ordinalParse   = defaultOrdinalParse;
+	    prototype__proto.preparse        = preParsePostFormat;
+	    prototype__proto.postformat      = preParsePostFormat;
+	    prototype__proto._relativeTime   = defaultRelativeTime;
+	    prototype__proto.relativeTime    = relative__relativeTime;
+	    prototype__proto.pastFuture      = pastFuture;
+	    prototype__proto.set             = locale_set__set;
+	
+	    // Month
+	    prototype__proto.months            =        localeMonths;
+	    prototype__proto._months           = defaultLocaleMonths;
+	    prototype__proto.monthsShort       =        localeMonthsShort;
+	    prototype__proto._monthsShort      = defaultLocaleMonthsShort;
+	    prototype__proto.monthsParse       =        localeMonthsParse;
+	    prototype__proto._monthsRegex      = defaultMonthsRegex;
+	    prototype__proto.monthsRegex       = monthsRegex;
+	    prototype__proto._monthsShortRegex = defaultMonthsShortRegex;
+	    prototype__proto.monthsShortRegex  = monthsShortRegex;
+	
+	    // Week
+	    prototype__proto.week = localeWeek;
+	    prototype__proto._week = defaultLocaleWeek;
+	    prototype__proto.firstDayOfYear = localeFirstDayOfYear;
+	    prototype__proto.firstDayOfWeek = localeFirstDayOfWeek;
+	
+	    // Day of Week
+	    prototype__proto.weekdays       =        localeWeekdays;
+	    prototype__proto._weekdays      = defaultLocaleWeekdays;
+	    prototype__proto.weekdaysMin    =        localeWeekdaysMin;
+	    prototype__proto._weekdaysMin   = defaultLocaleWeekdaysMin;
+	    prototype__proto.weekdaysShort  =        localeWeekdaysShort;
+	    prototype__proto._weekdaysShort = defaultLocaleWeekdaysShort;
+	    prototype__proto.weekdaysParse  =        localeWeekdaysParse;
+	
+	    // Hours
+	    prototype__proto.isPM = localeIsPM;
+	    prototype__proto._meridiemParse = defaultLocaleMeridiemParse;
+	    prototype__proto.meridiem = localeMeridiem;
+	
+	    function lists__get (format, index, field, setter) {
+	        var locale = locale_locales__getLocale();
+	        var utc = create_utc__createUTC().set(setter, index);
+	        return locale[field](utc, format);
+	    }
+	
+	    function list (format, index, field, count, setter) {
+	        if (typeof format === 'number') {
+	            index = format;
+	            format = undefined;
+	        }
+	
+	        format = format || '';
+	
+	        if (index != null) {
+	            return lists__get(format, index, field, setter);
+	        }
+	
+	        var i;
+	        var out = [];
+	        for (i = 0; i < count; i++) {
+	            out[i] = lists__get(format, i, field, setter);
+	        }
+	        return out;
+	    }
+	
+	    function lists__listMonths (format, index) {
+	        return list(format, index, 'months', 12, 'month');
+	    }
+	
+	    function lists__listMonthsShort (format, index) {
+	        return list(format, index, 'monthsShort', 12, 'month');
+	    }
+	
+	    function lists__listWeekdays (format, index) {
+	        return list(format, index, 'weekdays', 7, 'day');
+	    }
+	
+	    function lists__listWeekdaysShort (format, index) {
+	        return list(format, index, 'weekdaysShort', 7, 'day');
+	    }
+	
+	    function lists__listWeekdaysMin (format, index) {
+	        return list(format, index, 'weekdaysMin', 7, 'day');
+	    }
+	
+	    locale_locales__getSetGlobalLocale('en', {
+	        ordinalParse: /\d{1,2}(th|st|nd|rd)/,
+	        ordinal : function (number) {
+	            var b = number % 10,
+	                output = (toInt(number % 100 / 10) === 1) ? 'th' :
+	                (b === 1) ? 'st' :
+	                (b === 2) ? 'nd' :
+	                (b === 3) ? 'rd' : 'th';
+	            return number + output;
+	        }
+	    });
+	
+	    // Side effect imports
+	    utils_hooks__hooks.lang = deprecate('moment.lang is deprecated. Use moment.locale instead.', locale_locales__getSetGlobalLocale);
+	    utils_hooks__hooks.langData = deprecate('moment.langData is deprecated. Use moment.localeData instead.', locale_locales__getLocale);
+	
+	    var mathAbs = Math.abs;
+	
+	    function duration_abs__abs () {
+	        var data           = this._data;
+	
+	        this._milliseconds = mathAbs(this._milliseconds);
+	        this._days         = mathAbs(this._days);
+	        this._months       = mathAbs(this._months);
+	
+	        data.milliseconds  = mathAbs(data.milliseconds);
+	        data.seconds       = mathAbs(data.seconds);
+	        data.minutes       = mathAbs(data.minutes);
+	        data.hours         = mathAbs(data.hours);
+	        data.months        = mathAbs(data.months);
+	        data.years         = mathAbs(data.years);
+	
+	        return this;
+	    }
+	
+	    function duration_add_subtract__addSubtract (duration, input, value, direction) {
+	        var other = create__createDuration(input, value);
+	
+	        duration._milliseconds += direction * other._milliseconds;
+	        duration._days         += direction * other._days;
+	        duration._months       += direction * other._months;
+	
+	        return duration._bubble();
+	    }
+	
+	    // supports only 2.0-style add(1, 's') or add(duration)
+	    function duration_add_subtract__add (input, value) {
+	        return duration_add_subtract__addSubtract(this, input, value, 1);
+	    }
+	
+	    // supports only 2.0-style subtract(1, 's') or subtract(duration)
+	    function duration_add_subtract__subtract (input, value) {
+	        return duration_add_subtract__addSubtract(this, input, value, -1);
+	    }
+	
+	    function absCeil (number) {
+	        if (number < 0) {
+	            return Math.floor(number);
+	        } else {
+	            return Math.ceil(number);
+	        }
+	    }
+	
+	    function bubble () {
+	        var milliseconds = this._milliseconds;
+	        var days         = this._days;
+	        var months       = this._months;
+	        var data         = this._data;
+	        var seconds, minutes, hours, years, monthsFromDays;
+	
+	        // if we have a mix of positive and negative values, bubble down first
+	        // check: https://github.com/moment/moment/issues/2166
+	        if (!((milliseconds >= 0 && days >= 0 && months >= 0) ||
+	                (milliseconds <= 0 && days <= 0 && months <= 0))) {
+	            milliseconds += absCeil(monthsToDays(months) + days) * 864e5;
+	            days = 0;
+	            months = 0;
+	        }
+	
+	        // The following code bubbles up values, see the tests for
+	        // examples of what that means.
+	        data.milliseconds = milliseconds % 1000;
+	
+	        seconds           = absFloor(milliseconds / 1000);
+	        data.seconds      = seconds % 60;
+	
+	        minutes           = absFloor(seconds / 60);
+	        data.minutes      = minutes % 60;
+	
+	        hours             = absFloor(minutes / 60);
+	        data.hours        = hours % 24;
+	
+	        days += absFloor(hours / 24);
+	
+	        // convert days to months
+	        monthsFromDays = absFloor(daysToMonths(days));
+	        months += monthsFromDays;
+	        days -= absCeil(monthsToDays(monthsFromDays));
+	
+	        // 12 months -> 1 year
+	        years = absFloor(months / 12);
+	        months %= 12;
+	
+	        data.days   = days;
+	        data.months = months;
+	        data.years  = years;
+	
+	        return this;
+	    }
+	
+	    function daysToMonths (days) {
+	        // 400 years have 146097 days (taking into account leap year rules)
+	        // 400 years have 12 months === 4800
+	        return days * 4800 / 146097;
+	    }
+	
+	    function monthsToDays (months) {
+	        // the reverse of daysToMonths
+	        return months * 146097 / 4800;
+	    }
+	
+	    function as (units) {
+	        var days;
+	        var months;
+	        var milliseconds = this._milliseconds;
+	
+	        units = normalizeUnits(units);
+	
+	        if (units === 'month' || units === 'year') {
+	            days   = this._days   + milliseconds / 864e5;
+	            months = this._months + daysToMonths(days);
+	            return units === 'month' ? months : months / 12;
+	        } else {
+	            // handle milliseconds separately because of floating point math errors (issue #1867)
+	            days = this._days + Math.round(monthsToDays(this._months));
+	            switch (units) {
+	                case 'week'   : return days / 7     + milliseconds / 6048e5;
+	                case 'day'    : return days         + milliseconds / 864e5;
+	                case 'hour'   : return days * 24    + milliseconds / 36e5;
+	                case 'minute' : return days * 1440  + milliseconds / 6e4;
+	                case 'second' : return days * 86400 + milliseconds / 1000;
+	                // Math.floor prevents floating point math errors here
+	                case 'millisecond': return Math.floor(days * 864e5) + milliseconds;
+	                default: throw new Error('Unknown unit ' + units);
+	            }
+	        }
+	    }
+	
+	    // TODO: Use this.as('ms')?
+	    function duration_as__valueOf () {
+	        return (
+	            this._milliseconds +
+	            this._days * 864e5 +
+	            (this._months % 12) * 2592e6 +
+	            toInt(this._months / 12) * 31536e6
+	        );
+	    }
+	
+	    function makeAs (alias) {
+	        return function () {
+	            return this.as(alias);
+	        };
+	    }
+	
+	    var asMilliseconds = makeAs('ms');
+	    var asSeconds      = makeAs('s');
+	    var asMinutes      = makeAs('m');
+	    var asHours        = makeAs('h');
+	    var asDays         = makeAs('d');
+	    var asWeeks        = makeAs('w');
+	    var asMonths       = makeAs('M');
+	    var asYears        = makeAs('y');
+	
+	    function duration_get__get (units) {
+	        units = normalizeUnits(units);
+	        return this[units + 's']();
+	    }
+	
+	    function makeGetter(name) {
+	        return function () {
+	            return this._data[name];
+	        };
+	    }
+	
+	    var milliseconds = makeGetter('milliseconds');
+	    var seconds      = makeGetter('seconds');
+	    var minutes      = makeGetter('minutes');
+	    var hours        = makeGetter('hours');
+	    var days         = makeGetter('days');
+	    var months       = makeGetter('months');
+	    var years        = makeGetter('years');
+	
+	    function weeks () {
+	        return absFloor(this.days() / 7);
+	    }
+	
+	    var round = Math.round;
+	    var thresholds = {
+	        s: 45,  // seconds to minute
+	        m: 45,  // minutes to hour
+	        h: 22,  // hours to day
+	        d: 26,  // days to month
+	        M: 11   // months to year
+	    };
+	
+	    // helper function for moment.fn.from, moment.fn.fromNow, and moment.duration.fn.humanize
+	    function substituteTimeAgo(string, number, withoutSuffix, isFuture, locale) {
+	        return locale.relativeTime(number || 1, !!withoutSuffix, string, isFuture);
+	    }
+	
+	    function duration_humanize__relativeTime (posNegDuration, withoutSuffix, locale) {
+	        var duration = create__createDuration(posNegDuration).abs();
+	        var seconds  = round(duration.as('s'));
+	        var minutes  = round(duration.as('m'));
+	        var hours    = round(duration.as('h'));
+	        var days     = round(duration.as('d'));
+	        var months   = round(duration.as('M'));
+	        var years    = round(duration.as('y'));
+	
+	        var a = seconds < thresholds.s && ['s', seconds]  ||
+	                minutes <= 1           && ['m']           ||
+	                minutes < thresholds.m && ['mm', minutes] ||
+	                hours   <= 1           && ['h']           ||
+	                hours   < thresholds.h && ['hh', hours]   ||
+	                days    <= 1           && ['d']           ||
+	                days    < thresholds.d && ['dd', days]    ||
+	                months  <= 1           && ['M']           ||
+	                months  < thresholds.M && ['MM', months]  ||
+	                years   <= 1           && ['y']           || ['yy', years];
+	
+	        a[2] = withoutSuffix;
+	        a[3] = +posNegDuration > 0;
+	        a[4] = locale;
+	        return substituteTimeAgo.apply(null, a);
+	    }
+	
+	    // This function allows you to set a threshold for relative time strings
+	    function duration_humanize__getSetRelativeTimeThreshold (threshold, limit) {
+	        if (thresholds[threshold] === undefined) {
+	            return false;
+	        }
+	        if (limit === undefined) {
+	            return thresholds[threshold];
+	        }
+	        thresholds[threshold] = limit;
+	        return true;
+	    }
+	
+	    function humanize (withSuffix) {
+	        var locale = this.localeData();
+	        var output = duration_humanize__relativeTime(this, !withSuffix, locale);
+	
+	        if (withSuffix) {
+	            output = locale.pastFuture(+this, output);
+	        }
+	
+	        return locale.postformat(output);
+	    }
+	
+	    var iso_string__abs = Math.abs;
+	
+	    function iso_string__toISOString() {
+	        // for ISO strings we do not use the normal bubbling rules:
+	        //  * milliseconds bubble up until they become hours
+	        //  * days do not bubble at all
+	        //  * months bubble up until they become years
+	        // This is because there is no context-free conversion between hours and days
+	        // (think of clock changes)
+	        // and also not between days and months (28-31 days per month)
+	        var seconds = iso_string__abs(this._milliseconds) / 1000;
+	        var days         = iso_string__abs(this._days);
+	        var months       = iso_string__abs(this._months);
+	        var minutes, hours, years;
+	
+	        // 3600 seconds -> 60 minutes -> 1 hour
+	        minutes           = absFloor(seconds / 60);
+	        hours             = absFloor(minutes / 60);
+	        seconds %= 60;
+	        minutes %= 60;
+	
+	        // 12 months -> 1 year
+	        years  = absFloor(months / 12);
+	        months %= 12;
+	
+	
+	        // inspired by https://github.com/dordille/moment-isoduration/blob/master/moment.isoduration.js
+	        var Y = years;
+	        var M = months;
+	        var D = days;
+	        var h = hours;
+	        var m = minutes;
+	        var s = seconds;
+	        var total = this.asSeconds();
+	
+	        if (!total) {
+	            // this is the same as C#'s (Noda) and python (isodate)...
+	            // but not other JS (goog.date)
+	            return 'P0D';
+	        }
+	
+	        return (total < 0 ? '-' : '') +
+	            'P' +
+	            (Y ? Y + 'Y' : '') +
+	            (M ? M + 'M' : '') +
+	            (D ? D + 'D' : '') +
+	            ((h || m || s) ? 'T' : '') +
+	            (h ? h + 'H' : '') +
+	            (m ? m + 'M' : '') +
+	            (s ? s + 'S' : '');
+	    }
+	
+	    var duration_prototype__proto = Duration.prototype;
+	
+	    duration_prototype__proto.abs            = duration_abs__abs;
+	    duration_prototype__proto.add            = duration_add_subtract__add;
+	    duration_prototype__proto.subtract       = duration_add_subtract__subtract;
+	    duration_prototype__proto.as             = as;
+	    duration_prototype__proto.asMilliseconds = asMilliseconds;
+	    duration_prototype__proto.asSeconds      = asSeconds;
+	    duration_prototype__proto.asMinutes      = asMinutes;
+	    duration_prototype__proto.asHours        = asHours;
+	    duration_prototype__proto.asDays         = asDays;
+	    duration_prototype__proto.asWeeks        = asWeeks;
+	    duration_prototype__proto.asMonths       = asMonths;
+	    duration_prototype__proto.asYears        = asYears;
+	    duration_prototype__proto.valueOf        = duration_as__valueOf;
+	    duration_prototype__proto._bubble        = bubble;
+	    duration_prototype__proto.get            = duration_get__get;
+	    duration_prototype__proto.milliseconds   = milliseconds;
+	    duration_prototype__proto.seconds        = seconds;
+	    duration_prototype__proto.minutes        = minutes;
+	    duration_prototype__proto.hours          = hours;
+	    duration_prototype__proto.days           = days;
+	    duration_prototype__proto.weeks          = weeks;
+	    duration_prototype__proto.months         = months;
+	    duration_prototype__proto.years          = years;
+	    duration_prototype__proto.humanize       = humanize;
+	    duration_prototype__proto.toISOString    = iso_string__toISOString;
+	    duration_prototype__proto.toString       = iso_string__toISOString;
+	    duration_prototype__proto.toJSON         = iso_string__toISOString;
+	    duration_prototype__proto.locale         = locale;
+	    duration_prototype__proto.localeData     = localeData;
+	
+	    // Deprecations
+	    duration_prototype__proto.toIsoString = deprecate('toIsoString() is deprecated. Please use toISOString() instead (notice the capitals)', iso_string__toISOString);
+	    duration_prototype__proto.lang = lang;
+	
+	    // Side effect imports
+	
+	    // FORMATTING
+	
+	    addFormatToken('X', 0, 0, 'unix');
+	    addFormatToken('x', 0, 0, 'valueOf');
+	
+	    // PARSING
+	
+	    addRegexToken('x', matchSigned);
+	    addRegexToken('X', matchTimestamp);
+	    addParseToken('X', function (input, array, config) {
+	        config._d = new Date(parseFloat(input, 10) * 1000);
+	    });
+	    addParseToken('x', function (input, array, config) {
+	        config._d = new Date(toInt(input));
+	    });
+	
+	    // Side effect imports
+	
+	
+	    utils_hooks__hooks.version = '2.11.2';
+	
+	    setHookCallback(local__createLocal);
+	
+	    utils_hooks__hooks.fn                    = momentPrototype;
+	    utils_hooks__hooks.min                   = min;
+	    utils_hooks__hooks.max                   = max;
+	    utils_hooks__hooks.now                   = now;
+	    utils_hooks__hooks.utc                   = create_utc__createUTC;
+	    utils_hooks__hooks.unix                  = moment__createUnix;
+	    utils_hooks__hooks.months                = lists__listMonths;
+	    utils_hooks__hooks.isDate                = isDate;
+	    utils_hooks__hooks.locale                = locale_locales__getSetGlobalLocale;
+	    utils_hooks__hooks.invalid               = valid__createInvalid;
+	    utils_hooks__hooks.duration              = create__createDuration;
+	    utils_hooks__hooks.isMoment              = isMoment;
+	    utils_hooks__hooks.weekdays              = lists__listWeekdays;
+	    utils_hooks__hooks.parseZone             = moment__createInZone;
+	    utils_hooks__hooks.localeData            = locale_locales__getLocale;
+	    utils_hooks__hooks.isDuration            = isDuration;
+	    utils_hooks__hooks.monthsShort           = lists__listMonthsShort;
+	    utils_hooks__hooks.weekdaysMin           = lists__listWeekdaysMin;
+	    utils_hooks__hooks.defineLocale          = defineLocale;
+	    utils_hooks__hooks.weekdaysShort         = lists__listWeekdaysShort;
+	    utils_hooks__hooks.normalizeUnits        = normalizeUnits;
+	    utils_hooks__hooks.relativeTimeThreshold = duration_humanize__getSetRelativeTimeThreshold;
+	    utils_hooks__hooks.prototype             = momentPrototype;
+	
+	    var _moment = utils_hooks__hooks;
+	
+	    return _moment;
+	
+	}));
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)(module)))
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	module.exports = function(module) {
+		if(!module.webpackPolyfill) {
+			module.deprecate = function() {};
+			module.paths = [];
+			// module.parent = undefined by default
+			module.children = [];
+			module.webpackPolyfill = 1;
+		}
+		return module;
+	}
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var map = {
+		"./en-gb": 6,
+		"./en-gb.js": 6
+	};
+	function webpackContext(req) {
+		return __webpack_require__(webpackContextResolve(req));
+	};
+	function webpackContextResolve(req) {
+		return map[req] || (function() { throw new Error("Cannot find module '" + req + "'.") }());
+	};
+	webpackContext.keys = function webpackContextKeys() {
+		return Object.keys(map);
+	};
+	webpackContext.resolve = webpackContextResolve;
+	module.exports = webpackContext;
+	webpackContext.id = 5;
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	//! moment.js locale configuration
+	//! locale : great britain english (en-gb)
+	//! author : Chris Gedrim : https://github.com/chrisgedrim
+	
+	;(function (global, factory) {
+	    true ? factory(__webpack_require__(3)) :
+	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
+	   factory(global.moment)
+	}(this, function (moment) { 'use strict';
+	
+	
+	    var en_gb = moment.defineLocale('en-gb', {
+	        months : 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_'),
+	        monthsShort : 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_'),
+	        weekdays : 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_'),
+	        weekdaysShort : 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
+	        weekdaysMin : 'Su_Mo_Tu_We_Th_Fr_Sa'.split('_'),
+	        longDateFormat : {
+	            LT : 'HH:mm',
+	            LTS : 'HH:mm:ss',
+	            L : 'DD/MM/YYYY',
+	            LL : 'D MMMM YYYY',
+	            LLL : 'D MMMM YYYY HH:mm',
+	            LLLL : 'dddd, D MMMM YYYY HH:mm'
+	        },
+	        calendar : {
+	            sameDay : '[Today at] LT',
+	            nextDay : '[Tomorrow at] LT',
+	            nextWeek : 'dddd [at] LT',
+	            lastDay : '[Yesterday at] LT',
+	            lastWeek : '[Last] dddd [at] LT',
+	            sameElse : 'L'
+	        },
+	        relativeTime : {
+	            future : 'in %s',
+	            past : '%s ago',
+	            s : 'a few seconds',
+	            m : 'a minute',
+	            mm : '%d minutes',
+	            h : 'an hour',
+	            hh : '%d hours',
+	            d : 'a day',
+	            dd : '%d days',
+	            M : 'a month',
+	            MM : '%d months',
+	            y : 'a year',
+	            yy : '%d years'
+	        },
+	        ordinalParse: /\d{1,2}(st|nd|rd|th)/,
+	        ordinal : function (number) {
+	            var b = number % 10,
+	                output = (~~(number % 100 / 10) === 1) ? 'th' :
+	                (b === 1) ? 'st' :
+	                (b === 2) ? 'nd' :
+	                (b === 3) ? 'rd' : 'th';
+	            return number + output;
+	        },
+	        week : {
+	            dow : 1, // Monday is the first day of the week.
+	            doy : 4  // The week that contains Jan 4th is the first week of the year.
+	        }
+	    });
+	
+	    return en_gb;
+	
+	}));
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	var FLScheduler = function FLScheduler() {
+	  'use strict';
+	
+	  if (!(this instanceof FLScheduler)) {
+	    return new FLScheduler();
+	  }
+	
+	  var _this = this;
+	  function request(method, url, data) {
+	    baseUrl = data.api;
+	
+	    if (!baseUrl) {
+	      throw Error('Fatal: No "api" property in bookingjs config object.');
+	    }
+	
+	    var config = {
+	      method: method,
+	    };
+	
+	    var target = baseUrl + url;
+	    if (method.toUpperCase() === 'POST') {
+	      config.body = JSON.stringify(data);
+	    }
+	
+	    return fetch(target, config).then(function (res) {
+	      return res.json();
+	    }).then(function (json) {
+	      return json;
+	    });
+	  }
+	
+	  this.configure = function () {};
+	
+	  this.setUser = function () {};
+	
+	  this.findTime = function (data) {
+	    return request('POST', '/findtime', data);
+	  };
+	
+	  this.getUserTimezone = function (data) {
+	    return request('GET', '/users/timezone/?email=' + data.email);
+	  };
+	
+	  this.headers = function (arg) {
+	    console.log(arg);
+	    return _this;
+	  };
+	
+	  this.createBooking = function (data) {
+	    console.log('Creating booking with:');
+	    console.dir(data);
+	    return request('POST', '/bookings', data);
+	  };
+	
+	  //Logs function calls
+	  // Object.keys(_this).forEach(function (prop) {
+	  //   var func = _this[prop];
+	  //   Object.defineProperty(_this, prop, {
+	  //     get: function () {
+	  //       console.log('slvSceduler: ' + prop);
+	  //       return func;
+	  //     },
+	  //   });
+	  // });
+	
+	  return this;
+	};
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;//! moment-timezone.js
+	//! version : 0.5.1
+	//! author : Tim Wood
+	//! license : MIT
+	//! github.com/moment/moment-timezone
+	
+	(function (root, factory) {
+		"use strict";
+	
+		/*global define*/
+		if (true) {
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));                 // AMD
+		} else if (typeof module === 'object' && module.exports) {
+			module.exports = factory(require('moment')); // Node
+		} else {
+			factory(root.moment);                        // Browser
+		}
+	}(this, function (moment) {
+		"use strict";
+	
+		// Do not load moment-timezone a second time.
+		if (moment.tz !== undefined) {
+			logError('Moment Timezone ' + moment.tz.version + ' was already loaded ' + (moment.tz.dataVersion ? 'with data from ' : 'without any data') + moment.tz.dataVersion);
+			return moment;
+		}
+	
+		var VERSION = "0.5.1",
+			zones = {},
+			links = {},
+			names = {},
+			guesses = {},
+			cachedGuess,
+	
+			momentVersion = moment.version.split('.'),
+			major = +momentVersion[0],
+			minor = +momentVersion[1];
+	
+		// Moment.js version check
+		if (major < 2 || (major === 2 && minor < 6)) {
+			logError('Moment Timezone requires Moment.js >= 2.6.0. You are using Moment.js ' + moment.version + '. See momentjs.com');
+		}
+	
+		/************************************
+			Unpacking
+		************************************/
+	
+		function charCodeToInt(charCode) {
+			if (charCode > 96) {
+				return charCode - 87;
+			} else if (charCode > 64) {
+				return charCode - 29;
+			}
+			return charCode - 48;
+		}
+	
+		function unpackBase60(string) {
+			var i = 0,
+				parts = string.split('.'),
+				whole = parts[0],
+				fractional = parts[1] || '',
+				multiplier = 1,
+				num,
+				out = 0,
+				sign = 1;
+	
+			// handle negative numbers
+			if (string.charCodeAt(0) === 45) {
+				i = 1;
+				sign = -1;
+			}
+	
+			// handle digits before the decimal
+			for (i; i < whole.length; i++) {
+				num = charCodeToInt(whole.charCodeAt(i));
+				out = 60 * out + num;
+			}
+	
+			// handle digits after the decimal
+			for (i = 0; i < fractional.length; i++) {
+				multiplier = multiplier / 60;
+				num = charCodeToInt(fractional.charCodeAt(i));
+				out += num * multiplier;
+			}
+	
+			return out * sign;
+		}
+	
+		function arrayToInt (array) {
+			for (var i = 0; i < array.length; i++) {
+				array[i] = unpackBase60(array[i]);
+			}
+		}
+	
+		function intToUntil (array, length) {
+			for (var i = 0; i < length; i++) {
+				array[i] = Math.round((array[i - 1] || 0) + (array[i] * 60000)); // minutes to milliseconds
+			}
+	
+			array[length - 1] = Infinity;
+		}
+	
+		function mapIndices (source, indices) {
+			var out = [], i;
+	
+			for (i = 0; i < indices.length; i++) {
+				out[i] = source[indices[i]];
+			}
+	
+			return out;
+		}
+	
+		function unpack (string) {
+			var data = string.split('|'),
+				offsets = data[2].split(' '),
+				indices = data[3].split(''),
+				untils  = data[4].split(' ');
+	
+			arrayToInt(offsets);
+			arrayToInt(indices);
+			arrayToInt(untils);
+	
+			intToUntil(untils, indices.length);
+	
+			return {
+				name       : data[0],
+				abbrs      : mapIndices(data[1].split(' '), indices),
+				offsets    : mapIndices(offsets, indices),
+				untils     : untils,
+				population : data[5] | 0
+			};
+		}
+	
+		/************************************
+			Zone object
+		************************************/
+	
+		function Zone (packedString) {
+			if (packedString) {
+				this._set(unpack(packedString));
+			}
+		}
+	
+		Zone.prototype = {
+			_set : function (unpacked) {
+				this.name       = unpacked.name;
+				this.abbrs      = unpacked.abbrs;
+				this.untils     = unpacked.untils;
+				this.offsets    = unpacked.offsets;
+				this.population = unpacked.population;
+			},
+	
+			_index : function (timestamp) {
+				var target = +timestamp,
+					untils = this.untils,
+					i;
+	
+				for (i = 0; i < untils.length; i++) {
+					if (target < untils[i]) {
+						return i;
+					}
+				}
+			},
+	
+			parse : function (timestamp) {
+				var target  = +timestamp,
+					offsets = this.offsets,
+					untils  = this.untils,
+					max     = untils.length - 1,
+					offset, offsetNext, offsetPrev, i;
+	
+				for (i = 0; i < max; i++) {
+					offset     = offsets[i];
+					offsetNext = offsets[i + 1];
+					offsetPrev = offsets[i ? i - 1 : i];
+	
+					if (offset < offsetNext && tz.moveAmbiguousForward) {
+						offset = offsetNext;
+					} else if (offset > offsetPrev && tz.moveInvalidForward) {
+						offset = offsetPrev;
+					}
+	
+					if (target < untils[i] - (offset * 60000)) {
+						return offsets[i];
+					}
+				}
+	
+				return offsets[max];
+			},
+	
+			abbr : function (mom) {
+				return this.abbrs[this._index(mom)];
+			},
+	
+			offset : function (mom) {
+				return this.offsets[this._index(mom)];
+			}
+		};
+	
+		/************************************
+			Current Timezone
+		************************************/
+	
+		function OffsetAt(at) {
+			var timeString = at.toTimeString();
+			var abbr = timeString.match(/\([a-z ]+\)/i);
+			if (abbr && abbr[0]) {
+				// 17:56:31 GMT-0600 (CST)
+				// 17:56:31 GMT-0600 (Central Standard Time)
+				abbr = abbr[0].match(/[A-Z]/g);
+				abbr = abbr ? abbr.join('') : undefined;
+			} else {
+				// 17:56:31 CST
+				// 17:56:31 GMT+0800 (台北標準時間)
+				abbr = timeString.match(/[A-Z]{3,5}/g);
+				abbr = abbr ? abbr[0] : undefined;
+			}
+	
+			if (abbr === 'GMT') {
+				abbr = undefined;
+			}
+	
+			this.at = +at;
+			this.abbr = abbr;
+			this.offset = at.getTimezoneOffset();
+		}
+	
+		function ZoneScore(zone) {
+			this.zone = zone;
+			this.offsetScore = 0;
+			this.abbrScore = 0;
+		}
+	
+		ZoneScore.prototype.scoreOffsetAt = function (offsetAt) {
+			this.offsetScore += Math.abs(this.zone.offset(offsetAt.at) - offsetAt.offset);
+			if (this.zone.abbr(offsetAt.at).match(/[A-Z]/g).join('') !== offsetAt.abbr) {
+				this.abbrScore++;
+			}
+		};
+	
+		function findChange(low, high) {
+			var mid, diff;
+	
+			while ((diff = ((high.at - low.at) / 12e4 | 0) * 6e4)) {
+				mid = new OffsetAt(new Date(low.at + diff));
+				if (mid.offset === low.offset) {
+					low = mid;
+				} else {
+					high = mid;
+				}
+			}
+	
+			return low;
+		}
+	
+		function userOffsets() {
+			var startYear = new Date().getFullYear() - 2,
+				last = new OffsetAt(new Date(startYear, 0, 1)),
+				offsets = [last],
+				change, next, i;
+	
+			for (i = 1; i < 48; i++) {
+				next = new OffsetAt(new Date(startYear, i, 1));
+				if (next.offset !== last.offset) {
+					change = findChange(last, next);
+					offsets.push(change);
+					offsets.push(new OffsetAt(new Date(change.at + 6e4)));
+				}
+				last = next;
+			}
+	
+			for (i = 0; i < 4; i++) {
+				offsets.push(new OffsetAt(new Date(startYear + i, 0, 1)));
+				offsets.push(new OffsetAt(new Date(startYear + i, 6, 1)));
+			}
+	
+			return offsets;
+		}
+	
+		function sortZoneScores (a, b) {
+			if (a.offsetScore !== b.offsetScore) {
+				return a.offsetScore - b.offsetScore;
+			}
+			if (a.abbrScore !== b.abbrScore) {
+				return a.abbrScore - b.abbrScore;
+			}
+			return b.zone.population - a.zone.population;
+		}
+	
+		function addToGuesses (name, offsets) {
+			var i, offset;
+			arrayToInt(offsets);
+			for (i = 0; i < offsets.length; i++) {
+				offset = offsets[i];
+				guesses[offset] = guesses[offset] || {};
+				guesses[offset][name] = true;
+			}
+		}
+	
+		function guessesForUserOffsets (offsets) {
+			var offsetsLength = offsets.length,
+				filteredGuesses = {},
+				out = [],
+				i, j, guessesOffset;
+	
+			for (i = 0; i < offsetsLength; i++) {
+				guessesOffset = guesses[offsets[i].offset] || {};
+				for (j in guessesOffset) {
+					if (guessesOffset.hasOwnProperty(j)) {
+						filteredGuesses[j] = true;
+					}
+				}
+			}
+	
+			for (i in filteredGuesses) {
+				if (filteredGuesses.hasOwnProperty(i)) {
+					out.push(names[i]);
+				}
+			}
+	
+			return out;
+		}
+	
+		function rebuildGuess () {
+	
+			// use Intl API when available and returning valid time zone
+			try {
+				var intlName = Intl.DateTimeFormat().resolvedOptions().timeZone;
+				var name = names[normalizeName(intlName)];
+				if (name) {
+					return name;
+				}
+				logError("Moment Timezone found " + intlName + " from the Intl api, but did not have that data loaded.");
+			} catch (e) {
+				// Intl unavailable, fall back to manual guessing.
+			}
+	
+			var offsets = userOffsets(),
+				offsetsLength = offsets.length,
+				guesses = guessesForUserOffsets(offsets),
+				zoneScores = [],
+				zoneScore, i, j;
+	
+			for (i = 0; i < guesses.length; i++) {
+				zoneScore = new ZoneScore(getZone(guesses[i]), offsetsLength);
+				for (j = 0; j < offsetsLength; j++) {
+					zoneScore.scoreOffsetAt(offsets[j]);
+				}
+				zoneScores.push(zoneScore);
+			}
+	
+			zoneScores.sort(sortZoneScores);
+	
+			return zoneScores.length > 0 ? zoneScores[0].zone.name : undefined;
+		}
+	
+		function guess (ignoreCache) {
+			if (!cachedGuess || ignoreCache) {
+				cachedGuess = rebuildGuess();
+			}
+			return cachedGuess;
+		}
+	
+		/************************************
+			Global Methods
+		************************************/
+	
+		function normalizeName (name) {
+			return (name || '').toLowerCase().replace(/\//g, '_');
+		}
+	
+		function addZone (packed) {
+			var i, name, split, normalized;
+	
+			if (typeof packed === "string") {
+				packed = [packed];
+			}
+	
+			for (i = 0; i < packed.length; i++) {
+				split = packed[i].split('|');
+				name = split[0];
+				normalized = normalizeName(name);
+				zones[normalized] = packed[i];
+				names[normalized] = name;
+				if (split[5]) {
+					addToGuesses(normalized, split[2].split(' '));
+				}
+			}
+		}
+	
+		function getZone (name, caller) {
+			name = normalizeName(name);
+	
+			var zone = zones[name];
+			var link;
+	
+			if (zone instanceof Zone) {
+				return zone;
+			}
+	
+			if (typeof zone === 'string') {
+				zone = new Zone(zone);
+				zones[name] = zone;
+				return zone;
+			}
+	
+			// Pass getZone to prevent recursion more than 1 level deep
+			if (links[name] && caller !== getZone && (link = getZone(links[name], getZone))) {
+				zone = zones[name] = new Zone();
+				zone._set(link);
+				zone.name = names[name];
+				return zone;
+			}
+	
+			return null;
+		}
+	
+		function getNames () {
+			var i, out = [];
+	
+			for (i in names) {
+				if (names.hasOwnProperty(i) && (zones[i] || zones[links[i]]) && names[i]) {
+					out.push(names[i]);
+				}
+			}
+	
+			return out.sort();
+		}
+	
+		function addLink (aliases) {
+			var i, alias, normal0, normal1;
+	
+			if (typeof aliases === "string") {
+				aliases = [aliases];
+			}
+	
+			for (i = 0; i < aliases.length; i++) {
+				alias = aliases[i].split('|');
+	
+				normal0 = normalizeName(alias[0]);
+				normal1 = normalizeName(alias[1]);
+	
+				links[normal0] = normal1;
+				names[normal0] = alias[0];
+	
+				links[normal1] = normal0;
+				names[normal1] = alias[1];
+			}
+		}
+	
+		function loadData (data) {
+			addZone(data.zones);
+			addLink(data.links);
+			tz.dataVersion = data.version;
+		}
+	
+		function zoneExists (name) {
+			if (!zoneExists.didShowError) {
+				zoneExists.didShowError = true;
+					logError("moment.tz.zoneExists('" + name + "') has been deprecated in favor of !moment.tz.zone('" + name + "')");
+			}
+			return !!getZone(name);
+		}
+	
+		function needsOffset (m) {
+			return !!(m._a && (m._tzm === undefined));
+		}
+	
+		function logError (message) {
+			if (typeof console !== 'undefined' && typeof console.error === 'function') {
+				console.error(message);
+			}
+		}
+	
+		/************************************
+			moment.tz namespace
+		************************************/
+	
+		function tz (input) {
+			var args = Array.prototype.slice.call(arguments, 0, -1),
+				name = arguments[arguments.length - 1],
+				zone = getZone(name),
+				out  = moment.utc.apply(null, args);
+	
+			if (zone && !moment.isMoment(input) && needsOffset(out)) {
+				out.add(zone.parse(out), 'minutes');
+			}
+	
+			out.tz(name);
+	
+			return out;
+		}
+	
+		tz.version      = VERSION;
+		tz.dataVersion  = '';
+		tz._zones       = zones;
+		tz._links       = links;
+		tz._names       = names;
+		tz.add          = addZone;
+		tz.link         = addLink;
+		tz.load         = loadData;
+		tz.zone         = getZone;
+		tz.zoneExists   = zoneExists; // deprecated in 0.1.0
+		tz.guess        = guess;
+		tz.names        = getNames;
+		tz.Zone         = Zone;
+		tz.unpack       = unpack;
+		tz.unpackBase60 = unpackBase60;
+		tz.needsOffset  = needsOffset;
+		tz.moveInvalidForward   = true;
+		tz.moveAmbiguousForward = false;
+	
+		/************************************
+			Interface with Moment.js
+		************************************/
+	
+		var fn = moment.fn;
+	
+		moment.tz = tz;
+	
+		moment.defaultZone = null;
+	
+		moment.updateOffset = function (mom, keepTime) {
+			var zone = moment.defaultZone,
+				offset;
+	
+			if (mom._z === undefined) {
+				if (zone && needsOffset(mom) && !mom._isUTC) {
+					mom._d = moment.utc(mom._a)._d;
+					mom.utc().add(zone.parse(mom), 'minutes');
+				}
+				mom._z = zone;
+			}
+			if (mom._z) {
+				offset = mom._z.offset(mom);
+				if (Math.abs(offset) < 16) {
+					offset = offset / 60;
+				}
+				if (mom.utcOffset !== undefined) {
+					mom.utcOffset(-offset, keepTime);
+				} else {
+					mom.zone(offset, keepTime);
+				}
+			}
+		};
+	
+		fn.tz = function (name) {
+			if (name) {
+				this._z = getZone(name);
+				if (this._z) {
+					moment.updateOffset(this);
+				} else {
+					logError("Moment Timezone has no data for " + name + ". See http://momentjs.com/timezone/docs/#/data-loading/.");
+				}
+				return this;
+			}
+			if (this._z) { return this._z.name; }
+		};
+	
+		function abbrWrap (old) {
+			return function () {
+				if (this._z) { return this._z.abbr(this); }
+				return old.call(this);
+			};
+		}
+	
+		function resetZoneWrap (old) {
+			return function () {
+				this._z = null;
+				return old.apply(this, arguments);
+			};
+		}
+	
+		fn.zoneName = abbrWrap(fn.zoneName);
+		fn.zoneAbbr = abbrWrap(fn.zoneAbbr);
+		fn.utc      = resetZoneWrap(fn.utc);
+	
+		moment.tz.setDefault = function(name) {
+			if (major < 2 || (major === 2 && minor < 9)) {
+				logError('Moment Timezone setDefault() requires Moment.js >= 2.9.0. You are using Moment.js ' + moment.version + '.');
+			}
+			moment.defaultZone = name ? getZone(name) : null;
+			return moment;
+		};
+	
+		// Cloning a moment should include the _z property.
+		var momentProperties = moment.momentProperties;
+		if (Object.prototype.toString.call(momentProperties) === '[object Array]') {
+			// moment 2.8.1+
+			momentProperties.push('_z');
+			momentProperties.push('_a');
+		} else if (momentProperties) {
+			// moment 2.7.0
+			momentProperties._z = null;
+		}
+	
+		loadData({
+			"version": "2016a",
+			"zones": [
+				"Africa/Abidjan|GMT|0|0||48e5",
+				"Africa/Khartoum|EAT|-30|0||51e5",
+				"Africa/Algiers|CET|-10|0||26e5",
+				"Africa/Lagos|WAT|-10|0||17e6",
+				"Africa/Maputo|CAT|-20|0||26e5",
+				"Africa/Cairo|EET EEST|-20 -30|010101010|1Cby0 Fb0 c10 8n0 8Nd0 gL0 e10 mn0|15e6",
+				"Africa/Casablanca|WET WEST|0 -10|01010101010101010101010101010101010101010|1Cco0 Db0 1zd0 Lz0 1Nf0 wM0 co0 go0 1o00 s00 dA0 vc0 11A0 A00 e00 y00 11A0 uM0 e00 Dc0 11A0 s00 e00 IM0 WM0 mo0 gM0 LA0 WM0 jA0 e00 Rc0 11A0 e00 e00 U00 11A0 8o0 e00 11A0|32e5",
+				"Europe/Paris|CET CEST|-10 -20|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|11e6",
+				"Africa/Johannesburg|SAST|-20|0||84e5",
+				"Africa/Tripoli|EET CET CEST|-20 -10 -20|0120|1IlA0 TA0 1o00|11e5",
+				"Africa/Windhoek|WAST WAT|-20 -10|01010101010101010101010|1C1c0 11B0 1nX0 11B0 1nX0 11B0 1qL0 WN0 1qL0 11B0 1nX0 11B0 1nX0 11B0 1nX0 11B0 1nX0 11B0 1qL0 WN0 1qL0 11B0|32e4",
+				"America/Adak|HST HDT|a0 90|01010101010101010101010|1BR00 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|326",
+				"America/Anchorage|AKST AKDT|90 80|01010101010101010101010|1BQX0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|30e4",
+				"America/Santo_Domingo|AST|40|0||29e5",
+				"America/Araguaina|BRT BRST|30 20|010|1IdD0 Lz0|14e4",
+				"America/Argentina/Buenos_Aires|ART|30|0|",
+				"America/Asuncion|PYST PYT|30 40|01010101010101010101010|1C430 1a10 1fz0 1a10 1fz0 1cN0 17b0 1ip0 17b0 1ip0 17b0 1ip0 19X0 1fB0 19X0 1fB0 19X0 1ip0 17b0 1ip0 17b0 1ip0|28e5",
+				"America/Panama|EST|50|0||15e5",
+				"America/Bahia|BRT BRST|30 20|010|1FJf0 Rb0|27e5",
+				"America/Bahia_Banderas|MST CDT CST|70 50 60|01212121212121212121212|1C1l0 1nW0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0 14p0 1lb0 14p0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0|84e3",
+				"America/Fortaleza|BRT|30|0||34e5",
+				"America/Managua|CST|60|0||22e5",
+				"America/Manaus|AMT|40|0||19e5",
+				"America/Bogota|COT|50|0||90e5",
+				"America/Denver|MST MDT|70 60|01010101010101010101010|1BQV0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|26e5",
+				"America/Campo_Grande|AMST AMT|30 40|01010101010101010101010|1BIr0 1zd0 On0 1zd0 Rb0 1zd0 Lz0 1C10 Lz0 1C10 On0 1zd0 On0 1zd0 On0 1zd0 On0 1C10 Lz0 1C10 Lz0 1C10|77e4",
+				"America/Cancun|CST CDT EST|60 50 50|010101010102|1C1k0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0 Dd0|63e4",
+				"America/Caracas|VET|4u|0||29e5",
+				"America/Cayenne|GFT|30|0||58e3",
+				"America/Chicago|CST CDT|60 50|01010101010101010101010|1BQU0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|92e5",
+				"America/Chihuahua|MST MDT|70 60|01010101010101010101010|1C1l0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0 14p0 1lb0 14p0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0|81e4",
+				"America/Phoenix|MST|70|0||42e5",
+				"America/Los_Angeles|PST PDT|80 70|01010101010101010101010|1BQW0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|15e6",
+				"America/New_York|EST EDT|50 40|01010101010101010101010|1BQT0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|21e6",
+				"America/Rio_Branco|AMT ACT|40 50|01|1KLE0|31e4",
+				"America/Fort_Nelson|PST PDT MST|80 70 70|010101010102|1BQW0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0|39e2",
+				"America/Halifax|AST ADT|40 30|01010101010101010101010|1BQS0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|39e4",
+				"America/Godthab|WGT WGST|30 20|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|17e3",
+				"America/Goose_Bay|AST ADT|40 30|01010101010101010101010|1BQQ1 1zb0 Op0 1zcX Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|76e2",
+				"America/Grand_Turk|EST EDT AST|50 40 40|0101010101012|1BQT0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|37e2",
+				"America/Guayaquil|ECT|50|0||27e5",
+				"America/Guyana|GYT|40|0||80e4",
+				"America/Havana|CST CDT|50 40|01010101010101010101010|1BQR0 1wo0 U00 1zc0 U00 1qM0 Oo0 1zc0 Oo0 1zc0 Oo0 1zc0 Rc0 1zc0 Oo0 1zc0 Oo0 1zc0 Oo0 1zc0 Oo0 1zc0|21e5",
+				"America/La_Paz|BOT|40|0||19e5",
+				"America/Lima|PET|50|0||11e6",
+				"America/Mexico_City|CST CDT|60 50|01010101010101010101010|1C1k0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0 14p0 1lb0 14p0 1nX0 11B0 1nX0 11B0 1nX0 14p0 1lb0 14p0 1lb0|20e6",
+				"America/Metlakatla|PST AKST AKDT|80 90 80|012121212121|1PAa0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|14e2",
+				"America/Miquelon|PMST PMDT|30 20|01010101010101010101010|1BQR0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|61e2",
+				"America/Montevideo|UYST UYT|20 30|010101010101|1BQQ0 1ld0 14n0 1ld0 14n0 1o10 11z0 1o10 11z0 1o10 11z0|17e5",
+				"America/Noronha|FNT|20|0||30e2",
+				"America/North_Dakota/Beulah|MST MDT CST CDT|70 60 60 50|01232323232323232323232|1BQV0 1zb0 Oo0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0",
+				"America/Paramaribo|SRT|30|0||24e4",
+				"America/Port-au-Prince|EST EDT|50 40|0101010101010101010|1GI70 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|23e5",
+				"America/Santiago|CLST CLT CLT|30 40 30|010101010102|1C1f0 1fB0 1nX0 G10 1EL0 Op0 1zb0 Rd0 1wn0 Rd0 1wn0|62e5",
+				"America/Sao_Paulo|BRST BRT|20 30|01010101010101010101010|1BIq0 1zd0 On0 1zd0 Rb0 1zd0 Lz0 1C10 Lz0 1C10 On0 1zd0 On0 1zd0 On0 1zd0 On0 1C10 Lz0 1C10 Lz0 1C10|20e6",
+				"America/Scoresbysund|EGT EGST|10 0|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|452",
+				"America/St_Johns|NST NDT|3u 2u|01010101010101010101010|1BQPv 1zb0 Op0 1zcX Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0|11e4",
+				"Antarctica/Casey|CAST AWST|-b0 -80|0101|1BN30 40P0 KL0|10",
+				"Antarctica/Davis|DAVT DAVT|-50 -70|0101|1BPw0 3Wn0 KN0|70",
+				"Antarctica/DumontDUrville|DDUT|-a0|0||80",
+				"Antarctica/Macquarie|AEDT MIST|-b0 -b0|01|1C140|1",
+				"Antarctica/Mawson|MAWT|-50|0||60",
+				"Pacific/Auckland|NZDT NZST|-d0 -c0|01010101010101010101010|1C120 1a00 1fA0 1a00 1fA0 1cM0 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1cM0 1fA0 1a00 1fA0 1a00|14e5",
+				"Antarctica/Rothera|ROTT|30|0||130",
+				"Antarctica/Syowa|SYOT|-30|0||20",
+				"Antarctica/Troll|UTC CEST|0 -20|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|40",
+				"Antarctica/Vostok|VOST|-60|0||25",
+				"Asia/Baghdad|AST|-30|0||66e5",
+				"Asia/Almaty|ALMT|-60|0||15e5",
+				"Asia/Amman|EET EEST|-20 -30|010101010101010101010|1BVy0 1qM0 11A0 1o00 11A0 4bX0 Dd0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0|25e5",
+				"Asia/Anadyr|ANAT ANAST ANAT|-c0 -c0 -b0|0120|1BWe0 1qN0 WM0|13e3",
+				"Asia/Aqtobe|AQTT|-50|0||27e4",
+				"Asia/Ashgabat|TMT|-50|0||41e4",
+				"Asia/Baku|AZT AZST|-40 -50|01010101010101010101010|1BWo0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|27e5",
+				"Asia/Bangkok|ICT|-70|0||15e6",
+				"Asia/Beirut|EET EEST|-20 -30|01010101010101010101010|1BWm0 1qL0 WN0 1qL0 WN0 1qL0 11B0 1nX0 11B0 1nX0 11B0 1nX0 11B0 1qL0 WN0 1qL0 WN0 1qL0 11B0 1nX0 11B0 1nX0|22e5",
+				"Asia/Bishkek|KGT|-60|0||87e4",
+				"Asia/Brunei|BNT|-80|0||42e4",
+				"Asia/Kolkata|IST|-5u|0||15e6",
+				"Asia/Chita|YAKT YAKST YAKT IRKT|-90 -a0 -a0 -80|010230|1BWh0 1qM0 WM0 8Hz0 3re0|33e4",
+				"Asia/Choibalsan|CHOT CHOST|-80 -90|0101010101010|1O8G0 1cJ0 1cP0 1cJ0 1cP0 1fx0 1cP0 1cJ0 1cP0 1cJ0 1cP0 1cJ0|38e3",
+				"Asia/Shanghai|CST|-80|0||23e6",
+				"Asia/Dhaka|BDT|-60|0||16e6",
+				"Asia/Damascus|EET EEST|-20 -30|01010101010101010101010|1C0m0 1nX0 11B0 1nX0 11B0 1nX0 11B0 1nX0 11B0 1qL0 WN0 1qL0 WN0 1qL0 11B0 1nX0 11B0 1nX0 11B0 1nX0 11B0 1qL0|26e5",
+				"Asia/Dili|TLT|-90|0||19e4",
+				"Asia/Dubai|GST|-40|0||39e5",
+				"Asia/Dushanbe|TJT|-50|0||76e4",
+				"Asia/Gaza|EET EEST|-20 -30|01010101010101010101010|1BVW1 SKX 1xd1 MKX 1AN0 1a00 1fA0 1cL0 1cN0 1nX0 1210 1nz0 1210 1nz0 14N0 1nz0 1210 1nz0 1210 1nz0 1210 1nz0|18e5",
+				"Asia/Hebron|EET EEST|-20 -30|0101010101010101010101010|1BVy0 Tb0 1xd1 MKX bB0 cn0 1cN0 1a00 1fA0 1cL0 1cN0 1nX0 1210 1nz0 1210 1nz0 14N0 1nz0 1210 1nz0 1210 1nz0 1210 1nz0|25e4",
+				"Asia/Hong_Kong|HKT|-80|0||73e5",
+				"Asia/Hovd|HOVT HOVST|-70 -80|0101010101010|1O8H0 1cJ0 1cP0 1cJ0 1cP0 1fx0 1cP0 1cJ0 1cP0 1cJ0 1cP0 1cJ0|81e3",
+				"Asia/Irkutsk|IRKT IRKST IRKT|-80 -90 -90|01020|1BWi0 1qM0 WM0 8Hz0|60e4",
+				"Europe/Istanbul|EET EEST|-20 -30|01010101010101010101010|1BWp0 1qM0 Xc0 1qo0 WM0 1qM0 11A0 1o00 1200 1nA0 11A0 1tA0 U00 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|13e6",
+				"Asia/Jakarta|WIB|-70|0||31e6",
+				"Asia/Jayapura|WIT|-90|0||26e4",
+				"Asia/Jerusalem|IST IDT|-20 -30|01010101010101010101010|1BVA0 17X0 1kp0 1dz0 1c10 1aL0 1eN0 1oL0 10N0 1oL0 10N0 1oL0 10N0 1rz0 W10 1rz0 W10 1rz0 10N0 1oL0 10N0 1oL0|81e4",
+				"Asia/Kabul|AFT|-4u|0||46e5",
+				"Asia/Kamchatka|PETT PETST PETT|-c0 -c0 -b0|0120|1BWe0 1qN0 WM0|18e4",
+				"Asia/Karachi|PKT|-50|0||24e6",
+				"Asia/Urumqi|XJT|-60|0||32e5",
+				"Asia/Kathmandu|NPT|-5J|0||12e5",
+				"Asia/Khandyga|VLAT VLAST VLAT YAKT YAKT|-a0 -b0 -b0 -a0 -90|010234|1BWg0 1qM0 WM0 17V0 7zD0|66e2",
+				"Asia/Krasnoyarsk|KRAT KRAST KRAT|-70 -80 -80|01020|1BWj0 1qM0 WM0 8Hz0|10e5",
+				"Asia/Kuala_Lumpur|MYT|-80|0||71e5",
+				"Asia/Magadan|MAGT MAGST MAGT MAGT|-b0 -c0 -c0 -a0|01023|1BWf0 1qM0 WM0 8Hz0|95e3",
+				"Asia/Makassar|WITA|-80|0||15e5",
+				"Asia/Manila|PHT|-80|0||24e6",
+				"Europe/Athens|EET EEST|-20 -30|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|35e5",
+				"Asia/Novokuznetsk|KRAT NOVST NOVT NOVT|-70 -70 -60 -70|01230|1BWj0 1qN0 WM0 8Hz0|55e4",
+				"Asia/Novosibirsk|NOVT NOVST NOVT|-60 -70 -70|01020|1BWk0 1qM0 WM0 8Hz0|15e5",
+				"Asia/Omsk|OMST OMSST OMST|-60 -70 -70|01020|1BWk0 1qM0 WM0 8Hz0|12e5",
+				"Asia/Oral|ORAT|-50|0||27e4",
+				"Asia/Pyongyang|KST KST|-90 -8u|01|1P4D0|29e5",
+				"Asia/Qyzylorda|QYZT|-60|0||73e4",
+				"Asia/Rangoon|MMT|-6u|0||48e5",
+				"Asia/Sakhalin|SAKT SAKST SAKT|-a0 -b0 -b0|01020|1BWg0 1qM0 WM0 8Hz0|58e4",
+				"Asia/Tashkent|UZT|-50|0||23e5",
+				"Asia/Seoul|KST|-90|0||23e6",
+				"Asia/Singapore|SGT|-80|0||56e5",
+				"Asia/Srednekolymsk|MAGT MAGST MAGT SRET|-b0 -c0 -c0 -b0|01023|1BWf0 1qM0 WM0 8Hz0|35e2",
+				"Asia/Tbilisi|GET|-40|0||11e5",
+				"Asia/Tehran|IRST IRDT|-3u -4u|01010101010101010101010|1BTUu 1dz0 1cp0 1dz0 1cp0 1dz0 1cN0 1dz0 1cp0 1dz0 1cp0 1dz0 1cp0 1dz0 1cN0 1dz0 1cp0 1dz0 1cp0 1dz0 1cp0 1dz0|14e6",
+				"Asia/Thimphu|BTT|-60|0||79e3",
+				"Asia/Tokyo|JST|-90|0||38e6",
+				"Asia/Ulaanbaatar|ULAT ULAST|-80 -90|0101010101010|1O8G0 1cJ0 1cP0 1cJ0 1cP0 1fx0 1cP0 1cJ0 1cP0 1cJ0 1cP0 1cJ0|12e5",
+				"Asia/Ust-Nera|MAGT MAGST MAGT VLAT VLAT|-b0 -c0 -c0 -b0 -a0|010234|1BWf0 1qM0 WM0 17V0 7zD0|65e2",
+				"Asia/Vladivostok|VLAT VLAST VLAT|-a0 -b0 -b0|01020|1BWg0 1qM0 WM0 8Hz0|60e4",
+				"Asia/Yakutsk|YAKT YAKST YAKT|-90 -a0 -a0|01020|1BWh0 1qM0 WM0 8Hz0|28e4",
+				"Asia/Yekaterinburg|YEKT YEKST YEKT|-50 -60 -60|01020|1BWl0 1qM0 WM0 8Hz0|14e5",
+				"Asia/Yerevan|AMT AMST|-40 -50|01010|1BWm0 1qM0 WM0 1qM0|13e5",
+				"Atlantic/Azores|AZOT AZOST|10 0|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|25e4",
+				"Europe/Lisbon|WET WEST|0 -10|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|27e5",
+				"Atlantic/Cape_Verde|CVT|10|0||50e4",
+				"Atlantic/South_Georgia|GST|20|0||30",
+				"Atlantic/Stanley|FKST FKT|30 40|010|1C6R0 U10|21e2",
+				"Australia/Sydney|AEDT AEST|-b0 -a0|01010101010101010101010|1C140 1cM0 1cM0 1cM0 1cM0 1fA0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1fA0 1cM0 1cM0 1cM0 1cM0|40e5",
+				"Australia/Adelaide|ACDT ACST|-au -9u|01010101010101010101010|1C14u 1cM0 1cM0 1cM0 1cM0 1fA0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1cM0 1fA0 1cM0 1cM0 1cM0 1cM0|11e5",
+				"Australia/Brisbane|AEST|-a0|0||20e5",
+				"Australia/Darwin|ACST|-9u|0||12e4",
+				"Australia/Eucla|ACWST|-8J|0||368",
+				"Australia/Lord_Howe|LHDT LHST|-b0 -au|01010101010101010101010|1C130 1cMu 1cLu 1cMu 1cLu 1fAu 1cLu 1cMu 1cLu 1cMu 1cLu 1cMu 1cLu 1cMu 1cLu 1cMu 1cLu 1fAu 1cLu 1cMu 1cLu 1cMu|347",
+				"Australia/Perth|AWST|-80|0||18e5",
+				"Pacific/Easter|EASST EAST EAST|50 60 50|010101010102|1C1f0 1fB0 1nX0 G10 1EL0 Op0 1zb0 Rd0 1wn0 Rd0 1wn0|30e2",
+				"Europe/Dublin|GMT IST|0 -10|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|12e5",
+				"Etc/GMT+1|GMT+1|10|0|",
+				"Etc/GMT+10|GMT+10|a0|0|",
+				"Etc/GMT+11|GMT+11|b0|0|",
+				"Etc/GMT+12|GMT+12|c0|0|",
+				"Etc/GMT+2|GMT+2|20|0|",
+				"Etc/GMT+3|GMT+3|30|0|",
+				"Etc/GMT+4|GMT+4|40|0|",
+				"Etc/GMT+5|GMT+5|50|0|",
+				"Etc/GMT+6|GMT+6|60|0|",
+				"Etc/GMT+7|GMT+7|70|0|",
+				"Etc/GMT+8|GMT+8|80|0|",
+				"Etc/GMT+9|GMT+9|90|0|",
+				"Etc/GMT-1|GMT-1|-10|0|",
+				"Etc/GMT-10|GMT-10|-a0|0|",
+				"Etc/GMT-11|GMT-11|-b0|0|",
+				"Etc/GMT-12|GMT-12|-c0|0|",
+				"Etc/GMT-13|GMT-13|-d0|0|",
+				"Etc/GMT-14|GMT-14|-e0|0|",
+				"Etc/GMT-2|GMT-2|-20|0|",
+				"Etc/GMT-3|GMT-3|-30|0|",
+				"Etc/GMT-4|GMT-4|-40|0|",
+				"Etc/GMT-5|GMT-5|-50|0|",
+				"Etc/GMT-6|GMT-6|-60|0|",
+				"Etc/GMT-7|GMT-7|-70|0|",
+				"Etc/GMT-8|GMT-8|-80|0|",
+				"Etc/GMT-9|GMT-9|-90|0|",
+				"Etc/UCT|UCT|0|0|",
+				"Etc/UTC|UTC|0|0|",
+				"Europe/London|GMT BST|0 -10|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|10e6",
+				"Europe/Chisinau|EET EEST|-20 -30|01010101010101010101010|1BWo0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|67e4",
+				"Europe/Kaliningrad|EET EEST FET|-20 -30 -30|01020|1BWo0 1qM0 WM0 8Hz0|44e4",
+				"Europe/Minsk|EET EEST FET MSK|-20 -30 -30 -30|01023|1BWo0 1qM0 WM0 8Hy0|19e5",
+				"Europe/Moscow|MSK MSD MSK|-30 -40 -40|01020|1BWn0 1qM0 WM0 8Hz0|16e6",
+				"Europe/Samara|SAMT SAMST SAMT|-40 -40 -30|0120|1BWm0 1qN0 WM0|12e5",
+				"Europe/Simferopol|EET EEST MSK MSK|-20 -30 -40 -30|01010101023|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11z0 1nW0|33e4",
+				"Pacific/Honolulu|HST|a0|0||37e4",
+				"Indian/Chagos|IOT|-60|0||30e2",
+				"Indian/Christmas|CXT|-70|0||21e2",
+				"Indian/Cocos|CCT|-6u|0||596",
+				"Indian/Kerguelen|TFT|-50|0||130",
+				"Indian/Mahe|SCT|-40|0||79e3",
+				"Indian/Maldives|MVT|-50|0||35e4",
+				"Indian/Mauritius|MUT|-40|0||15e4",
+				"Indian/Reunion|RET|-40|0||84e4",
+				"Pacific/Majuro|MHT|-c0|0||28e3",
+				"MET|MET MEST|-10 -20|01010101010101010101010|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00",
+				"Pacific/Chatham|CHADT CHAST|-dJ -cJ|01010101010101010101010|1C120 1a00 1fA0 1a00 1fA0 1cM0 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1cM0 1fA0 1a00 1fA0 1a00|600",
+				"Pacific/Apia|SST SDT WSDT WSST|b0 a0 -e0 -d0|01012323232323232323232|1Dbn0 1ff0 1a00 CI0 AQ0 1cM0 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1a00 1fA0 1cM0 1fA0 1a00 1fA0 1a00|37e3",
+				"Pacific/Bougainville|PGT BST|-a0 -b0|01|1NwE0|18e4",
+				"Pacific/Chuuk|CHUT|-a0|0||49e3",
+				"Pacific/Efate|VUT|-b0|0||66e3",
+				"Pacific/Enderbury|PHOT|-d0|0||1",
+				"Pacific/Fakaofo|TKT TKT|b0 -d0|01|1Gfn0|483",
+				"Pacific/Fiji|FJST FJT|-d0 -c0|01010101010101010101010|1BWe0 1o00 Rc0 1wo0 Ao0 1Nc0 Ao0 1Q00 xz0 1SN0 uM0 1SM0 uM0 1VA0 s00 1VA0 uM0 1SM0 uM0 1SM0 uM0 1SM0|88e4",
+				"Pacific/Funafuti|TVT|-c0|0||45e2",
+				"Pacific/Galapagos|GALT|60|0||25e3",
+				"Pacific/Gambier|GAMT|90|0||125",
+				"Pacific/Guadalcanal|SBT|-b0|0||11e4",
+				"Pacific/Guam|ChST|-a0|0||17e4",
+				"Pacific/Kiritimati|LINT|-e0|0||51e2",
+				"Pacific/Kosrae|KOST|-b0|0||66e2",
+				"Pacific/Marquesas|MART|9u|0||86e2",
+				"Pacific/Pago_Pago|SST|b0|0||37e2",
+				"Pacific/Nauru|NRT|-c0|0||10e3",
+				"Pacific/Niue|NUT|b0|0||12e2",
+				"Pacific/Norfolk|NFT NFT|-bu -b0|01|1PoCu|25e4",
+				"Pacific/Noumea|NCT|-b0|0||98e3",
+				"Pacific/Palau|PWT|-90|0||21e3",
+				"Pacific/Pitcairn|PST|80|0||56",
+				"Pacific/Pohnpei|PONT|-b0|0||34e3",
+				"Pacific/Port_Moresby|PGT|-a0|0||25e4",
+				"Pacific/Rarotonga|CKT|a0|0||13e3",
+				"Pacific/Tahiti|TAHT|a0|0||18e4",
+				"Pacific/Tarawa|GILT|-c0|0||29e3",
+				"Pacific/Tongatapu|TOT|-d0|0||75e3",
+				"Pacific/Wake|WAKT|-c0|0||16e3",
+				"Pacific/Wallis|WFT|-c0|0||94"
+			],
+			"links": [
+				"Africa/Abidjan|Africa/Accra",
+				"Africa/Abidjan|Africa/Bamako",
+				"Africa/Abidjan|Africa/Banjul",
+				"Africa/Abidjan|Africa/Bissau",
+				"Africa/Abidjan|Africa/Conakry",
+				"Africa/Abidjan|Africa/Dakar",
+				"Africa/Abidjan|Africa/Freetown",
+				"Africa/Abidjan|Africa/Lome",
+				"Africa/Abidjan|Africa/Monrovia",
+				"Africa/Abidjan|Africa/Nouakchott",
+				"Africa/Abidjan|Africa/Ouagadougou",
+				"Africa/Abidjan|Africa/Sao_Tome",
+				"Africa/Abidjan|Africa/Timbuktu",
+				"Africa/Abidjan|America/Danmarkshavn",
+				"Africa/Abidjan|Atlantic/Reykjavik",
+				"Africa/Abidjan|Atlantic/St_Helena",
+				"Africa/Abidjan|Etc/GMT",
+				"Africa/Abidjan|Etc/GMT+0",
+				"Africa/Abidjan|Etc/GMT-0",
+				"Africa/Abidjan|Etc/GMT0",
+				"Africa/Abidjan|Etc/Greenwich",
+				"Africa/Abidjan|GMT",
+				"Africa/Abidjan|GMT+0",
+				"Africa/Abidjan|GMT-0",
+				"Africa/Abidjan|GMT0",
+				"Africa/Abidjan|Greenwich",
+				"Africa/Abidjan|Iceland",
+				"Africa/Algiers|Africa/Tunis",
+				"Africa/Cairo|Egypt",
+				"Africa/Casablanca|Africa/El_Aaiun",
+				"Africa/Johannesburg|Africa/Maseru",
+				"Africa/Johannesburg|Africa/Mbabane",
+				"Africa/Khartoum|Africa/Addis_Ababa",
+				"Africa/Khartoum|Africa/Asmara",
+				"Africa/Khartoum|Africa/Asmera",
+				"Africa/Khartoum|Africa/Dar_es_Salaam",
+				"Africa/Khartoum|Africa/Djibouti",
+				"Africa/Khartoum|Africa/Juba",
+				"Africa/Khartoum|Africa/Kampala",
+				"Africa/Khartoum|Africa/Mogadishu",
+				"Africa/Khartoum|Africa/Nairobi",
+				"Africa/Khartoum|Indian/Antananarivo",
+				"Africa/Khartoum|Indian/Comoro",
+				"Africa/Khartoum|Indian/Mayotte",
+				"Africa/Lagos|Africa/Bangui",
+				"Africa/Lagos|Africa/Brazzaville",
+				"Africa/Lagos|Africa/Douala",
+				"Africa/Lagos|Africa/Kinshasa",
+				"Africa/Lagos|Africa/Libreville",
+				"Africa/Lagos|Africa/Luanda",
+				"Africa/Lagos|Africa/Malabo",
+				"Africa/Lagos|Africa/Ndjamena",
+				"Africa/Lagos|Africa/Niamey",
+				"Africa/Lagos|Africa/Porto-Novo",
+				"Africa/Maputo|Africa/Blantyre",
+				"Africa/Maputo|Africa/Bujumbura",
+				"Africa/Maputo|Africa/Gaborone",
+				"Africa/Maputo|Africa/Harare",
+				"Africa/Maputo|Africa/Kigali",
+				"Africa/Maputo|Africa/Lubumbashi",
+				"Africa/Maputo|Africa/Lusaka",
+				"Africa/Tripoli|Libya",
+				"America/Adak|America/Atka",
+				"America/Adak|US/Aleutian",
+				"America/Anchorage|America/Juneau",
+				"America/Anchorage|America/Nome",
+				"America/Anchorage|America/Sitka",
+				"America/Anchorage|America/Yakutat",
+				"America/Anchorage|US/Alaska",
+				"America/Argentina/Buenos_Aires|America/Argentina/Catamarca",
+				"America/Argentina/Buenos_Aires|America/Argentina/ComodRivadavia",
+				"America/Argentina/Buenos_Aires|America/Argentina/Cordoba",
+				"America/Argentina/Buenos_Aires|America/Argentina/Jujuy",
+				"America/Argentina/Buenos_Aires|America/Argentina/La_Rioja",
+				"America/Argentina/Buenos_Aires|America/Argentina/Mendoza",
+				"America/Argentina/Buenos_Aires|America/Argentina/Rio_Gallegos",
+				"America/Argentina/Buenos_Aires|America/Argentina/Salta",
+				"America/Argentina/Buenos_Aires|America/Argentina/San_Juan",
+				"America/Argentina/Buenos_Aires|America/Argentina/San_Luis",
+				"America/Argentina/Buenos_Aires|America/Argentina/Tucuman",
+				"America/Argentina/Buenos_Aires|America/Argentina/Ushuaia",
+				"America/Argentina/Buenos_Aires|America/Buenos_Aires",
+				"America/Argentina/Buenos_Aires|America/Catamarca",
+				"America/Argentina/Buenos_Aires|America/Cordoba",
+				"America/Argentina/Buenos_Aires|America/Jujuy",
+				"America/Argentina/Buenos_Aires|America/Mendoza",
+				"America/Argentina/Buenos_Aires|America/Rosario",
+				"America/Campo_Grande|America/Cuiaba",
+				"America/Chicago|America/Indiana/Knox",
+				"America/Chicago|America/Indiana/Tell_City",
+				"America/Chicago|America/Knox_IN",
+				"America/Chicago|America/Matamoros",
+				"America/Chicago|America/Menominee",
+				"America/Chicago|America/North_Dakota/Center",
+				"America/Chicago|America/North_Dakota/New_Salem",
+				"America/Chicago|America/Rainy_River",
+				"America/Chicago|America/Rankin_Inlet",
+				"America/Chicago|America/Resolute",
+				"America/Chicago|America/Winnipeg",
+				"America/Chicago|CST6CDT",
+				"America/Chicago|Canada/Central",
+				"America/Chicago|US/Central",
+				"America/Chicago|US/Indiana-Starke",
+				"America/Chihuahua|America/Mazatlan",
+				"America/Chihuahua|Mexico/BajaSur",
+				"America/Denver|America/Boise",
+				"America/Denver|America/Cambridge_Bay",
+				"America/Denver|America/Edmonton",
+				"America/Denver|America/Inuvik",
+				"America/Denver|America/Ojinaga",
+				"America/Denver|America/Shiprock",
+				"America/Denver|America/Yellowknife",
+				"America/Denver|Canada/Mountain",
+				"America/Denver|MST7MDT",
+				"America/Denver|Navajo",
+				"America/Denver|US/Mountain",
+				"America/Fortaleza|America/Belem",
+				"America/Fortaleza|America/Maceio",
+				"America/Fortaleza|America/Recife",
+				"America/Fortaleza|America/Santarem",
+				"America/Halifax|America/Glace_Bay",
+				"America/Halifax|America/Moncton",
+				"America/Halifax|America/Thule",
+				"America/Halifax|Atlantic/Bermuda",
+				"America/Halifax|Canada/Atlantic",
+				"America/Havana|Cuba",
+				"America/Los_Angeles|America/Dawson",
+				"America/Los_Angeles|America/Ensenada",
+				"America/Los_Angeles|America/Santa_Isabel",
+				"America/Los_Angeles|America/Tijuana",
+				"America/Los_Angeles|America/Vancouver",
+				"America/Los_Angeles|America/Whitehorse",
+				"America/Los_Angeles|Canada/Pacific",
+				"America/Los_Angeles|Canada/Yukon",
+				"America/Los_Angeles|Mexico/BajaNorte",
+				"America/Los_Angeles|PST8PDT",
+				"America/Los_Angeles|US/Pacific",
+				"America/Los_Angeles|US/Pacific-New",
+				"America/Managua|America/Belize",
+				"America/Managua|America/Costa_Rica",
+				"America/Managua|America/El_Salvador",
+				"America/Managua|America/Guatemala",
+				"America/Managua|America/Regina",
+				"America/Managua|America/Swift_Current",
+				"America/Managua|America/Tegucigalpa",
+				"America/Managua|Canada/East-Saskatchewan",
+				"America/Managua|Canada/Saskatchewan",
+				"America/Manaus|America/Boa_Vista",
+				"America/Manaus|America/Porto_Velho",
+				"America/Manaus|Brazil/West",
+				"America/Mexico_City|America/Merida",
+				"America/Mexico_City|America/Monterrey",
+				"America/Mexico_City|Mexico/General",
+				"America/New_York|America/Detroit",
+				"America/New_York|America/Fort_Wayne",
+				"America/New_York|America/Indiana/Indianapolis",
+				"America/New_York|America/Indiana/Marengo",
+				"America/New_York|America/Indiana/Petersburg",
+				"America/New_York|America/Indiana/Vevay",
+				"America/New_York|America/Indiana/Vincennes",
+				"America/New_York|America/Indiana/Winamac",
+				"America/New_York|America/Indianapolis",
+				"America/New_York|America/Iqaluit",
+				"America/New_York|America/Kentucky/Louisville",
+				"America/New_York|America/Kentucky/Monticello",
+				"America/New_York|America/Louisville",
+				"America/New_York|America/Montreal",
+				"America/New_York|America/Nassau",
+				"America/New_York|America/Nipigon",
+				"America/New_York|America/Pangnirtung",
+				"America/New_York|America/Thunder_Bay",
+				"America/New_York|America/Toronto",
+				"America/New_York|Canada/Eastern",
+				"America/New_York|EST5EDT",
+				"America/New_York|US/East-Indiana",
+				"America/New_York|US/Eastern",
+				"America/New_York|US/Michigan",
+				"America/Noronha|Brazil/DeNoronha",
+				"America/Panama|America/Atikokan",
+				"America/Panama|America/Cayman",
+				"America/Panama|America/Coral_Harbour",
+				"America/Panama|America/Jamaica",
+				"America/Panama|EST",
+				"America/Panama|Jamaica",
+				"America/Phoenix|America/Creston",
+				"America/Phoenix|America/Dawson_Creek",
+				"America/Phoenix|America/Hermosillo",
+				"America/Phoenix|MST",
+				"America/Phoenix|US/Arizona",
+				"America/Rio_Branco|America/Eirunepe",
+				"America/Rio_Branco|America/Porto_Acre",
+				"America/Rio_Branco|Brazil/Acre",
+				"America/Santiago|Antarctica/Palmer",
+				"America/Santiago|Chile/Continental",
+				"America/Santo_Domingo|America/Anguilla",
+				"America/Santo_Domingo|America/Antigua",
+				"America/Santo_Domingo|America/Aruba",
+				"America/Santo_Domingo|America/Barbados",
+				"America/Santo_Domingo|America/Blanc-Sablon",
+				"America/Santo_Domingo|America/Curacao",
+				"America/Santo_Domingo|America/Dominica",
+				"America/Santo_Domingo|America/Grenada",
+				"America/Santo_Domingo|America/Guadeloupe",
+				"America/Santo_Domingo|America/Kralendijk",
+				"America/Santo_Domingo|America/Lower_Princes",
+				"America/Santo_Domingo|America/Marigot",
+				"America/Santo_Domingo|America/Martinique",
+				"America/Santo_Domingo|America/Montserrat",
+				"America/Santo_Domingo|America/Port_of_Spain",
+				"America/Santo_Domingo|America/Puerto_Rico",
+				"America/Santo_Domingo|America/St_Barthelemy",
+				"America/Santo_Domingo|America/St_Kitts",
+				"America/Santo_Domingo|America/St_Lucia",
+				"America/Santo_Domingo|America/St_Thomas",
+				"America/Santo_Domingo|America/St_Vincent",
+				"America/Santo_Domingo|America/Tortola",
+				"America/Santo_Domingo|America/Virgin",
+				"America/Sao_Paulo|Brazil/East",
+				"America/St_Johns|Canada/Newfoundland",
+				"Asia/Aqtobe|Asia/Aqtau",
+				"Asia/Ashgabat|Asia/Ashkhabad",
+				"Asia/Baghdad|Asia/Aden",
+				"Asia/Baghdad|Asia/Bahrain",
+				"Asia/Baghdad|Asia/Kuwait",
+				"Asia/Baghdad|Asia/Qatar",
+				"Asia/Baghdad|Asia/Riyadh",
+				"Asia/Bangkok|Asia/Ho_Chi_Minh",
+				"Asia/Bangkok|Asia/Phnom_Penh",
+				"Asia/Bangkok|Asia/Saigon",
+				"Asia/Bangkok|Asia/Vientiane",
+				"Asia/Dhaka|Asia/Dacca",
+				"Asia/Dubai|Asia/Muscat",
+				"Asia/Hong_Kong|Hongkong",
+				"Asia/Jakarta|Asia/Pontianak",
+				"Asia/Jerusalem|Asia/Tel_Aviv",
+				"Asia/Jerusalem|Israel",
+				"Asia/Kathmandu|Asia/Katmandu",
+				"Asia/Kolkata|Asia/Calcutta",
+				"Asia/Kolkata|Asia/Colombo",
+				"Asia/Kuala_Lumpur|Asia/Kuching",
+				"Asia/Makassar|Asia/Ujung_Pandang",
+				"Asia/Seoul|ROK",
+				"Asia/Shanghai|Asia/Chongqing",
+				"Asia/Shanghai|Asia/Chungking",
+				"Asia/Shanghai|Asia/Harbin",
+				"Asia/Shanghai|Asia/Macao",
+				"Asia/Shanghai|Asia/Macau",
+				"Asia/Shanghai|Asia/Taipei",
+				"Asia/Shanghai|PRC",
+				"Asia/Shanghai|ROC",
+				"Asia/Singapore|Singapore",
+				"Asia/Tashkent|Asia/Samarkand",
+				"Asia/Tehran|Iran",
+				"Asia/Thimphu|Asia/Thimbu",
+				"Asia/Tokyo|Japan",
+				"Asia/Ulaanbaatar|Asia/Ulan_Bator",
+				"Asia/Urumqi|Asia/Kashgar",
+				"Australia/Adelaide|Australia/Broken_Hill",
+				"Australia/Adelaide|Australia/South",
+				"Australia/Adelaide|Australia/Yancowinna",
+				"Australia/Brisbane|Australia/Lindeman",
+				"Australia/Brisbane|Australia/Queensland",
+				"Australia/Darwin|Australia/North",
+				"Australia/Lord_Howe|Australia/LHI",
+				"Australia/Perth|Australia/West",
+				"Australia/Sydney|Australia/ACT",
+				"Australia/Sydney|Australia/Canberra",
+				"Australia/Sydney|Australia/Currie",
+				"Australia/Sydney|Australia/Hobart",
+				"Australia/Sydney|Australia/Melbourne",
+				"Australia/Sydney|Australia/NSW",
+				"Australia/Sydney|Australia/Tasmania",
+				"Australia/Sydney|Australia/Victoria",
+				"Etc/UCT|UCT",
+				"Etc/UTC|Etc/Universal",
+				"Etc/UTC|Etc/Zulu",
+				"Etc/UTC|UTC",
+				"Etc/UTC|Universal",
+				"Etc/UTC|Zulu",
+				"Europe/Athens|Asia/Nicosia",
+				"Europe/Athens|EET",
+				"Europe/Athens|Europe/Bucharest",
+				"Europe/Athens|Europe/Helsinki",
+				"Europe/Athens|Europe/Kiev",
+				"Europe/Athens|Europe/Mariehamn",
+				"Europe/Athens|Europe/Nicosia",
+				"Europe/Athens|Europe/Riga",
+				"Europe/Athens|Europe/Sofia",
+				"Europe/Athens|Europe/Tallinn",
+				"Europe/Athens|Europe/Uzhgorod",
+				"Europe/Athens|Europe/Vilnius",
+				"Europe/Athens|Europe/Zaporozhye",
+				"Europe/Chisinau|Europe/Tiraspol",
+				"Europe/Dublin|Eire",
+				"Europe/Istanbul|Asia/Istanbul",
+				"Europe/Istanbul|Turkey",
+				"Europe/Lisbon|Atlantic/Canary",
+				"Europe/Lisbon|Atlantic/Faeroe",
+				"Europe/Lisbon|Atlantic/Faroe",
+				"Europe/Lisbon|Atlantic/Madeira",
+				"Europe/Lisbon|Portugal",
+				"Europe/Lisbon|WET",
+				"Europe/London|Europe/Belfast",
+				"Europe/London|Europe/Guernsey",
+				"Europe/London|Europe/Isle_of_Man",
+				"Europe/London|Europe/Jersey",
+				"Europe/London|GB",
+				"Europe/London|GB-Eire",
+				"Europe/Moscow|Europe/Volgograd",
+				"Europe/Moscow|W-SU",
+				"Europe/Paris|Africa/Ceuta",
+				"Europe/Paris|Arctic/Longyearbyen",
+				"Europe/Paris|Atlantic/Jan_Mayen",
+				"Europe/Paris|CET",
+				"Europe/Paris|Europe/Amsterdam",
+				"Europe/Paris|Europe/Andorra",
+				"Europe/Paris|Europe/Belgrade",
+				"Europe/Paris|Europe/Berlin",
+				"Europe/Paris|Europe/Bratislava",
+				"Europe/Paris|Europe/Brussels",
+				"Europe/Paris|Europe/Budapest",
+				"Europe/Paris|Europe/Busingen",
+				"Europe/Paris|Europe/Copenhagen",
+				"Europe/Paris|Europe/Gibraltar",
+				"Europe/Paris|Europe/Ljubljana",
+				"Europe/Paris|Europe/Luxembourg",
+				"Europe/Paris|Europe/Madrid",
+				"Europe/Paris|Europe/Malta",
+				"Europe/Paris|Europe/Monaco",
+				"Europe/Paris|Europe/Oslo",
+				"Europe/Paris|Europe/Podgorica",
+				"Europe/Paris|Europe/Prague",
+				"Europe/Paris|Europe/Rome",
+				"Europe/Paris|Europe/San_Marino",
+				"Europe/Paris|Europe/Sarajevo",
+				"Europe/Paris|Europe/Skopje",
+				"Europe/Paris|Europe/Stockholm",
+				"Europe/Paris|Europe/Tirane",
+				"Europe/Paris|Europe/Vaduz",
+				"Europe/Paris|Europe/Vatican",
+				"Europe/Paris|Europe/Vienna",
+				"Europe/Paris|Europe/Warsaw",
+				"Europe/Paris|Europe/Zagreb",
+				"Europe/Paris|Europe/Zurich",
+				"Europe/Paris|Poland",
+				"Pacific/Auckland|Antarctica/McMurdo",
+				"Pacific/Auckland|Antarctica/South_Pole",
+				"Pacific/Auckland|NZ",
+				"Pacific/Chatham|NZ-CHAT",
+				"Pacific/Chuuk|Pacific/Truk",
+				"Pacific/Chuuk|Pacific/Yap",
+				"Pacific/Easter|Chile/EasterIsland",
+				"Pacific/Guam|Pacific/Saipan",
+				"Pacific/Honolulu|HST",
+				"Pacific/Honolulu|Pacific/Johnston",
+				"Pacific/Honolulu|US/Hawaii",
+				"Pacific/Majuro|Kwajalein",
+				"Pacific/Majuro|Pacific/Kwajalein",
+				"Pacific/Pago_Pago|Pacific/Midway",
+				"Pacific/Pago_Pago|Pacific/Samoa",
+				"Pacific/Pago_Pago|US/Samoa",
+				"Pacific/Pohnpei|Pacific/Ponape"
+			]
+		});
+	
+	
+		return moment;
+	}));
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	(function(window) {
+	    var re = {
+	        not_string: /[^s]/,
+	        number: /[diefg]/,
+	        json: /[j]/,
+	        not_json: /[^j]/,
+	        text: /^[^\x25]+/,
+	        modulo: /^\x25{2}/,
+	        placeholder: /^\x25(?:([1-9]\d*)\$|\(([^\)]+)\))?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-gijosuxX])/,
+	        key: /^([a-z_][a-z_\d]*)/i,
+	        key_access: /^\.([a-z_][a-z_\d]*)/i,
+	        index_access: /^\[(\d+)\]/,
+	        sign: /^[\+\-]/
+	    }
+	
+	    function sprintf() {
+	        var key = arguments[0], cache = sprintf.cache
+	        if (!(cache[key] && cache.hasOwnProperty(key))) {
+	            cache[key] = sprintf.parse(key)
+	        }
+	        return sprintf.format.call(null, cache[key], arguments)
+	    }
+	
+	    sprintf.format = function(parse_tree, argv) {
+	        var cursor = 1, tree_length = parse_tree.length, node_type = "", arg, output = [], i, k, match, pad, pad_character, pad_length, is_positive = true, sign = ""
+	        for (i = 0; i < tree_length; i++) {
+	            node_type = get_type(parse_tree[i])
+	            if (node_type === "string") {
+	                output[output.length] = parse_tree[i]
+	            }
+	            else if (node_type === "array") {
+	                match = parse_tree[i] // convenience purposes only
+	                if (match[2]) { // keyword argument
+	                    arg = argv[cursor]
+	                    for (k = 0; k < match[2].length; k++) {
+	                        if (!arg.hasOwnProperty(match[2][k])) {
+	                            throw new Error(sprintf("[sprintf] property '%s' does not exist", match[2][k]))
+	                        }
+	                        arg = arg[match[2][k]]
+	                    }
+	                }
+	                else if (match[1]) { // positional argument (explicit)
+	                    arg = argv[match[1]]
+	                }
+	                else { // positional argument (implicit)
+	                    arg = argv[cursor++]
+	                }
+	
+	                if (get_type(arg) == "function") {
+	                    arg = arg()
+	                }
+	
+	                if (re.not_string.test(match[8]) && re.not_json.test(match[8]) && (get_type(arg) != "number" && isNaN(arg))) {
+	                    throw new TypeError(sprintf("[sprintf] expecting number but found %s", get_type(arg)))
+	                }
+	
+	                if (re.number.test(match[8])) {
+	                    is_positive = arg >= 0
+	                }
+	
+	                switch (match[8]) {
+	                    case "b":
+	                        arg = arg.toString(2)
+	                    break
+	                    case "c":
+	                        arg = String.fromCharCode(arg)
+	                    break
+	                    case "d":
+	                    case "i":
+	                        arg = parseInt(arg, 10)
+	                    break
+	                    case "j":
+	                        arg = JSON.stringify(arg, null, match[6] ? parseInt(match[6]) : 0)
+	                    break
+	                    case "e":
+	                        arg = match[7] ? arg.toExponential(match[7]) : arg.toExponential()
+	                    break
+	                    case "f":
+	                        arg = match[7] ? parseFloat(arg).toFixed(match[7]) : parseFloat(arg)
+	                    break
+	                    case "g":
+	                        arg = match[7] ? parseFloat(arg).toPrecision(match[7]) : parseFloat(arg)
+	                    break
+	                    case "o":
+	                        arg = arg.toString(8)
+	                    break
+	                    case "s":
+	                        arg = ((arg = String(arg)) && match[7] ? arg.substring(0, match[7]) : arg)
+	                    break
+	                    case "u":
+	                        arg = arg >>> 0
+	                    break
+	                    case "x":
+	                        arg = arg.toString(16)
+	                    break
+	                    case "X":
+	                        arg = arg.toString(16).toUpperCase()
+	                    break
+	                }
+	                if (re.json.test(match[8])) {
+	                    output[output.length] = arg
+	                }
+	                else {
+	                    if (re.number.test(match[8]) && (!is_positive || match[3])) {
+	                        sign = is_positive ? "+" : "-"
+	                        arg = arg.toString().replace(re.sign, "")
+	                    }
+	                    else {
+	                        sign = ""
+	                    }
+	                    pad_character = match[4] ? match[4] === "0" ? "0" : match[4].charAt(1) : " "
+	                    pad_length = match[6] - (sign + arg).length
+	                    pad = match[6] ? (pad_length > 0 ? str_repeat(pad_character, pad_length) : "") : ""
+	                    output[output.length] = match[5] ? sign + arg + pad : (pad_character === "0" ? sign + pad + arg : pad + sign + arg)
+	                }
+	            }
+	        }
+	        return output.join("")
+	    }
+	
+	    sprintf.cache = {}
+	
+	    sprintf.parse = function(fmt) {
+	        var _fmt = fmt, match = [], parse_tree = [], arg_names = 0
+	        while (_fmt) {
+	            if ((match = re.text.exec(_fmt)) !== null) {
+	                parse_tree[parse_tree.length] = match[0]
+	            }
+	            else if ((match = re.modulo.exec(_fmt)) !== null) {
+	                parse_tree[parse_tree.length] = "%"
+	            }
+	            else if ((match = re.placeholder.exec(_fmt)) !== null) {
+	                if (match[2]) {
+	                    arg_names |= 1
+	                    var field_list = [], replacement_field = match[2], field_match = []
+	                    if ((field_match = re.key.exec(replacement_field)) !== null) {
+	                        field_list[field_list.length] = field_match[1]
+	                        while ((replacement_field = replacement_field.substring(field_match[0].length)) !== "") {
+	                            if ((field_match = re.key_access.exec(replacement_field)) !== null) {
+	                                field_list[field_list.length] = field_match[1]
+	                            }
+	                            else if ((field_match = re.index_access.exec(replacement_field)) !== null) {
+	                                field_list[field_list.length] = field_match[1]
+	                            }
+	                            else {
+	                                throw new SyntaxError("[sprintf] failed to parse named argument key")
+	                            }
+	                        }
+	                    }
+	                    else {
+	                        throw new SyntaxError("[sprintf] failed to parse named argument key")
+	                    }
+	                    match[2] = field_list
+	                }
+	                else {
+	                    arg_names |= 2
+	                }
+	                if (arg_names === 3) {
+	                    throw new Error("[sprintf] mixing positional and named placeholders is not (yet) supported")
+	                }
+	                parse_tree[parse_tree.length] = match
+	            }
+	            else {
+	                throw new SyntaxError("[sprintf] unexpected placeholder")
+	            }
+	            _fmt = _fmt.substring(match[0].length)
+	        }
+	        return parse_tree
+	    }
+	
+	    var vsprintf = function(fmt, argv, _argv) {
+	        _argv = (argv || []).slice(0)
+	        _argv.splice(0, 0, fmt)
+	        return sprintf.apply(null, _argv)
+	    }
+	
+	    /**
+	     * helpers
+	     */
+	    function get_type(variable) {
+	        return Object.prototype.toString.call(variable).slice(8, -1).toLowerCase()
+	    }
+	
+	    function str_repeat(input, multiplier) {
+	        return Array(multiplier + 1).join(input)
+	    }
+	
+	    /**
+	     * export to either browser or node.js
+	     */
+	    if (true) {
+	        exports.sprintf = sprintf
+	        exports.vsprintf = vsprintf
+	    }
+	    else {
+	        window.sprintf = sprintf
+	        window.vsprintf = vsprintf
+	
+	        if (typeof define === "function" && define.amd) {
+	            define(function() {
+	                return {
+	                    sprintf: sprintf,
+	                    vsprintf: vsprintf
+	                }
+	            })
+	        }
+	    }
+	})(typeof window === "undefined" ? this : window);
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	__webpack_require__(11);
+	
+	/*
+	 * Utily functions for Booking.js
 	 */
-var r=n(14),o=n(25),a=n(35);e.exports=new i},function(e,t){e.exports=function(){throw new Error("define cannot be used indirect")}},function(e,t){"use strict";var n={targetEl:"#bookingjs",name:"",avatar:"",autoload:!0,includeStyles:!0,showCredits:!0,goToFirstEvent:!0,bookingGraph:"instant",bookingFields:{name:{placeholder:"Full name",prefilled:!1,locked:!1},email:{placeholder:"E-mail",prefilled:!1,locked:!1},comment:{enabled:!0,placeholder:"Comment",prefilled:!1,required:!1,locked:!1},phone:{enabled:!1,placeholder:"Phone number",prefilled:!1,required:!1,locked:!1},voip:{enabled:!1,placeholder:"Skype username",prefilled:!1,required:!1,locked:!1},location:{enabled:!1,placeholder:"Location",prefilled:!1,required:!1,locked:!1}},timekitConfig:{app:"bookingjs"},timekitFindTime:{future:"4 weeks",length:"1 hour"},timekitCreateBooking:{},timekitUpdateBooking:{},fullCalendar:{header:{left:"",center:"",right:"today, prev, next"},views:{agenda:{displayEventEnd:!1}},allDaySlot:!1,scrollTime:"08:00:00",timezone:"local",nowIndicator:!0},localization:{showTimezoneHelper:!0,timeDateFormat:"12h-mdy-sun",strings:{submitText:"Book it",successMessageTitle:"Thanks!",timezoneHelperLoading:"Loading..",timezoneHelperDifferent:"Your timezone is %s hours %s of %s (calendar shown in your local time)",timezoneHelperSame:"You are in the same timezone as %s"}},callbacks:{}},i={timekitCreateBooking:{graph:"instant",action:"confirm",event:{invite:!0,my_rsvp:"accepted",sync_provider:!0}},localization:{strings:{successMessageBody:"An invitation has been sent to: <br /> %s <br /><br /> Please accept the invitation to confirm the booking."}}},r={timekitCreateBooking:{graph:"confirm_decline",action:"create",event:{invite:!0,my_rsvp:"needsAction",sync_provider:!0}},localization:{strings:{successMessageBody:"We have received your request and we'll be in touch when we have reviewed it. <br /><br />Have a great day!"}}},o={fullCalendar:{timeFormat:"HH:mm",firstDay:1,views:{basic:{columnFormat:"dddd D/M"},agenda:{columnFormat:"ddd\n D/M",slotLabelFormat:"HH:mm"}}},localization:{bookingDateFormat:"D. MMMM YYYY",bookingTimeFormat:"HH:mm",emailTimeFormat:"H:i"}},a={fullCalendar:{timeFormat:"h:mma",firstDay:0,views:{basic:{columnFormat:"dddd M/D"},agenda:{columnFormat:"ddd\n M/D",slotLabelFormat:"ha"}}},localization:{bookingDateFormat:"MMMM D, YYYY",bookingTimeFormat:"h:mma",emailTimeFormat:"h:ia"}};e.exports={primary:n,presets:{timeDateFormat24hdmymon:o,timeDateFormat12hmdysun:a,bookingInstant:i,bookingConfirmDecline:r}}},function(e,t,n){"use strict";n(26),e.exports={isFunction:function(e){return!!(e&&e.constructor&&e.call&&e.apply)},doCallback:function(e,t,n,i){this.isFunction(t.callbacks[e])&&(t.callbacks[e](n),i&&this.logDeprecated(e+" callback has been replaced, please see docs"))},logError:function(e){console.error("TimekitBooking Error: "+e)},logDeprecated:function(e){console.warn("TimekitBooking Deprecated: "+e)}}},function(e,t){}])});;/*globals TimekitBooking, moment, xController, $LAB */
+	
+	module.exports = {
+	
+	  isFunction: function(object) {
+	   return !!(object && object.constructor && object.call && object.apply);
+	  },
+	
+	  doCallback: function(hook, config, arg, deprecated) {
+	    if(this.isFunction(config.callbacks[hook])) {
+	      config.callbacks[hook](arg);
+	      if (deprecated) { this.logDeprecated(hook + ' callback has been replaced, please see docs'); }
+	    }
+	  },
+	
+	  logError: function(message) {
+	    console.error('TimekitBooking Error: ' + message);
+	  },
+	
+	  logDeprecated: function(message) {
+	    console.warn('TimekitBooking Deprecated: ' + message);
+	  }
+	
+	};
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	// Console-polyfill. MIT license.
+	// https://github.com/paulmillr/console-polyfill
+	// Make it safe to do console.log() always.
+	(function(global) {
+	  'use strict';
+	  global.console = global.console || {};
+	  var con = global.console;
+	  var prop, method;
+	  var empty = {};
+	  var dummy = function() {};
+	  var properties = 'memory'.split(',');
+	  var methods = ('assert,clear,count,debug,dir,dirxml,error,exception,group,' +
+	     'groupCollapsed,groupEnd,info,log,markTimeline,profile,profiles,profileEnd,' +
+	     'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',');
+	  while (prop = properties.pop()) if (!con[prop]) con[prop] = empty;
+	  while (method = methods.pop()) if (!con[method]) con[method] = dummy;
+	})(typeof window === 'undefined' ? this : window);
+	// Using `this` for web workers while maintaining compatibility with browser
+	// targeted script loaders such as Browserify or Webpack where the only way to
+	// get to the global object is via `window`.
+
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	/*
+	 * Default configuration for for Booking.js
+	 */
+	
+	var primary = {
+	
+	  targetEl: '#bookingjs',
+	  name: '',
+	  avatar: '',
+	  autoload: true,
+	  includeStyles: true,
+	  showCredits: true,
+	  goToFirstEvent: true,
+	  bookingGraph: 'instant',
+	  bookingFields: {
+	    name: {
+	      placeholder: 'Full name',
+	      prefilled: false,
+	      locked: false
+	    },
+	    email: {
+	      placeholder: 'E-mail',
+	      prefilled: false,
+	      locked: false
+	    },
+	    comment: {
+	      enabled: true,
+	      placeholder: 'Comment',
+	      prefilled: false,
+	      required: false,
+	      locked: false
+	    },
+	    phone: {
+	      enabled: false,
+	      placeholder: 'Phone number',
+	      prefilled: false,
+	      required: false,
+	      locked: false
+	    },
+	    voip: {
+	      enabled: false,
+	      placeholder: 'Skype username',
+	      prefilled: false,
+	      required: false,
+	      locked: false
+	    },
+	    location: {
+	      enabled: false,
+	      placeholder: 'Location',
+	      prefilled: false,
+	      required: false,
+	      locked: false
+	    }
+	  },
+	  timekitConfig: {
+	    app: 'bookingjs'
+	  },
+	  timekitFindTime: {
+	    future: '4 weeks',
+	    length: '1 hour'
+	  },
+	  timekitCreateBooking: { },
+	  timekitUpdateBooking: { },
+	  fullCalendar: {
+	    header: {
+	      left: '',
+	      center: '',
+	      right: 'today, prev, next'
+	    },
+	    views: {
+	      agenda: {
+	        displayEventEnd: false
+	      }
+	    },
+	    allDaySlot: false,
+	    scrollTime: '08:00:00',
+	    timezone: 'local',
+	    nowIndicator: true
+	  },
+	  localization: {
+	    showTimezoneHelper: true,
+	    timeDateFormat: '12h-mdy-sun',
+	    strings: {
+	      submitText: 'Book it',
+	      successMessageTitle: 'Thanks!',
+	      timezoneHelperLoading: 'Loading..',
+	      timezoneHelperDifferent: 'Your timezone is %s hours %s of %s (calendar shown in your local time)',
+	      timezoneHelperSame: 'You are in the same timezone as %s'
+	    }
+	  },
+	  callbacks: {}
+	
+	};
+	
+	// Preset: bookingGraph = 'instant'
+	var bookingInstant = {
+	
+	  timekitCreateBooking: {
+	    graph: 'instant',
+	    action: 'confirm',
+	    event: {
+	      invite: true,
+	      my_rsvp: 'accepted',
+	      sync_provider: true
+	    }
+	  },
+	  localization: {
+	    strings: {
+	      successMessageBody: 'An invitation has been sent to: <br /> %s <br /><br /> Please accept the invitation to confirm the booking.'
+	    }
+	  }
+	
+	};
+	
+	// Preset: bookingGraph = 'confirm_decline'
+	var bookingConfirmDecline = {
+	
+	  timekitCreateBooking: {
+	    graph: 'confirm_decline',
+	    action: 'create',
+	    event: {
+	      invite: true,
+	      my_rsvp: 'needsAction',
+	      sync_provider: true
+	    }
+	  },
+	  localization: {
+	    strings: {
+	      successMessageBody: "We have received your request and we'll be in touch when we have reviewed it. <br /><br />Have a great day!"
+	    }
+	  }
+	
+	};
+	
+	// Preset: timeDateFormat = '24h-dmy-mon'
+	var timeDateFormat24hdmymon = {
+	
+	  fullCalendar: {
+	    timeFormat: 'HH:mm',
+	    firstDay: 1,
+	    views: {
+	      basic: {
+	        columnFormat: 'dddd D/M'
+	      },
+	      agenda: {
+	        columnFormat: 'ddd\n D/M',
+	        slotLabelFormat: 'HH:mm'
+	      }
+	    }
+	  },
+	  localization: {
+	    bookingDateFormat: 'D. MMMM YYYY',
+	    bookingTimeFormat: 'HH:mm',
+	    emailTimeFormat: 'H:i'
+	  }
+	
+	};
+	
+	// Preset: timeDateFormat = '12h-mdy-sun'
+	var timeDateFormat12hmdysun = {
+	
+	  fullCalendar: {
+	    timeFormat: 'h:mma',
+	    firstDay: 0,
+	    views: {
+	      basic: {
+	        columnFormat: 'dddd M/D',
+	      },
+	      agenda: {
+	        columnFormat: 'ddd\n M/D',
+	        slotLabelFormat: 'ha'
+	      }
+	    },
+	  },
+	  localization: {
+	    bookingDateFormat: 'MMMM D, YYYY',
+	    bookingTimeFormat: 'h:mma',
+	    emailTimeFormat: 'h:ia'
+	  }
+	
+	};
+	
+	// Export objects
+	module.exports = {
+	  primary: primary,
+	  presets: {
+	    timeDateFormat24hdmymon:  timeDateFormat24hdmymon,
+	    timeDateFormat12hmdysun:  timeDateFormat12hmdysun,
+	    bookingInstant: bookingInstant,
+	    bookingConfirmDecline: bookingConfirmDecline
+	  }
+	};
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+	
+	// load the styles
+	var content = __webpack_require__(14);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(16)(content, {"singleton":true});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../css-loader/index.js?minimize!./../../autoprefixer-loader/index.js!./fullcalendar.css", function() {
+				var newContent = require("!!./../../css-loader/index.js?minimize!./../../autoprefixer-loader/index.js!./fullcalendar.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(15)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, "/*!\n * FullCalendar v2.6.1 Stylesheet\n * Docs & License: http://fullcalendar.io/\n * (c) 2015 Adam Shaw\n */.fc{direction:ltr;text-align:left}.fc-rtl{text-align:right}body .fc{font-size:1em}.fc-unthemed .fc-divider,.fc-unthemed .fc-popover,.fc-unthemed .fc-row,.fc-unthemed tbody,.fc-unthemed td,.fc-unthemed th,.fc-unthemed thead{border-color:#ddd}.fc-unthemed .fc-popover{background-color:#fff}.fc-unthemed .fc-divider,.fc-unthemed .fc-popover .fc-header{background:#eee}.fc-unthemed .fc-popover .fc-header .fc-close{color:#666}.fc-unthemed .fc-today{background:#fcf8e3}.fc-highlight{background:#bce8f1}.fc-bgevent,.fc-highlight{opacity:.3;filter:alpha(opacity=30)}.fc-bgevent{background:#8fdf82}.fc-nonbusiness{background:#d7d7d7}.fc-icon{display:inline-block;width:1em;height:1em;line-height:1em;font-size:1em;text-align:center;overflow:hidden;font-family:Courier New,Courier,monospace;-webkit-touch-callout:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.fc-icon:after{position:relative;margin:0 -1em}.fc-icon-left-single-arrow:after{content:\"\\2039\";font-weight:700;font-size:200%;top:-7%;left:3%}.fc-icon-right-single-arrow:after{content:\"\\203A\";font-weight:700;font-size:200%;top:-7%;left:-3%}.fc-icon-left-double-arrow:after{content:\"\\AB\";font-size:160%;top:-7%}.fc-icon-right-double-arrow:after{content:\"\\BB\";font-size:160%;top:-7%}.fc-icon-left-triangle:after{content:\"\\25C4\";font-size:125%;top:3%;left:-2%}.fc-icon-right-triangle:after{content:\"\\25BA\";font-size:125%;top:3%;left:2%}.fc-icon-down-triangle:after{content:\"\\25BC\";font-size:125%;top:2%}.fc-icon-x:after{content:\"\\D7\";font-size:200%;top:6%}.fc button{box-sizing:border-box;margin:0;height:2.1em;padding:0 .6em;font-size:1em;white-space:nowrap;cursor:pointer}.fc button::-moz-focus-inner{margin:0;padding:0}.fc-state-default{border:1px solid}.fc-state-default.fc-corner-left{border-top-left-radius:4px;border-bottom-left-radius:4px}.fc-state-default.fc-corner-right{border-top-right-radius:4px;border-bottom-right-radius:4px}.fc button .fc-icon{position:relative;top:-.05em;margin:0 .2em;vertical-align:middle}.fc-state-default{background-color:#f5f5f5;background-image:-webkit-gradient(linear,0 0,0 100%,from(#fff),to(#e6e6e6));background-image:-webkit-linear-gradient(top,#fff,#e6e6e6);background-image:linear-gradient(180deg,#fff,#e6e6e6);background-repeat:repeat-x;border-color:#e6e6e6 #e6e6e6 #bfbfbf;border-color:rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25);color:#333;text-shadow:0 1px 1px hsla(0,0%,100%,.75);box-shadow:inset 0 1px 0 hsla(0,0%,100%,.2),0 1px 2px rgba(0,0,0,.05)}.fc-state-active,.fc-state-disabled,.fc-state-down,.fc-state-hover{color:#333;background-color:#e6e6e6}.fc-state-hover{color:#333;text-decoration:none;background-position:0 -15px;-webkit-transition:background-position .1s linear;transition:background-position .1s linear}.fc-state-active,.fc-state-down{background-color:#ccc;background-image:none;box-shadow:inset 0 2px 4px rgba(0,0,0,.15),0 1px 2px rgba(0,0,0,.05)}.fc-state-disabled{cursor:default;background-image:none;opacity:.65;filter:alpha(opacity=65);box-shadow:none}.fc-button-group{display:inline-block}.fc .fc-button-group>*{float:left;margin:0 0 0 -1px}.fc .fc-button-group>:first-child{margin-left:0}.fc-popover{position:absolute;box-shadow:0 2px 6px rgba(0,0,0,.15)}.fc-popover .fc-header{padding:2px 4px}.fc-popover .fc-header .fc-title{margin:0 2px}.fc-popover .fc-header .fc-close{cursor:pointer}.fc-ltr .fc-popover .fc-header .fc-title,.fc-rtl .fc-popover .fc-header .fc-close{float:left}.fc-ltr .fc-popover .fc-header .fc-close,.fc-rtl .fc-popover .fc-header .fc-title{float:right}.fc-unthemed .fc-popover{border-width:1px;border-style:solid}.fc-unthemed .fc-popover .fc-header .fc-close{font-size:.9em;margin-top:2px}.fc-popover>.ui-widget-header+.ui-widget-content{border-top:0}.fc-divider{border-style:solid;border-width:1px}hr.fc-divider{height:0;margin:0;padding:0 0 2px;border-width:1px 0}.fc-clear{clear:both}.fc-bg,.fc-bgevent-skeleton,.fc-helper-skeleton,.fc-highlight-skeleton{position:absolute;top:0;left:0;right:0}.fc-bg{bottom:0}.fc-bg table{height:100%}.fc table{width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;font-size:1em}.fc th{text-align:center}.fc td,.fc th{border-style:solid;border-width:1px;padding:0;vertical-align:top}.fc td.fc-today{border-style:double}.fc .fc-row{border-style:solid;border-width:0}.fc-row table{border-left:0 hidden transparent;border-right:0 hidden transparent;border-bottom:0 hidden transparent}.fc-row:first-child table{border-top:0 hidden transparent}.fc-row{position:relative}.fc-row .fc-bg{z-index:1}.fc-row .fc-bgevent-skeleton,.fc-row .fc-highlight-skeleton{bottom:0}.fc-row .fc-bgevent-skeleton table,.fc-row .fc-highlight-skeleton table{height:100%}.fc-row .fc-bgevent-skeleton td,.fc-row .fc-highlight-skeleton td{border-color:transparent}.fc-row .fc-bgevent-skeleton{z-index:2}.fc-row .fc-highlight-skeleton{z-index:3}.fc-row .fc-content-skeleton{position:relative;z-index:4;padding-bottom:2px}.fc-row .fc-helper-skeleton{z-index:5}.fc-row .fc-content-skeleton td,.fc-row .fc-helper-skeleton td{background:none;border-color:transparent;border-bottom:0}.fc-row .fc-content-skeleton tbody td,.fc-row .fc-helper-skeleton tbody td{border-top:0}.fc-scroller{overflow-y:scroll;overflow-x:hidden}.fc-scroller>*{position:relative;width:100%;overflow:hidden}.fc-event{position:relative;display:block;font-size:.85em;line-height:1.3;border-radius:3px;border:1px solid #3a87ad;background-color:#3a87ad;font-weight:400}.fc-event,.fc-event:hover,.ui-widget .fc-event{color:#fff;text-decoration:none}.fc-event.fc-draggable,.fc-event[href]{cursor:pointer}.fc-not-allowed,.fc-not-allowed .fc-event{cursor:not-allowed}.fc-event .fc-bg{z-index:1;background:#fff;opacity:.25;filter:alpha(opacity=25)}.fc-event .fc-content{position:relative;z-index:2}.fc-event .fc-resizer{position:absolute;z-index:3}.fc-ltr .fc-h-event.fc-not-start,.fc-rtl .fc-h-event.fc-not-end{margin-left:0;border-left-width:0;padding-left:1px;border-top-left-radius:0;border-bottom-left-radius:0}.fc-ltr .fc-h-event.fc-not-end,.fc-rtl .fc-h-event.fc-not-start{margin-right:0;border-right-width:0;padding-right:1px;border-top-right-radius:0;border-bottom-right-radius:0}.fc-h-event .fc-resizer{top:-1px;bottom:-1px;left:-1px;right:-1px;width:5px}.fc-ltr .fc-h-event .fc-start-resizer,.fc-ltr .fc-h-event .fc-start-resizer:after,.fc-ltr .fc-h-event .fc-start-resizer:before,.fc-rtl .fc-h-event .fc-end-resizer,.fc-rtl .fc-h-event .fc-end-resizer:after,.fc-rtl .fc-h-event .fc-end-resizer:before{right:auto;cursor:w-resize}.fc-ltr .fc-h-event .fc-end-resizer,.fc-ltr .fc-h-event .fc-end-resizer:after,.fc-ltr .fc-h-event .fc-end-resizer:before,.fc-rtl .fc-h-event .fc-start-resizer,.fc-rtl .fc-h-event .fc-start-resizer:after,.fc-rtl .fc-h-event .fc-start-resizer:before{left:auto;cursor:e-resize}.fc-day-grid-event{margin:1px 2px 0;padding:0 1px}.fc-day-grid-event .fc-content{white-space:nowrap;overflow:hidden}.fc-day-grid-event .fc-time{font-weight:700}.fc-day-grid-event .fc-resizer{left:-3px;right:-3px;width:7px}a.fc-more{margin:1px 3px;font-size:.85em;cursor:pointer;text-decoration:none}a.fc-more:hover{text-decoration:underline}.fc-limited{display:none}.fc-day-grid .fc-row{z-index:1}.fc-more-popover{z-index:2;width:220px}.fc-more-popover .fc-event-container{padding:10px}.fc-now-indicator{position:absolute;border:0 solid red}.fc-toolbar{text-align:center;margin-bottom:1em}.fc-toolbar .fc-left{float:left}.fc-toolbar .fc-right{float:right}.fc-toolbar .fc-center{display:inline-block}.fc .fc-toolbar>*>*{float:left;margin-left:.75em}.fc .fc-toolbar>*>:first-child{margin-left:0}.fc-toolbar h2{margin:0}.fc-toolbar button{position:relative}.fc-toolbar .fc-state-hover,.fc-toolbar .ui-state-hover{z-index:2}.fc-toolbar .fc-state-down{z-index:3}.fc-toolbar .fc-state-active,.fc-toolbar .ui-state-active{z-index:4}.fc-toolbar button:focus{z-index:5}.fc-view-container *,.fc-view-container :after,.fc-view-container :before{box-sizing:content-box}.fc-view,.fc-view>table{position:relative;z-index:1}.fc-basicDay-view .fc-content-skeleton,.fc-basicWeek-view .fc-content-skeleton{padding-top:1px;padding-bottom:1em}.fc-basic-view .fc-body .fc-row{min-height:4em}.fc-row.fc-rigid{overflow:hidden}.fc-row.fc-rigid .fc-content-skeleton{position:absolute;top:0;left:0;right:0}.fc-basic-view .fc-day-number,.fc-basic-view .fc-week-number{padding:0 2px}.fc-basic-view td.fc-day-number,.fc-basic-view td.fc-week-number span{padding-top:2px;padding-bottom:2px}.fc-basic-view .fc-week-number{text-align:center}.fc-basic-view .fc-week-number span{display:inline-block;min-width:1.25em}.fc-ltr .fc-basic-view .fc-day-number{text-align:right}.fc-rtl .fc-basic-view .fc-day-number{text-align:left}.fc-day-number.fc-other-month{opacity:.3;filter:alpha(opacity=30)}.fc-agenda-view .fc-day-grid{position:relative;z-index:2}.fc-agenda-view .fc-day-grid .fc-row{min-height:3em}.fc-agenda-view .fc-day-grid .fc-row .fc-content-skeleton{padding-top:1px;padding-bottom:1em}.fc .fc-axis{vertical-align:middle;padding:0 4px;white-space:nowrap}.fc-ltr .fc-axis{text-align:right}.fc-rtl .fc-axis{text-align:left}.ui-widget td.fc-axis{font-weight:400}.fc-time-grid,.fc-time-grid-container{position:relative;z-index:1}.fc-time-grid{min-height:100%}.fc-time-grid table{border:0 hidden transparent}.fc-time-grid>.fc-bg{z-index:1}.fc-time-grid .fc-slats,.fc-time-grid>hr{position:relative;z-index:2}.fc-time-grid .fc-content-col{position:relative}.fc-time-grid .fc-content-skeleton{position:absolute;z-index:3;top:0;left:0;right:0}.fc-time-grid .fc-business-container{position:relative;z-index:1}.fc-time-grid .fc-bgevent-container{position:relative;z-index:2}.fc-time-grid .fc-highlight-container{position:relative;z-index:3}.fc-time-grid .fc-event-container{position:relative;z-index:4}.fc-time-grid .fc-now-indicator-line{z-index:5}.fc-time-grid .fc-helper-container{position:relative;z-index:6}.fc-time-grid .fc-slats td{height:1.5em;border-bottom:0}.fc-time-grid .fc-slats .fc-minor td{border-top-style:dotted}.fc-time-grid .fc-slats .ui-widget-content{background:none}.fc-time-grid .fc-highlight-container{position:relative}.fc-time-grid .fc-highlight{position:absolute;left:0;right:0}.fc-ltr .fc-time-grid .fc-event-container{margin:0 2.5% 0 2px}.fc-rtl .fc-time-grid .fc-event-container{margin:0 2px 0 2.5%}.fc-time-grid .fc-bgevent,.fc-time-grid .fc-event{position:absolute;z-index:1}.fc-time-grid .fc-bgevent{left:0;right:0}.fc-v-event.fc-not-start{border-top-width:0;padding-top:1px;border-top-left-radius:0;border-top-right-radius:0}.fc-v-event.fc-not-end{border-bottom-width:0;padding-bottom:1px;border-bottom-left-radius:0;border-bottom-right-radius:0}.fc-time-grid-event{overflow:hidden}.fc-time-grid-event .fc-time,.fc-time-grid-event .fc-title{padding:0 1px}.fc-time-grid-event .fc-time{font-size:.85em;white-space:nowrap}.fc-time-grid-event.fc-short .fc-content{white-space:nowrap}.fc-time-grid-event.fc-short .fc-time,.fc-time-grid-event.fc-short .fc-title{display:inline-block;vertical-align:top}.fc-time-grid-event.fc-short .fc-time span{display:none}.fc-time-grid-event.fc-short .fc-time:before{content:attr(data-start)}.fc-time-grid-event.fc-short .fc-time:after{content:\"\\A0-\\A0\"}.fc-time-grid-event.fc-short .fc-title{font-size:.85em;padding:0}.fc-time-grid-event .fc-resizer{left:0;right:0;bottom:0;height:8px;overflow:hidden;line-height:8px;font-size:11px;font-family:monospace;text-align:center;cursor:s-resize}.fc-time-grid-event .fc-resizer:after{content:\"=\"}.fc-time-grid .fc-now-indicator-line{border-top-width:1px;left:0;right:0}.fc-time-grid .fc-now-indicator-arrow{margin-top:-5px}.fc-ltr .fc-time-grid .fc-now-indicator-arrow{left:0;border-width:5px 0 5px 6px;border-top-color:transparent;border-bottom-color:transparent}.fc-rtl .fc-time-grid .fc-now-indicator-arrow{right:0;border-width:5px 6px 5px 0;border-top-color:transparent;border-bottom-color:transparent}", ""]);
+	
+	// exports
+
+
+/***/ },
+/* 15 */
+/***/ function(module, exports) {
+
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	// css base code, injected by the css-loader
+	module.exports = function() {
+		var list = [];
+	
+		// return the list of modules as css string
+		list.toString = function toString() {
+			var result = [];
+			for(var i = 0; i < this.length; i++) {
+				var item = this[i];
+				if(item[2]) {
+					result.push("@media " + item[2] + "{" + item[1] + "}");
+				} else {
+					result.push(item[1]);
+				}
+			}
+			return result.join("");
+		};
+	
+		// import a list of modules into the list
+		list.i = function(modules, mediaQuery) {
+			if(typeof modules === "string")
+				modules = [[null, modules, ""]];
+			var alreadyImportedModules = {};
+			for(var i = 0; i < this.length; i++) {
+				var id = this[i][0];
+				if(typeof id === "number")
+					alreadyImportedModules[id] = true;
+			}
+			for(i = 0; i < modules.length; i++) {
+				var item = modules[i];
+				// skip already imported module
+				// this implementation is not 100% perfect for weird media query combinations
+				//  when a module is imported multiple times with different media queries.
+				//  I hope this will never occur (Hey this way we have smaller bundles)
+				if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+					if(mediaQuery && !item[2]) {
+						item[2] = mediaQuery;
+					} else if(mediaQuery) {
+						item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+					}
+					list.push(item);
+				}
+			}
+		};
+		return list;
+	};
+
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	var stylesInDom = {},
+		memoize = function(fn) {
+			var memo;
+			return function () {
+				if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+				return memo;
+			};
+		},
+		isOldIE = memoize(function() {
+			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
+		}),
+		getHeadElement = memoize(function () {
+			return document.head || document.getElementsByTagName("head")[0];
+		}),
+		singletonElement = null,
+		singletonCounter = 0,
+		styleElementsInsertedAtTop = [];
+	
+	module.exports = function(list, options) {
+		if(false) {
+			if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+		}
+	
+		options = options || {};
+		// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+		// tags it will allow on a page
+		if (typeof options.singleton === "undefined") options.singleton = isOldIE();
+	
+		// By default, add <style> tags to the bottom of <head>.
+		if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
+	
+		var styles = listToStyles(list);
+		addStylesToDom(styles, options);
+	
+		return function update(newList) {
+			var mayRemove = [];
+			for(var i = 0; i < styles.length; i++) {
+				var item = styles[i];
+				var domStyle = stylesInDom[item.id];
+				domStyle.refs--;
+				mayRemove.push(domStyle);
+			}
+			if(newList) {
+				var newStyles = listToStyles(newList);
+				addStylesToDom(newStyles, options);
+			}
+			for(var i = 0; i < mayRemove.length; i++) {
+				var domStyle = mayRemove[i];
+				if(domStyle.refs === 0) {
+					for(var j = 0; j < domStyle.parts.length; j++)
+						domStyle.parts[j]();
+					delete stylesInDom[domStyle.id];
+				}
+			}
+		};
+	}
+	
+	function addStylesToDom(styles, options) {
+		for(var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+			if(domStyle) {
+				domStyle.refs++;
+				for(var j = 0; j < domStyle.parts.length; j++) {
+					domStyle.parts[j](item.parts[j]);
+				}
+				for(; j < item.parts.length; j++) {
+					domStyle.parts.push(addStyle(item.parts[j], options));
+				}
+			} else {
+				var parts = [];
+				for(var j = 0; j < item.parts.length; j++) {
+					parts.push(addStyle(item.parts[j], options));
+				}
+				stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+			}
+		}
+	}
+	
+	function listToStyles(list) {
+		var styles = [];
+		var newStyles = {};
+		for(var i = 0; i < list.length; i++) {
+			var item = list[i];
+			var id = item[0];
+			var css = item[1];
+			var media = item[2];
+			var sourceMap = item[3];
+			var part = {css: css, media: media, sourceMap: sourceMap};
+			if(!newStyles[id])
+				styles.push(newStyles[id] = {id: id, parts: [part]});
+			else
+				newStyles[id].parts.push(part);
+		}
+		return styles;
+	}
+	
+	function insertStyleElement(options, styleElement) {
+		var head = getHeadElement();
+		var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
+		if (options.insertAt === "top") {
+			if(!lastStyleElementInsertedAtTop) {
+				head.insertBefore(styleElement, head.firstChild);
+			} else if(lastStyleElementInsertedAtTop.nextSibling) {
+				head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
+			} else {
+				head.appendChild(styleElement);
+			}
+			styleElementsInsertedAtTop.push(styleElement);
+		} else if (options.insertAt === "bottom") {
+			head.appendChild(styleElement);
+		} else {
+			throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+		}
+	}
+	
+	function removeStyleElement(styleElement) {
+		styleElement.parentNode.removeChild(styleElement);
+		var idx = styleElementsInsertedAtTop.indexOf(styleElement);
+		if(idx >= 0) {
+			styleElementsInsertedAtTop.splice(idx, 1);
+		}
+	}
+	
+	function createStyleElement(options) {
+		var styleElement = document.createElement("style");
+		styleElement.type = "text/css";
+		insertStyleElement(options, styleElement);
+		return styleElement;
+	}
+	
+	function createLinkElement(options) {
+		var linkElement = document.createElement("link");
+		linkElement.rel = "stylesheet";
+		insertStyleElement(options, linkElement);
+		return linkElement;
+	}
+	
+	function addStyle(obj, options) {
+		var styleElement, update, remove;
+	
+		if (options.singleton) {
+			var styleIndex = singletonCounter++;
+			styleElement = singletonElement || (singletonElement = createStyleElement(options));
+			update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
+			remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
+		} else if(obj.sourceMap &&
+			typeof URL === "function" &&
+			typeof URL.createObjectURL === "function" &&
+			typeof URL.revokeObjectURL === "function" &&
+			typeof Blob === "function" &&
+			typeof btoa === "function") {
+			styleElement = createLinkElement(options);
+			update = updateLink.bind(null, styleElement);
+			remove = function() {
+				removeStyleElement(styleElement);
+				if(styleElement.href)
+					URL.revokeObjectURL(styleElement.href);
+			};
+		} else {
+			styleElement = createStyleElement(options);
+			update = applyToTag.bind(null, styleElement);
+			remove = function() {
+				removeStyleElement(styleElement);
+			};
+		}
+	
+		update(obj);
+	
+		return function updateStyle(newObj) {
+			if(newObj) {
+				if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
+					return;
+				update(obj = newObj);
+			} else {
+				remove();
+			}
+		};
+	}
+	
+	var replaceText = (function () {
+		var textStore = [];
+	
+		return function (index, replacement) {
+			textStore[index] = replacement;
+			return textStore.filter(Boolean).join('\n');
+		};
+	})();
+	
+	function applyToSingletonTag(styleElement, index, remove, obj) {
+		var css = remove ? "" : obj.css;
+	
+		if (styleElement.styleSheet) {
+			styleElement.styleSheet.cssText = replaceText(index, css);
+		} else {
+			var cssNode = document.createTextNode(css);
+			var childNodes = styleElement.childNodes;
+			if (childNodes[index]) styleElement.removeChild(childNodes[index]);
+			if (childNodes.length) {
+				styleElement.insertBefore(cssNode, childNodes[index]);
+			} else {
+				styleElement.appendChild(cssNode);
+			}
+		}
+	}
+	
+	function applyToTag(styleElement, obj) {
+		var css = obj.css;
+		var media = obj.media;
+		var sourceMap = obj.sourceMap;
+	
+		if(media) {
+			styleElement.setAttribute("media", media)
+		}
+	
+		if(styleElement.styleSheet) {
+			styleElement.styleSheet.cssText = css;
+		} else {
+			while(styleElement.firstChild) {
+				styleElement.removeChild(styleElement.firstChild);
+			}
+			styleElement.appendChild(document.createTextNode(css));
+		}
+	}
+	
+	function updateLink(linkElement, obj) {
+		var css = obj.css;
+		var media = obj.media;
+		var sourceMap = obj.sourceMap;
+	
+		if(sourceMap) {
+			// http://stackoverflow.com/a/26603875
+			css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+		}
+	
+		var blob = new Blob([css], { type: "text/css" });
+	
+		var oldSrc = linkElement.href;
+	
+		linkElement.href = URL.createObjectURL(blob);
+	
+		if(oldSrc)
+			URL.revokeObjectURL(oldSrc);
+	}
+
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+	
+	// load the styles
+	var content = __webpack_require__(18);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(16)(content, {"singleton":true});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../node_modules/css-loader/index.js?minimize!./../../node_modules/autoprefixer-loader/index.js!./../../node_modules/sass-loader/index.js!./fullcalendar.scss", function() {
+				var newContent = require("!!./../../node_modules/css-loader/index.js?minimize!./../../node_modules/autoprefixer-loader/index.js!./../../node_modules/sass-loader/index.js!./fullcalendar.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(15)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, ".fc-view-container{background-color:#fbfbfb;color:#333}.fc-row.fc-widget-header{border-bottom:1px solid #ececec}.fc-row.fc-widget-header .fc-day-header{text-transform:uppercase;font-size:.9em;font-weight:600}.fc-axis,.fc-row.fc-widget-header .fc-day-header:first-line{color:#b9b9b9}.fc-axis{font-size:.9em}.fc-state-default{text-shadow:none;box-shadow:none;background-image:none;background-color:#fff;border-color:#fff}.fc-button{text-transform:uppercase;font-weight:600;font-size:1.1em;border:0;outline:none}.fc-button:active,.fc-button:focus,.fc-button:hover,.fc-button:visited{outline:none;border:0;background-color:transparent}.fc-content-skeleton{border-top:1px solid #ddd}.fc .fc-toolbar{padding:0;margin-bottom:0;border-bottom:1px solid #ececec}.fc .fc-toolbar>*>button{padding:15px 17px;height:auto;outline:0;margin-left:0;-webkit-transition:opacity .2s ease;transition:opacity .2s ease;opacity:.3}.fc .fc-toolbar>*>button:hover{opacity:1}.fc .fc-toolbar>*>button.fc-state-disabled{-webkit-transition:opacity 0s;transition:opacity 0s;opacity:0}.fc .fc-toolbar>*>button.fc-prev-button{padding-right:8px}.fc .fc-toolbar>*>button.fc-next-button{padding-left:8px}.fc .fc-toolbar>*>button .fc-icon{font-size:1.1em}.fc .fc-toolbar>.fc-right>button.fc-today-button{padding:15px 5px}.fc-unthemed .fc-today{background:#fff}.fc-body>tr>.fc-widget-content,.fc-head>tr>.fc-widget-header{border:0!important}.fc th{border-color:#fff;padding:5px}.fc-unthemed .fc-divider,.fc-unthemed .fc-popover .fc-header{background-color:transparent}.empty-calendar .fc-event{opacity:0}.fc-event{-webkit-transition:all .2s,opacity .6s;transition:all .2s,opacity .6s;border:none;border-left:3px solid #689ad8;padding:3px;background-color:#fff;border-radius:4px;color:#333;margin:1px 0;box-shadow:0 1px 2px rgba(0,0,0,.07);cursor:pointer;margin-bottom:2px;opacity:1}.fc-event:hover{color:#fff;background-color:#689ad8;border-left:3px solid #689ad8;box-shadow:0 1px 3px rgba(0,0,0,.15)}.fc-event .fc-bg{opacity:0}.fc-day-grid-event{padding:15px;margin:5px}.fc-day-grid-event .fc-time{font-weight:600}.fc-time-grid .fc-slats .fc-minor td{border-top-style:none}.fc-time-grid .fc-slats td{border-top-color:#fbfbfb}.fc-time-grid .fc-slats td.fc-axis{border-top-color:#ececec}.fc-time-grid-event.fc-short .fc-content{font-size:.7em;line-height:.2em}.fc-time-grid-event.fc-short .fc-time:after{content:''}.fc-time-grid-event .fc-time{font-size:1.1em;padding:5px}.fc-unthemed .fc-divider,.fc-unthemed .fc-popover,.fc-unthemed .fc-row,.fc-unthemed tbody,.fc-unthemed td,.fc-unthemed th,.fc-unthemed thead{border-color:#ececec}.fc-agendaMonthly-view .fc-event{color:#fff}.fc-now-indicator{border-color:rgba(255,0,0,.5)}", ""]);
+	
+	// exports
+
+
+/***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+	
+	// load the styles
+	var content = __webpack_require__(20);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(16)(content, {"singleton":true});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../node_modules/css-loader/index.js?minimize!./../../node_modules/autoprefixer-loader/index.js!./../../node_modules/sass-loader/index.js!./utils.scss", function() {
+				var newContent = require("!!./../../node_modules/css-loader/index.js?minimize!./../../node_modules/autoprefixer-loader/index.js!./../../node_modules/sass-loader/index.js!./utils.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(15)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, "@-webkit-keyframes spin{to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}@keyframes spin{to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}@-webkit-keyframes shake{0%{-webkit-transform:translateX(0);transform:translateX(0)}25%{-webkit-transform:translateX(5px);transform:translateX(5px)}50%{-webkit-transform:translateX(-5px);transform:translateX(-5px)}75%{-webkit-transform:translateX(5px);transform:translateX(5px)}to{-webkit-transform:translateX(0);transform:translateX(0)}}@keyframes shake{0%{-webkit-transform:translateX(0);transform:translateX(0)}25%{-webkit-transform:translateX(5px);transform:translateX(5px)}50%{-webkit-transform:translateX(-5px);transform:translateX(-5px)}75%{-webkit-transform:translateX(5px);transform:translateX(5px)}to{-webkit-transform:translateX(0);transform:translateX(0)}}", ""]);
+	
+	// exports
+
+
+/***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+	
+	// load the styles
+	var content = __webpack_require__(22);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(16)(content, {"singleton":true});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../node_modules/css-loader/index.js?minimize!./../../node_modules/autoprefixer-loader/index.js!./../../node_modules/sass-loader/index.js!./main.scss", function() {
+				var newContent = require("!!./../../node_modules/css-loader/index.js?minimize!./../../node_modules/autoprefixer-loader/index.js!./../../node_modules/sass-loader/index.js!./main.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 22 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(15)();
+	// imports
+	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,600);", ""]);
+	
+	// module
+	exports.push([module.id, "/*!\n * Booking.js\n * http://booking.timekit.io\n * (c) 2015 Timekit Inc.\n */.bookingjs{position:relative;font-family:Open Sans,Helvetica,Tahoma,Arial,sans-serif;font-size:13px;border-radius:4px;background-color:#fff;box-shadow:0 2px 4px 0 rgba(0,0,0,.2);margin:60px auto 20px;z-index:10;opacity:0;color:#333}.bookingjs.show{-webkit-transition:opacity .3s ease;transition:opacity .3s ease;opacity:1}.is-small.has-avatar.has-displayname .bookingjs-calendar .fc-toolbar{padding-bottom:24px}.is-small .bookingjs-calendar .fc-toolbar>.fc-right>button.fc-today-button{position:absolute;left:15px}.bookingjs-timezonehelper{color:#aeaeae;text-align:center;padding:7px 10px;background-color:#fbfbfb;border-top:1px solid #ececec;min-height:15px;z-index:20;border-radius:0 0 4px 4px}.bookingjs-timezoneicon{width:10px;margin-right:5px}.bookingjs-avatar{position:absolute;top:-50px;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%);border-radius:150px;border:3px solid #fff;box-shadow:0 1px 3px 0 rgba(0,0,0,.13);overflow:hidden;z-index:40;background-color:#fff}.is-small .bookingjs-avatar{top:-40px}.bookingjs-avatar img{max-width:100%;vertical-align:middle;display:inline-block;width:80px;height:80px}.is-small .bookingjs-avatar img{width:70px;height:70px}.bookingjs-displayname{position:absolute;top:0;left:0;padding:15px 20px;color:#333;font-weight:600}.is-small .bookingjs-displayname{text-align:center;width:100%;box-sizing:border-box}.is-small.has-avatar .bookingjs-displayname{top:44px;padding:0 20px}.bookingjs-bookpage{position:absolute;height:100%;width:100%;top:0;left:0;background-color:#fbfbfb;z-index:30;opacity:0;-webkit-transition:opacity .2s ease;transition:opacity .2s ease;border-radius:4px}.bookingjs-bookpage.show{opacity:1}.bookingjs-bookpage-close{position:absolute;top:0;right:0;padding:18px;-webkit-transition:opacity .2s ease;transition:opacity .2s ease;opacity:.3}.bookingjs-bookpage-close:hover{opacity:1}.bookingjs-bookpage-date,.bookingjs-bookpage h2{text-align:center;font-size:34px;font-weight:400;margin-top:70px;margin-bottom:10px}.is-small .bookingjs-bookpage-date,.is-small .bookingjs-bookpage h2{font-size:27px;margin-top:60px}.bookingjs-bookpage-time,.bookingjs-bookpage h3{text-align:center;font-size:17px;font-weight:400;margin-bottom:50px;margin-top:10px}.is-small .bookingjs-bookpage-time,.is-small .bookingjs-bookpage h3{font-size:15px;margin-bottom:35px}.bookingjs-closeicon{width:15px}.bookingjs-form{width:350px;position:relative;margin:0 auto;text-align:center}.is-small .bookingjs-form{width:90%}.bookingjs-form-box{position:relative;box-shadow:0 1px 3px 0 rgba(0,0,0,.1);overflow:hidden;background-color:#fff;line-height:0}.bookingjs-form-success-message{position:absolute;top:-999px;left:0;right:0;padding:30px;background-color:#fff;opacity:0;-webkit-transition:opacity .3s ease;transition:opacity .3s ease;line-height:normal}.is-small .bookingjs-form-success-message{padding:22px 10px}.bookingjs-form-success-message .title{font-size:20px;display:block;margin-bottom:25px}.bookingjs-form-success-message .body{display:block}.bookingjs-form-success-message .body .booked-email{color:#aeaeae}.bookingjs-form.success .bookingjs-form-success-message{opacity:1;top:0;bottom:0}.bookingjs-form-input,.bookingjs-form input,.bookingjs-form input:invalid textarea,.bookingjs-form textarea:invalid{-webkit-transition:box-shadow .2s ease;transition:box-shadow .2s ease;width:100%;padding:15px 25px;margin:0;border:0 solid #ececec;font-size:1em;box-shadow:inset 0 0 1px 1px hsla(0,0%,100%,0);text-align:left;box-sizing:border-box;line-height:normal;font-family:Open Sans,Helvetica,Tahoma,Arial,sans-serif;color:#333}.bookingjs-form-input:focus,.bookingjs-form input:focus,.bookingjs-form input:invalid textarea:focus,.bookingjs-form textarea:invalid:focus{outline:0;box-shadow:inset 0 0 1px 1px #689ad8}.bookingjs-form-input.hidden,.bookingjs-form input.hidden,.bookingjs-form input:invalid textarea.hidden,.bookingjs-form textarea:invalid.hidden{display:none}.bookingjs-form-input:-moz-read-only,.bookingjs-form input:-moz-read-only,.bookingjs-form input:invalid textarea:-moz-read-only,.bookingjs-form textarea:invalid:-moz-read-only{cursor:not-allowed;font-style:italic}.bookingjs-form-input:read-only,.bookingjs-form input:invalid textarea:read-only,.bookingjs-form input:read-only,.bookingjs-form textarea:invalid:read-only{cursor:not-allowed;font-style:italic}.bookingjs-form-input:-moz-read-only:focus,.bookingjs-form input:-moz-read-only:focus,.bookingjs-form input:invalid textarea:-moz-read-only:focus,.bookingjs-form textarea:invalid:-moz-read-only:focus{box-shadow:inset 0 0 1px 1px #d8d8d8}.bookingjs-form-input:read-only:focus,.bookingjs-form input:invalid textarea:read-only:focus,.bookingjs-form input:read-only:focus,.bookingjs-form textarea:invalid:read-only:focus{box-shadow:inset 0 0 1px 1px #d8d8d8}.bookingjs-form-button{position:relative;-webkit-transition:background-color .2s,max-width .3s;transition:background-color .2s,max-width .3s;display:inline-block;padding:13px 25px;background-color:#689ad8;text-transform:uppercase;box-shadow:0 1px 3px 0 rgba(0,0,0,.15);color:#fff;border:0;border-radius:3px;font-size:1.1em;font-weight:600;margin-top:30px;cursor:pointer;height:44px;outline:0;text-align:center;max-width:200px}.bookingjs-form-button .error-text,.bookingjs-form-button .loading-text,.bookingjs-form-button .success-text{-webkit-transition:opacity .3s ease;transition:opacity .3s ease;position:absolute;top:13px;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%);opacity:0}.bookingjs-form-button .inactive-text{white-space:nowrap;opacity:1}.bookingjs-form-button .loading-text svg{height:19px;width:19px;-webkit-animation:spin .6s infinite linear;animation:spin .6s infinite linear}.bookingjs-form-button .error-text svg{height:15px;width:15px;margin-top:2px}.bookingjs-form-button .success-text svg{height:15px;margin-top:2px;-webkit-transform:scale(0);transform:scale(0);-webkit-transition:-webkit-transform .6s ease;transition:-webkit-transform .6s ease;transition:transform .6s ease;transition:transform .6s ease,-webkit-transform .6s ease}.bookingjs-form-button:focus,.bookingjs-form-button:hover{background-color:#3f7fce}.bookingjs-form-button.button-shake{-webkit-animation:shake .5s 1 ease;animation:shake .5s 1 ease}.bookingjs-form.loading .bookingjs-form-button,.bookingjs-form.loading .bookingjs-form-button:hover{max-width:80px;background-color:#b1b1b1;cursor:not-allowed}.bookingjs-form.loading .bookingjs-form-button .inactive-text,.bookingjs-form.loading .bookingjs-form-button:hover .inactive-text{opacity:0}.bookingjs-form.loading .bookingjs-form-button .loading-text,.bookingjs-form.loading .bookingjs-form-button:hover .loading-text{opacity:1}.bookingjs-form.error .bookingjs-form-button,.bookingjs-form.error .bookingjs-form-button:hover{max-width:80px;background-color:#d83b46;cursor:not-allowed}.bookingjs-form.error .bookingjs-form-button .inactive-text,.bookingjs-form.error .bookingjs-form-button:hover .inactive-text{opacity:0}.bookingjs-form.error .bookingjs-form-button .error-text,.bookingjs-form.error .bookingjs-form-button:hover .error-text{opacity:1}.bookingjs-form.success .bookingjs-form-button,.bookingjs-form.success .bookingjs-form-button:hover{max-width:80px;background-color:#5baf56;cursor:not-allowed}.bookingjs-form.success .bookingjs-form-button .inactive-text,.bookingjs-form.success .bookingjs-form-button:hover .inactive-text{opacity:0}.bookingjs-form.success .bookingjs-form-button .success-text,.bookingjs-form.success .bookingjs-form-button:hover .success-text{opacity:1}.bookingjs-form.success .bookingjs-form-button .success-text svg,.bookingjs-form.success .bookingjs-form-button:hover .success-text svg{-webkit-transform:scale(1);transform:scale(1)}.bookingjs-poweredby{position:absolute;bottom:0;left:0;right:0;text-align:center;padding:7px 10px}.bookingjs-poweredby a{-webkit-transition:color .2s ease;transition:color .2s ease;color:#aeaeae;text-decoration:none}.bookingjs-poweredby a svg path{-webkit-transition:fill .2s ease;transition:fill .2s ease;fill:#aeaeae}.bookingjs-poweredby a:hover{color:#333}.bookingjs-poweredby a:hover svg path{fill:#333}.bookingjs-timekiticon{width:13px;margin-right:5px;vertical-align:sub}", ""]);
+	
+	// exports
+
+
+/***/ },
+/* 23 */
+/***/ function(module, exports) {
+
+	module.exports = "<svg class=\"bookingjs-timezoneicon\" viewBox=\"0 0 98 98\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:sketch=\"http://www.bohemiancoding.com/sketch/ns\"><title>Shape</title><desc>Created with Sketch.</desc><defs></defs><g id=\"Page-1\" stroke=\"none\" stroke-width=\"1\" fill=\"none\" fill-rule=\"evenodd\" sketch:type=\"MSPage\"><g id=\"timezone-icon\" sketch:type=\"MSLayerGroup\" fill=\"#AEAEAE\"><path d=\"M37.656,1.387 L39.381,2.516 L46.176,3.475 L49.313,2.778 L55.186,3.495 L56.364,5.065 L52.274,4.52 L48.092,6.262 L49.293,9.385 L53.613,11.348 L54.189,7.395 L58.285,7.133 L64.121,12.707 L65.775,14.887 L66.56,16.28 L62.029,18.067 L55.185,21.169 L54.624,24.206 L50.095,28.476 L50.271,32.572 L48.9,32.559 L48.353,29.086 L45.757,28.238 L38.294,28.631 L35.286,34.137 L37.901,37.274 L42.221,34.917 L42.516,38.755 L44.172,40.062 L47.131,43.46 L46.985,47.751 L52.448,49.034 L56.454,46.159 L58.284,46.768 L65.003,49.45 L74.433,52.985 L76.396,57.698 L83.111,60.968 L84.644,66.732 L80.062,71.857 L74.66,77.519 L68.933,80.482 L63.04,84.408 L55.185,89.515 L50.835,93.941 L49.292,92.263 L52.782,83.419 L53.663,73.167 L46.15,66.34 L46.199,60.596 L48.164,58.239 L50.471,51.415 L45.809,48.811 L42.664,43.706 L37.75,41.817 L30.047,37.667 L26.904,29.024 L25.334,33.344 L22.977,26.276 L23.762,15.671 L27.69,12.136 L26.512,9.779 L29.26,5.459 L23.905,6.99 C9.611,15.545 0.01,31.135 0.01,49.006 C0.01,76.062 21.945,98 49.006,98 C76.062,98 98,76.062 98,49.006 C98,21.947 76.062,0.012 49.006,0.012 C45.092,0.012 41.305,0.52 37.656,1.387 Z\" id=\"Shape\" sketch:type=\"MSShapeGroup\"></path></g></g></svg>"
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var H = __webpack_require__(25);
+	module.exports = function() { var T = new H.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div class=\"bookingjs-timezonehelper\">");t.b("\n");t.b("\n" + i);t.b("  ");t.b(t.t(t.f("timezoneIcon",c,p,0)));t.b("\n");t.b("\n" + i);if(t.s(t.f("loading",c,p,1),c,p,0,79,117,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    <span>");t.b(t.v(t.f("loadingText",c,p,0)));t.b("</span>");t.b("\n" + i);});c.pop();}t.b("\n" + i);if(!t.s(t.f("loading",c,p,1),c,p,1,0,0,"")){if(t.s(t.f("timezoneDifference",c,p,1),c,p,0,179,227,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <span>");t.b(t.v(t.f("timezoneDifferent",c,p,0)));t.b("</span>");t.b("\n" + i);});c.pop();}t.b("\n" + i);if(!t.s(t.f("timezoneDifference",c,p,1),c,p,1,0,0,"")){t.b("      <span>");t.b(t.v(t.f("timezoneSame",c,p,0)));t.b("</span>");t.b("\n" + i);};};t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}, "<div class=\"bookingjs-timezonehelper\">\n\n  {{& timezoneIcon }}\n\n  {{# loading }}\n    <span>{{ loadingText }}</span>\n  {{/ loading }}\n\n  {{^ loading }}\n    {{# timezoneDifference }}\n      <span>{{ timezoneDifferent }}</span>\n    {{/ timezoneDifference }}\n\n    {{^ timezoneDifference }}\n      <span>{{ timezoneSame }}</span>\n    {{/ timezoneDifference }}\n  {{/ loading }}\n\n</div>\n", H);return T; }();
+
+/***/ },
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	 *  Copyright 2011 Twitter, Inc.
+	 *  Licensed under the Apache License, Version 2.0 (the "License");
+	 *  you may not use this file except in compliance with the License.
+	 *  You may obtain a copy of the License at
+	 *
+	 *  http://www.apache.org/licenses/LICENSE-2.0
+	 *
+	 *  Unless required by applicable law or agreed to in writing, software
+	 *  distributed under the License is distributed on an "AS IS" BASIS,
+	 *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	 *  See the License for the specific language governing permissions and
+	 *  limitations under the License.
+	 */
+	
+	// This file is for use with Node.js. See dist/ for browser files.
+	
+	var Hogan = __webpack_require__(26);
+	Hogan.Template = __webpack_require__(27).Template;
+	Hogan.template = Hogan.Template;
+	module.exports = Hogan;
+
+
+/***/ },
+/* 26 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	 *  Copyright 2011 Twitter, Inc.
+	 *  Licensed under the Apache License, Version 2.0 (the "License");
+	 *  you may not use this file except in compliance with the License.
+	 *  You may obtain a copy of the License at
+	 *
+	 *  http://www.apache.org/licenses/LICENSE-2.0
+	 *
+	 *  Unless required by applicable law or agreed to in writing, software
+	 *  distributed under the License is distributed on an "AS IS" BASIS,
+	 *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	 *  See the License for the specific language governing permissions and
+	 *  limitations under the License.
+	 */
+	
+	(function (Hogan) {
+	  // Setup regex  assignments
+	  // remove whitespace according to Mustache spec
+	  var rIsWhitespace = /\S/,
+	      rQuot = /\"/g,
+	      rNewline =  /\n/g,
+	      rCr = /\r/g,
+	      rSlash = /\\/g,
+	      rLineSep = /\u2028/,
+	      rParagraphSep = /\u2029/;
+	
+	  Hogan.tags = {
+	    '#': 1, '^': 2, '<': 3, '$': 4,
+	    '/': 5, '!': 6, '>': 7, '=': 8, '_v': 9,
+	    '{': 10, '&': 11, '_t': 12
+	  };
+	
+	  Hogan.scan = function scan(text, delimiters) {
+	    var len = text.length,
+	        IN_TEXT = 0,
+	        IN_TAG_TYPE = 1,
+	        IN_TAG = 2,
+	        state = IN_TEXT,
+	        tagType = null,
+	        tag = null,
+	        buf = '',
+	        tokens = [],
+	        seenTag = false,
+	        i = 0,
+	        lineStart = 0,
+	        otag = '{{',
+	        ctag = '}}';
+	
+	    function addBuf() {
+	      if (buf.length > 0) {
+	        tokens.push({tag: '_t', text: new String(buf)});
+	        buf = '';
+	      }
+	    }
+	
+	    function lineIsWhitespace() {
+	      var isAllWhitespace = true;
+	      for (var j = lineStart; j < tokens.length; j++) {
+	        isAllWhitespace =
+	          (Hogan.tags[tokens[j].tag] < Hogan.tags['_v']) ||
+	          (tokens[j].tag == '_t' && tokens[j].text.match(rIsWhitespace) === null);
+	        if (!isAllWhitespace) {
+	          return false;
+	        }
+	      }
+	
+	      return isAllWhitespace;
+	    }
+	
+	    function filterLine(haveSeenTag, noNewLine) {
+	      addBuf();
+	
+	      if (haveSeenTag && lineIsWhitespace()) {
+	        for (var j = lineStart, next; j < tokens.length; j++) {
+	          if (tokens[j].text) {
+	            if ((next = tokens[j+1]) && next.tag == '>') {
+	              // set indent to token value
+	              next.indent = tokens[j].text.toString()
+	            }
+	            tokens.splice(j, 1);
+	          }
+	        }
+	      } else if (!noNewLine) {
+	        tokens.push({tag:'\n'});
+	      }
+	
+	      seenTag = false;
+	      lineStart = tokens.length;
+	    }
+	
+	    function changeDelimiters(text, index) {
+	      var close = '=' + ctag,
+	          closeIndex = text.indexOf(close, index),
+	          delimiters = trim(
+	            text.substring(text.indexOf('=', index) + 1, closeIndex)
+	          ).split(' ');
+	
+	      otag = delimiters[0];
+	      ctag = delimiters[delimiters.length - 1];
+	
+	      return closeIndex + close.length - 1;
+	    }
+	
+	    if (delimiters) {
+	      delimiters = delimiters.split(' ');
+	      otag = delimiters[0];
+	      ctag = delimiters[1];
+	    }
+	
+	    for (i = 0; i < len; i++) {
+	      if (state == IN_TEXT) {
+	        if (tagChange(otag, text, i)) {
+	          --i;
+	          addBuf();
+	          state = IN_TAG_TYPE;
+	        } else {
+	          if (text.charAt(i) == '\n') {
+	            filterLine(seenTag);
+	          } else {
+	            buf += text.charAt(i);
+	          }
+	        }
+	      } else if (state == IN_TAG_TYPE) {
+	        i += otag.length - 1;
+	        tag = Hogan.tags[text.charAt(i + 1)];
+	        tagType = tag ? text.charAt(i + 1) : '_v';
+	        if (tagType == '=') {
+	          i = changeDelimiters(text, i);
+	          state = IN_TEXT;
+	        } else {
+	          if (tag) {
+	            i++;
+	          }
+	          state = IN_TAG;
+	        }
+	        seenTag = i;
+	      } else {
+	        if (tagChange(ctag, text, i)) {
+	          tokens.push({tag: tagType, n: trim(buf), otag: otag, ctag: ctag,
+	                       i: (tagType == '/') ? seenTag - otag.length : i + ctag.length});
+	          buf = '';
+	          i += ctag.length - 1;
+	          state = IN_TEXT;
+	          if (tagType == '{') {
+	            if (ctag == '}}') {
+	              i++;
+	            } else {
+	              cleanTripleStache(tokens[tokens.length - 1]);
+	            }
+	          }
+	        } else {
+	          buf += text.charAt(i);
+	        }
+	      }
+	    }
+	
+	    filterLine(seenTag, true);
+	
+	    return tokens;
+	  }
+	
+	  function cleanTripleStache(token) {
+	    if (token.n.substr(token.n.length - 1) === '}') {
+	      token.n = token.n.substring(0, token.n.length - 1);
+	    }
+	  }
+	
+	  function trim(s) {
+	    if (s.trim) {
+	      return s.trim();
+	    }
+	
+	    return s.replace(/^\s*|\s*$/g, '');
+	  }
+	
+	  function tagChange(tag, text, index) {
+	    if (text.charAt(index) != tag.charAt(0)) {
+	      return false;
+	    }
+	
+	    for (var i = 1, l = tag.length; i < l; i++) {
+	      if (text.charAt(index + i) != tag.charAt(i)) {
+	        return false;
+	      }
+	    }
+	
+	    return true;
+	  }
+	
+	  // the tags allowed inside super templates
+	  var allowedInSuper = {'_t': true, '\n': true, '$': true, '/': true};
+	
+	  function buildTree(tokens, kind, stack, customTags) {
+	    var instructions = [],
+	        opener = null,
+	        tail = null,
+	        token = null;
+	
+	    tail = stack[stack.length - 1];
+	
+	    while (tokens.length > 0) {
+	      token = tokens.shift();
+	
+	      if (tail && tail.tag == '<' && !(token.tag in allowedInSuper)) {
+	        throw new Error('Illegal content in < super tag.');
+	      }
+	
+	      if (Hogan.tags[token.tag] <= Hogan.tags['$'] || isOpener(token, customTags)) {
+	        stack.push(token);
+	        token.nodes = buildTree(tokens, token.tag, stack, customTags);
+	      } else if (token.tag == '/') {
+	        if (stack.length === 0) {
+	          throw new Error('Closing tag without opener: /' + token.n);
+	        }
+	        opener = stack.pop();
+	        if (token.n != opener.n && !isCloser(token.n, opener.n, customTags)) {
+	          throw new Error('Nesting error: ' + opener.n + ' vs. ' + token.n);
+	        }
+	        opener.end = token.i;
+	        return instructions;
+	      } else if (token.tag == '\n') {
+	        token.last = (tokens.length == 0) || (tokens[0].tag == '\n');
+	      }
+	
+	      instructions.push(token);
+	    }
+	
+	    if (stack.length > 0) {
+	      throw new Error('missing closing tag: ' + stack.pop().n);
+	    }
+	
+	    return instructions;
+	  }
+	
+	  function isOpener(token, tags) {
+	    for (var i = 0, l = tags.length; i < l; i++) {
+	      if (tags[i].o == token.n) {
+	        token.tag = '#';
+	        return true;
+	      }
+	    }
+	  }
+	
+	  function isCloser(close, open, tags) {
+	    for (var i = 0, l = tags.length; i < l; i++) {
+	      if (tags[i].c == close && tags[i].o == open) {
+	        return true;
+	      }
+	    }
+	  }
+	
+	  function stringifySubstitutions(obj) {
+	    var items = [];
+	    for (var key in obj) {
+	      items.push('"' + esc(key) + '": function(c,p,t,i) {' + obj[key] + '}');
+	    }
+	    return "{ " + items.join(",") + " }";
+	  }
+	
+	  function stringifyPartials(codeObj) {
+	    var partials = [];
+	    for (var key in codeObj.partials) {
+	      partials.push('"' + esc(key) + '":{name:"' + esc(codeObj.partials[key].name) + '", ' + stringifyPartials(codeObj.partials[key]) + "}");
+	    }
+	    return "partials: {" + partials.join(",") + "}, subs: " + stringifySubstitutions(codeObj.subs);
+	  }
+	
+	  Hogan.stringify = function(codeObj, text, options) {
+	    return "{code: function (c,p,i) { " + Hogan.wrapMain(codeObj.code) + " }," + stringifyPartials(codeObj) +  "}";
+	  }
+	
+	  var serialNo = 0;
+	  Hogan.generate = function(tree, text, options) {
+	    serialNo = 0;
+	    var context = { code: '', subs: {}, partials: {} };
+	    Hogan.walk(tree, context);
+	
+	    if (options.asString) {
+	      return this.stringify(context, text, options);
+	    }
+	
+	    return this.makeTemplate(context, text, options);
+	  }
+	
+	  Hogan.wrapMain = function(code) {
+	    return 'var t=this;t.b(i=i||"");' + code + 'return t.fl();';
+	  }
+	
+	  Hogan.template = Hogan.Template;
+	
+	  Hogan.makeTemplate = function(codeObj, text, options) {
+	    var template = this.makePartials(codeObj);
+	    template.code = new Function('c', 'p', 'i', this.wrapMain(codeObj.code));
+	    return new this.template(template, text, this, options);
+	  }
+	
+	  Hogan.makePartials = function(codeObj) {
+	    var key, template = {subs: {}, partials: codeObj.partials, name: codeObj.name};
+	    for (key in template.partials) {
+	      template.partials[key] = this.makePartials(template.partials[key]);
+	    }
+	    for (key in codeObj.subs) {
+	      template.subs[key] = new Function('c', 'p', 't', 'i', codeObj.subs[key]);
+	    }
+	    return template;
+	  }
+	
+	  function esc(s) {
+	    return s.replace(rSlash, '\\\\')
+	            .replace(rQuot, '\\\"')
+	            .replace(rNewline, '\\n')
+	            .replace(rCr, '\\r')
+	            .replace(rLineSep, '\\u2028')
+	            .replace(rParagraphSep, '\\u2029');
+	  }
+	
+	  function chooseMethod(s) {
+	    return (~s.indexOf('.')) ? 'd' : 'f';
+	  }
+	
+	  function createPartial(node, context) {
+	    var prefix = "<" + (context.prefix || "");
+	    var sym = prefix + node.n + serialNo++;
+	    context.partials[sym] = {name: node.n, partials: {}};
+	    context.code += 't.b(t.rp("' +  esc(sym) + '",c,p,"' + (node.indent || '') + '"));';
+	    return sym;
+	  }
+	
+	  Hogan.codegen = {
+	    '#': function(node, context) {
+	      context.code += 'if(t.s(t.' + chooseMethod(node.n) + '("' + esc(node.n) + '",c,p,1),' +
+	                      'c,p,0,' + node.i + ',' + node.end + ',"' + node.otag + " " + node.ctag + '")){' +
+	                      't.rs(c,p,' + 'function(c,p,t){';
+	      Hogan.walk(node.nodes, context);
+	      context.code += '});c.pop();}';
+	    },
+	
+	    '^': function(node, context) {
+	      context.code += 'if(!t.s(t.' + chooseMethod(node.n) + '("' + esc(node.n) + '",c,p,1),c,p,1,0,0,"")){';
+	      Hogan.walk(node.nodes, context);
+	      context.code += '};';
+	    },
+	
+	    '>': createPartial,
+	    '<': function(node, context) {
+	      var ctx = {partials: {}, code: '', subs: {}, inPartial: true};
+	      Hogan.walk(node.nodes, ctx);
+	      var template = context.partials[createPartial(node, context)];
+	      template.subs = ctx.subs;
+	      template.partials = ctx.partials;
+	    },
+	
+	    '$': function(node, context) {
+	      var ctx = {subs: {}, code: '', partials: context.partials, prefix: node.n};
+	      Hogan.walk(node.nodes, ctx);
+	      context.subs[node.n] = ctx.code;
+	      if (!context.inPartial) {
+	        context.code += 't.sub("' + esc(node.n) + '",c,p,i);';
+	      }
+	    },
+	
+	    '\n': function(node, context) {
+	      context.code += write('"\\n"' + (node.last ? '' : ' + i'));
+	    },
+	
+	    '_v': function(node, context) {
+	      context.code += 't.b(t.v(t.' + chooseMethod(node.n) + '("' + esc(node.n) + '",c,p,0)));';
+	    },
+	
+	    '_t': function(node, context) {
+	      context.code += write('"' + esc(node.text) + '"');
+	    },
+	
+	    '{': tripleStache,
+	
+	    '&': tripleStache
+	  }
+	
+	  function tripleStache(node, context) {
+	    context.code += 't.b(t.t(t.' + chooseMethod(node.n) + '("' + esc(node.n) + '",c,p,0)));';
+	  }
+	
+	  function write(s) {
+	    return 't.b(' + s + ');';
+	  }
+	
+	  Hogan.walk = function(nodelist, context) {
+	    var func;
+	    for (var i = 0, l = nodelist.length; i < l; i++) {
+	      func = Hogan.codegen[nodelist[i].tag];
+	      func && func(nodelist[i], context);
+	    }
+	    return context;
+	  }
+	
+	  Hogan.parse = function(tokens, text, options) {
+	    options = options || {};
+	    return buildTree(tokens, '', [], options.sectionTags || []);
+	  }
+	
+	  Hogan.cache = {};
+	
+	  Hogan.cacheKey = function(text, options) {
+	    return [text, !!options.asString, !!options.disableLambda, options.delimiters, !!options.modelGet].join('||');
+	  }
+	
+	  Hogan.compile = function(text, options) {
+	    options = options || {};
+	    var key = Hogan.cacheKey(text, options);
+	    var template = this.cache[key];
+	
+	    if (template) {
+	      var partials = template.partials;
+	      for (var name in partials) {
+	        delete partials[name].instance;
+	      }
+	      return template;
+	    }
+	
+	    template = this.generate(this.parse(this.scan(text, options.delimiters), text, options), text, options);
+	    return this.cache[key] = template;
+	  }
+	})( true ? exports : Hogan);
+
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	 *  Copyright 2011 Twitter, Inc.
+	 *  Licensed under the Apache License, Version 2.0 (the "License");
+	 *  you may not use this file except in compliance with the License.
+	 *  You may obtain a copy of the License at
+	 *
+	 *  http://www.apache.org/licenses/LICENSE-2.0
+	 *
+	 *  Unless required by applicable law or agreed to in writing, software
+	 *  distributed under the License is distributed on an "AS IS" BASIS,
+	 *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	 *  See the License for the specific language governing permissions and
+	 *  limitations under the License.
+	 */
+	
+	var Hogan = {};
+	
+	(function (Hogan) {
+	  Hogan.Template = function (codeObj, text, compiler, options) {
+	    codeObj = codeObj || {};
+	    this.r = codeObj.code || this.r;
+	    this.c = compiler;
+	    this.options = options || {};
+	    this.text = text || '';
+	    this.partials = codeObj.partials || {};
+	    this.subs = codeObj.subs || {};
+	    this.buf = '';
+	  }
+	
+	  Hogan.Template.prototype = {
+	    // render: replaced by generated code.
+	    r: function (context, partials, indent) { return ''; },
+	
+	    // variable escaping
+	    v: hoganEscape,
+	
+	    // triple stache
+	    t: coerceToString,
+	
+	    render: function render(context, partials, indent) {
+	      return this.ri([context], partials || {}, indent);
+	    },
+	
+	    // render internal -- a hook for overrides that catches partials too
+	    ri: function (context, partials, indent) {
+	      return this.r(context, partials, indent);
+	    },
+	
+	    // ensurePartial
+	    ep: function(symbol, partials) {
+	      var partial = this.partials[symbol];
+	
+	      // check to see that if we've instantiated this partial before
+	      var template = partials[partial.name];
+	      if (partial.instance && partial.base == template) {
+	        return partial.instance;
+	      }
+	
+	      if (typeof template == 'string') {
+	        if (!this.c) {
+	          throw new Error("No compiler available.");
+	        }
+	        template = this.c.compile(template, this.options);
+	      }
+	
+	      if (!template) {
+	        return null;
+	      }
+	
+	      // We use this to check whether the partials dictionary has changed
+	      this.partials[symbol].base = template;
+	
+	      if (partial.subs) {
+	        // Make sure we consider parent template now
+	        if (!partials.stackText) partials.stackText = {};
+	        for (key in partial.subs) {
+	          if (!partials.stackText[key]) {
+	            partials.stackText[key] = (this.activeSub !== undefined && partials.stackText[this.activeSub]) ? partials.stackText[this.activeSub] : this.text;
+	          }
+	        }
+	        template = createSpecializedPartial(template, partial.subs, partial.partials,
+	          this.stackSubs, this.stackPartials, partials.stackText);
+	      }
+	      this.partials[symbol].instance = template;
+	
+	      return template;
+	    },
+	
+	    // tries to find a partial in the current scope and render it
+	    rp: function(symbol, context, partials, indent) {
+	      var partial = this.ep(symbol, partials);
+	      if (!partial) {
+	        return '';
+	      }
+	
+	      return partial.ri(context, partials, indent);
+	    },
+	
+	    // render a section
+	    rs: function(context, partials, section) {
+	      var tail = context[context.length - 1];
+	
+	      if (!isArray(tail)) {
+	        section(context, partials, this);
+	        return;
+	      }
+	
+	      for (var i = 0; i < tail.length; i++) {
+	        context.push(tail[i]);
+	        section(context, partials, this);
+	        context.pop();
+	      }
+	    },
+	
+	    // maybe start a section
+	    s: function(val, ctx, partials, inverted, start, end, tags) {
+	      var pass;
+	
+	      if (isArray(val) && val.length === 0) {
+	        return false;
+	      }
+	
+	      if (typeof val == 'function') {
+	        val = this.ms(val, ctx, partials, inverted, start, end, tags);
+	      }
+	
+	      pass = !!val;
+	
+	      if (!inverted && pass && ctx) {
+	        ctx.push((typeof val == 'object') ? val : ctx[ctx.length - 1]);
+	      }
+	
+	      return pass;
+	    },
+	
+	    // find values with dotted names
+	    d: function(key, ctx, partials, returnFound) {
+	      var found,
+	          names = key.split('.'),
+	          val = this.f(names[0], ctx, partials, returnFound),
+	          doModelGet = this.options.modelGet,
+	          cx = null;
+	
+	      if (key === '.' && isArray(ctx[ctx.length - 2])) {
+	        val = ctx[ctx.length - 1];
+	      } else {
+	        for (var i = 1; i < names.length; i++) {
+	          found = findInScope(names[i], val, doModelGet);
+	          if (found !== undefined) {
+	            cx = val;
+	            val = found;
+	          } else {
+	            val = '';
+	          }
+	        }
+	      }
+	
+	      if (returnFound && !val) {
+	        return false;
+	      }
+	
+	      if (!returnFound && typeof val == 'function') {
+	        ctx.push(cx);
+	        val = this.mv(val, ctx, partials);
+	        ctx.pop();
+	      }
+	
+	      return val;
+	    },
+	
+	    // find values with normal names
+	    f: function(key, ctx, partials, returnFound) {
+	      var val = false,
+	          v = null,
+	          found = false,
+	          doModelGet = this.options.modelGet;
+	
+	      for (var i = ctx.length - 1; i >= 0; i--) {
+	        v = ctx[i];
+	        val = findInScope(key, v, doModelGet);
+	        if (val !== undefined) {
+	          found = true;
+	          break;
+	        }
+	      }
+	
+	      if (!found) {
+	        return (returnFound) ? false : "";
+	      }
+	
+	      if (!returnFound && typeof val == 'function') {
+	        val = this.mv(val, ctx, partials);
+	      }
+	
+	      return val;
+	    },
+	
+	    // higher order templates
+	    ls: function(func, cx, partials, text, tags) {
+	      var oldTags = this.options.delimiters;
+	
+	      this.options.delimiters = tags;
+	      this.b(this.ct(coerceToString(func.call(cx, text)), cx, partials));
+	      this.options.delimiters = oldTags;
+	
+	      return false;
+	    },
+	
+	    // compile text
+	    ct: function(text, cx, partials) {
+	      if (this.options.disableLambda) {
+	        throw new Error('Lambda features disabled.');
+	      }
+	      return this.c.compile(text, this.options).render(cx, partials);
+	    },
+	
+	    // template result buffering
+	    b: function(s) { this.buf += s; },
+	
+	    fl: function() { var r = this.buf; this.buf = ''; return r; },
+	
+	    // method replace section
+	    ms: function(func, ctx, partials, inverted, start, end, tags) {
+	      var textSource,
+	          cx = ctx[ctx.length - 1],
+	          result = func.call(cx);
+	
+	      if (typeof result == 'function') {
+	        if (inverted) {
+	          return true;
+	        } else {
+	          textSource = (this.activeSub && this.subsText && this.subsText[this.activeSub]) ? this.subsText[this.activeSub] : this.text;
+	          return this.ls(result, cx, partials, textSource.substring(start, end), tags);
+	        }
+	      }
+	
+	      return result;
+	    },
+	
+	    // method replace variable
+	    mv: function(func, ctx, partials) {
+	      var cx = ctx[ctx.length - 1];
+	      var result = func.call(cx);
+	
+	      if (typeof result == 'function') {
+	        return this.ct(coerceToString(result.call(cx)), cx, partials);
+	      }
+	
+	      return result;
+	    },
+	
+	    sub: function(name, context, partials, indent) {
+	      var f = this.subs[name];
+	      if (f) {
+	        this.activeSub = name;
+	        f(context, partials, this, indent);
+	        this.activeSub = false;
+	      }
+	    }
+	
+	  };
+	
+	  //Find a key in an object
+	  function findInScope(key, scope, doModelGet) {
+	    var val;
+	
+	    if (scope && typeof scope == 'object') {
+	
+	      if (scope[key] !== undefined) {
+	        val = scope[key];
+	
+	      // try lookup with get for backbone or similar model data
+	      } else if (doModelGet && scope.get && typeof scope.get == 'function') {
+	        val = scope.get(key);
+	      }
+	    }
+	
+	    return val;
+	  }
+	
+	  function createSpecializedPartial(instance, subs, partials, stackSubs, stackPartials, stackText) {
+	    function PartialTemplate() {};
+	    PartialTemplate.prototype = instance;
+	    function Substitutions() {};
+	    Substitutions.prototype = instance.subs;
+	    var key;
+	    var partial = new PartialTemplate();
+	    partial.subs = new Substitutions();
+	    partial.subsText = {};  //hehe. substext.
+	    partial.buf = '';
+	
+	    stackSubs = stackSubs || {};
+	    partial.stackSubs = stackSubs;
+	    partial.subsText = stackText;
+	    for (key in subs) {
+	      if (!stackSubs[key]) stackSubs[key] = subs[key];
+	    }
+	    for (key in stackSubs) {
+	      partial.subs[key] = stackSubs[key];
+	    }
+	
+	    stackPartials = stackPartials || {};
+	    partial.stackPartials = stackPartials;
+	    for (key in partials) {
+	      if (!stackPartials[key]) stackPartials[key] = partials[key];
+	    }
+	    for (key in stackPartials) {
+	      partial.partials[key] = stackPartials[key];
+	    }
+	
+	    return partial;
+	  }
+	
+	  var rAmp = /&/g,
+	      rLt = /</g,
+	      rGt = />/g,
+	      rApos = /\'/g,
+	      rQuot = /\"/g,
+	      hChars = /[&<>\"\']/;
+	
+	  function coerceToString(val) {
+	    return String((val === null || val === undefined) ? '' : val);
+	  }
+	
+	  function hoganEscape(str) {
+	    str = coerceToString(str);
+	    return hChars.test(str) ?
+	      str
+	        .replace(rAmp, '&amp;')
+	        .replace(rLt, '&lt;')
+	        .replace(rGt, '&gt;')
+	        .replace(rApos, '&#39;')
+	        .replace(rQuot, '&quot;') :
+	      str;
+	  }
+	
+	  var isArray = Array.isArray || function(a) {
+	    return Object.prototype.toString.call(a) === '[object Array]';
+	  };
+	
+	})( true ? exports : Hogan);
+
+
+/***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var H = __webpack_require__(25);
+	module.exports = function() { var T = new H.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div class=\"bookingjs-avatar\">");t.b("\n" + i);t.b("  <img src=\"");t.b(t.t(t.f("image",c,p,0)));t.b("\" />");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}, "<div class=\"bookingjs-avatar\">\n  <img src=\"{{& image }}\" />\n</div>\n", H);return T; }();
+
+/***/ },
+/* 29 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var H = __webpack_require__(25);
+	module.exports = function() { var T = new H.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div class=\"bookingjs-displayname\">");t.b("\n" + i);t.b("  <span>");t.b(t.v(t.f("name",c,p,0)));t.b("</span>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}, "<div class=\"bookingjs-displayname\">\n  <span>{{ name }}</span>\n</div>\n", H);return T; }();
+
+/***/ },
+/* 30 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var H = __webpack_require__(25);
+	module.exports = function() { var T = new H.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("\n" + i);t.b("<input");t.b("\n" + i);t.b("  class=\"bookingjs-form-input input-name\"");t.b("\n" + i);t.b("  type=\"text\"");t.b("\n" + i);t.b("  name=\"name\"");t.b("\n" + i);t.b("  placeholder=\"");t.b(t.v(t.d("fields.name.placeholder",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  ");if(t.s(t.d("fields.name.prefilled",c,p,1),c,p,0,154,191,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(" value=\"");t.b(t.v(t.d("fields.name.prefilled",c,p,0)));t.b("\" ");});c.pop();}t.b("\n" + i);t.b("  ");if(t.s(t.d("fields.name.locked",c,p,1),c,p,0,247,257,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(" readonly ");});c.pop();}t.b("\n" + i);t.b("  required");t.b("\n" + i);t.b("/>");t.b("\n");t.b("\n" + i);t.b("<input");t.b("\n" + i);t.b("  class=\"bookingjs-form-input input-email\"");t.b("\n" + i);t.b("  type=\"email\"");t.b("\n" + i);t.b("  name=\"email\"");t.b("\n" + i);t.b("  placeholder=\"");t.b(t.v(t.d("fields.email.placeholder",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  ");if(t.s(t.d("fields.email.prefilled",c,p,1),c,p,0,456,494,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(" value=\"");t.b(t.v(t.d("fields.email.prefilled",c,p,0)));t.b("\" ");});c.pop();}t.b("\n" + i);t.b("  ");if(t.s(t.d("fields.email.locked",c,p,1),c,p,0,552,562,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(" readonly ");});c.pop();}t.b("\n" + i);t.b("  required");t.b("\n" + i);t.b("/>");t.b("\n");t.b("\n" + i);if(t.s(t.d("fields.phone.enabled",c,p,1),c,p,0,631,1011,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <input");t.b("\n" + i);t.b("    class=\"bookingjs-form-input input-phone\"");t.b("\n" + i);t.b("    type=\"tel\"");t.b("\n" + i);t.b("    name=\"phone\"");t.b("\n" + i);t.b("    placeholder=\"");t.b(t.v(t.d("fields.phone.placeholder",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    ");if(t.s(t.d("fields.phone.prefilled",c,p,1),c,p,0,800,838,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(" value=\"");t.b(t.v(t.d("fields.phone.prefilled",c,p,0)));t.b("\" ");});c.pop();}t.b("\n" + i);t.b("    ");if(t.s(t.d("fields.phone.required",c,p,1),c,p,0,900,910,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(" required ");});c.pop();}t.b("\n" + i);t.b("    ");if(t.s(t.d("fields.phone.locked",c,p,1),c,p,0,969,979,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(" readonly ");});c.pop();}t.b("\n" + i);t.b("  />");t.b("\n" + i);});c.pop();}t.b("\n" + i);if(t.s(t.d("fields.voip.enabled",c,p,1),c,p,0,1066,1437,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <input");t.b("\n" + i);t.b("    class=\"bookingjs-form-input input-voip\"");t.b("\n" + i);t.b("    type=\"text\"");t.b("\n" + i);t.b("    name=\"voip\"");t.b("\n" + i);t.b("    placeholder=\"");t.b(t.v(t.d("fields.voip.placeholder",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    ");if(t.s(t.d("fields.voip.prefilled",c,p,1),c,p,0,1232,1269,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(" value=\"");t.b(t.v(t.d("fields.voip.prefilled",c,p,0)));t.b("\" ");});c.pop();}t.b("\n" + i);t.b("    ");if(t.s(t.d("fields.voip.required",c,p,1),c,p,0,1329,1339,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(" required ");});c.pop();}t.b("\n" + i);t.b("    ");if(t.s(t.d("fields.voip.locked",c,p,1),c,p,0,1396,1406,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(" readonly ");});c.pop();}t.b("\n" + i);t.b("  />");t.b("\n" + i);});c.pop();}t.b("\n" + i);if(t.s(t.d("fields.location.enabled",c,p,1),c,p,0,1495,1906,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <input");t.b("\n" + i);t.b("    class=\"bookingjs-form-input input-location\"");t.b("\n" + i);t.b("    type=\"text\"");t.b("\n" + i);t.b("    name=\"location\"");t.b("\n" + i);t.b("    placeholder=\"");t.b(t.v(t.d("fields.location.placeholder",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    ");if(t.s(t.d("fields.location.prefilled",c,p,1),c,p,0,1677,1718,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(" value=\"");t.b(t.v(t.d("fields.location.prefilled",c,p,0)));t.b("\" ");});c.pop();}t.b("\n" + i);t.b("    ");if(t.s(t.d("fields.location.required",c,p,1),c,p,0,1786,1796,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(" required ");});c.pop();}t.b("\n" + i);t.b("    ");if(t.s(t.d("fields.location.locked",c,p,1),c,p,0,1861,1871,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(" readonly ");});c.pop();}t.b("\n" + i);t.b("  />");t.b("\n" + i);});c.pop();}t.b("\n" + i);if(t.s(t.d("fields.comment.enabled",c,p,1),c,p,0,1967,2360,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <textarea");t.b("\n" + i);t.b("    class=\"bookingjs-form-input input-comment\"");t.b("\n" + i);t.b("    rows=\"3\"");t.b("\n" + i);t.b("    name=\"comment\"");t.b("\n" + i);t.b("    placeholder=\"");t.b(t.v(t.d("fields.comment.placeholder",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    ");if(t.s(t.d("fields.comment.required",c,p,1),c,p,0,2144,2154,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(" required ");});c.pop();}t.b("\n" + i);t.b("    ");if(t.s(t.d("fields.comment.locked",c,p,1),c,p,0,2217,2227,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(" readonly ");});c.pop();}t.b(">");if(t.s(t.d("fields.comment.prefilled",c,p,1),c,p,0,2287,2317,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.v(t.d("fields.comment.prefilled",c,p,0)));});c.pop();}t.b("</textarea>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }}, "\n<input\n  class=\"bookingjs-form-input input-name\"\n  type=\"text\"\n  name=\"name\"\n  placeholder=\"{{ fields.name.placeholder }}\"\n  {{# fields.name.prefilled }} value=\"{{ fields.name.prefilled }}\" {{/ fields.name.prefilled }}\n  {{# fields.name.locked }} readonly {{/ fields.name.locked }}\n  required\n/>\n\n<input\n  class=\"bookingjs-form-input input-email\"\n  type=\"email\"\n  name=\"email\"\n  placeholder=\"{{ fields.email.placeholder }}\"\n  {{# fields.email.prefilled }} value=\"{{ fields.email.prefilled }}\" {{/ fields.email.prefilled }}\n  {{# fields.email.locked }} readonly {{/ fields.email.locked }}\n  required\n/>\n\n{{# fields.phone.enabled }}\n  <input\n    class=\"bookingjs-form-input input-phone\"\n    type=\"tel\"\n    name=\"phone\"\n    placeholder=\"{{ fields.phone.placeholder }}\"\n    {{# fields.phone.prefilled }} value=\"{{ fields.phone.prefilled }}\" {{/ fields.phone.prefilled }}\n    {{# fields.phone.required }} required {{/ fields.phone.required }}\n    {{# fields.phone.locked }} readonly {{/ fields.phone.locked }}\n  />\n{{/ fields.phone.enabled }}\n\n{{# fields.voip.enabled }}\n  <input\n    class=\"bookingjs-form-input input-voip\"\n    type=\"text\"\n    name=\"voip\"\n    placeholder=\"{{ fields.voip.placeholder }}\"\n    {{# fields.voip.prefilled }} value=\"{{ fields.voip.prefilled }}\" {{/ fields.voip.prefilled }}\n    {{# fields.voip.required }} required {{/ fields.voip.required }}\n    {{# fields.voip.locked }} readonly {{/ fields.voip.locked }}\n  />\n{{/ fields.voip.enabled }}\n\n{{# fields.location.enabled }}\n  <input\n    class=\"bookingjs-form-input input-location\"\n    type=\"text\"\n    name=\"location\"\n    placeholder=\"{{ fields.location.placeholder }}\"\n    {{# fields.location.prefilled }} value=\"{{ fields.location.prefilled }}\" {{/ fields.location.prefilled }}\n    {{# fields.location.required }} required {{/ fields.location.required }}\n    {{# fields.location.locked }} readonly {{/ fields.location.locked }}\n  />\n{{/ fields.location.enabled }}\n\n{{# fields.comment.enabled }}\n  <textarea\n    class=\"bookingjs-form-input input-comment\"\n    rows=\"3\"\n    name=\"comment\"\n    placeholder=\"{{ fields.comment.placeholder }}\"\n    {{# fields.comment.required }} required {{/ fields.comment.required }}\n    {{# fields.comment.locked }} readonly {{/ fields.comment.locked }}>{{# fields.comment.prefilled }}{{ fields.comment.prefilled }}{{/ fields.comment.prefilled }}</textarea>\n{{/ fields.comment.enabled }}\n", H);return T; }();
+
+/***/ },
+/* 31 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var H = __webpack_require__(25);
+	module.exports = function() { var T = new H.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div class=\"bookingjs-bookpage\">");t.b("\n" + i);t.b("  <a class=\"bookingjs-bookpage-close\" href=\"#\">");t.b(t.t(t.f("closeIcon",c,p,0)));t.b("</a>");t.b("\n" + i);t.b("  <h2 class=\"bookingjs-bookpage-date\">");t.b(t.v(t.f("chosenDate",c,p,0)));t.b("</h2>");t.b("\n" + i);t.b("  <h3 class=\"bookingjs-bookpage-time\">");t.b(t.v(t.f("chosenTime",c,p,0)));t.b("</h3>");t.b("\n" + i);t.b("  <form class=\"bookingjs-form\" action=\"#\">");t.b("\n" + i);t.b("    <div class=\"bookingjs-form-box\">");t.b("\n" + i);t.b("      <div class=\"bookingjs-form-success-message\">");t.b("\n" + i);t.b("        <div class=\"title\">");t.b(t.v(t.f("successMessageTitle",c,p,0)));t.b("</div>");t.b("\n" + i);t.b("        <div class=\"body\">");t.b(t.t(t.f("successMessageBody",c,p,0)));t.b("</div>");t.b("\n" + i);t.b("      </div>");t.b("\n" + i);t.b("      <div class=\"bookingjs-form-fields\">");t.b("\n" + i);t.b("        <input class=\"bookingjs-form-input hidden\" type=\"text\" name=\"start\" value=\"");t.b(t.v(t.f("start",c,p,0)));t.b("\" />");t.b("\n" + i);t.b("        <input class=\"bookingjs-form-input hidden\" type=\"text\" name=\"end\" value=\"");t.b(t.v(t.f("end",c,p,0)));t.b("\" />");t.b("\n" + i);t.b(t.rp("<formFields0",c,p,"        "));t.b("      </div>");t.b("\n" + i);t.b("    </div>");t.b("\n" + i);t.b("    <button class=\"bookingjs-form-button\" type=\"submit\">");t.b("\n" + i);t.b("      <span class=\"inactive-text\">");t.b(t.v(t.f("submitText",c,p,0)));t.b("</span>");t.b("\n" + i);t.b("      <span class=\"loading-text\">");t.b(t.t(t.f("loadingIcon",c,p,0)));t.b("</span>");t.b("\n" + i);t.b("      <span class=\"error-text\">");t.b(t.t(t.f("errorIcon",c,p,0)));t.b("</span>");t.b("\n" + i);t.b("      <span class=\"success-text\">");t.b(t.t(t.f("checkmarkIcon",c,p,0)));t.b("</span>");t.b("\n" + i);t.b("    </button>");t.b("\n" + i);t.b("  </form>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {"<formFields0":{name:"formFields", partials: {}, subs: {  }}}, subs: {  }}, "<div class=\"bookingjs-bookpage\">\n  <a class=\"bookingjs-bookpage-close\" href=\"#\">{{& closeIcon }}</a>\n  <h2 class=\"bookingjs-bookpage-date\">{{ chosenDate }}</h2>\n  <h3 class=\"bookingjs-bookpage-time\">{{ chosenTime }}</h3>\n  <form class=\"bookingjs-form\" action=\"#\">\n    <div class=\"bookingjs-form-box\">\n      <div class=\"bookingjs-form-success-message\">\n        <div class=\"title\">{{ successMessageTitle }}</div>\n        <div class=\"body\">{{& successMessageBody }}</div>\n      </div>\n      <div class=\"bookingjs-form-fields\">\n        <input class=\"bookingjs-form-input hidden\" type=\"text\" name=\"start\" value=\"{{ start }}\" />\n        <input class=\"bookingjs-form-input hidden\" type=\"text\" name=\"end\" value=\"{{ end }}\" />\n        {{> formFields }}\n      </div>\n    </div>\n    <button class=\"bookingjs-form-button\" type=\"submit\">\n      <span class=\"inactive-text\">{{ submitText }}</span>\n      <span class=\"loading-text\">{{& loadingIcon }}</span>\n      <span class=\"error-text\">{{& errorIcon }}</span>\n      <span class=\"success-text\">{{& checkmarkIcon }}</span>\n    </button>\n  </form>\n</div>\n", H);return T; }();
+
+/***/ },
+/* 32 */
+/***/ function(module, exports) {
+
+	module.exports = "<svg class=\"bookingjs-closeicon\" viewBox=\"0 0 90 90\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:sketch=\"http://www.bohemiancoding.com/sketch/ns\"><title>close-icon</title><desc>Created with Sketch.</desc><defs></defs><g id=\"Page-1\" stroke=\"none\" stroke-width=\"1\" fill=\"none\" fill-rule=\"evenodd\" sketch:type=\"MSPage\"><g id=\"close-icon\" sketch:type=\"MSLayerGroup\" fill=\"#000000\"><path d=\"M58,45 L87.2,15.8 C90.9,12.1 90.9,6.3 87.3,2.7 C83.7,-0.9 77.8,-0.8 74.2,2.8 L45,32 L15.8,2.8 C12.1,-0.9 6.3,-0.9 2.7,2.7 C-0.9,6.3 -0.8,12.2 2.8,15.8 L32,45 L2.8,74.2 C-0.9,77.9 -0.9,83.7 2.7,87.3 C6.3,90.9 12.2,90.8 15.8,87.2 L45,58 L74.2,87.2 C77.9,90.9 83.7,90.9 87.3,87.3 C90.9,83.7 90.8,77.8 87.2,74.2 L58,45 L58,45 Z\" id=\"Shape\" sketch:type=\"MSShapeGroup\"></path></g></g></svg>"
+
+/***/ },
+/* 33 */
+/***/ function(module, exports) {
+
+	module.exports = "<svg viewBox=\"0 0 38 26\" x=\"0px\" y=\"0px\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:sketch=\"http://www.bohemiancoding.com/sketch/ns\"><path fill=\"#fff\" d=\"M4.59255916,9.14153015 L4.59255916,9.14153015 L4.59255917,9.14153016 C3.61060488,8.15335155 2.0152224,8.15314806 1.03260582,9.1419932 L0.737322592,9.43914816 C-0.245558943,10.4282599 -0.245836003,12.0327396 0.736862454,13.0216671 L12.8967481,25.2586313 C13.4826504,25.8482474 14.3060779,26.1023412 15.1093609,25.9623831 L15.1946218,25.9520176 C15.7962843,25.9101633 16.3621851,25.6553951 16.7974015,25.21742 L37.2642739,4.6208133 C38.2456495,3.63321696 38.2453889,2.02851586 37.2626092,1.03950653 L36.967326,0.742351578 C35.9843771,-0.246827998 34.390543,-0.247513927 33.4085772,0.740676315 L15.4197831,18.8434968 L14.826599,19.4404409 L14.2334149,18.8434968 L4.59255916,9.14153015 Z\" id=\"Path\"></path></svg>"
+
+/***/ },
+/* 34 */
+/***/ function(module, exports) {
+
+	module.exports = "<svg version=\"1.1\" id=\"loader-1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\" viewBox=\"0 0 38 38\" xml:space=\"preserve\"><path fill=\"#fff\" d=\"M38,19 C38,8.50658975 29.4934102,0 19,0 C8.50658975,0 0,8.50658975 0,19 L5,19 C5,11.2680135 11.2680135,5 19,5 C26.7319865,5 33,11.2680135 33,19 L38,19 Z\" id=\"Oval-1\" sketch:type=\"MSShapeGroup\"></path></path></svg>"
+
+/***/ },
+/* 35 */
+/***/ function(module, exports) {
+
+	module.exports = "<svg class=\"bookingjs-closeicon\" viewBox=\"0 0 90 90\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:sketch=\"http://www.bohemiancoding.com/sketch/ns\"><title>error-icon</title><desc>Created with Sketch.</desc><defs></defs><g id=\"Page-1\" stroke=\"none\" stroke-width=\"1\" fill=\"none\" fill-rule=\"evenodd\" sketch:type=\"MSPage\"><g id=\"error-icon\" sketch:type=\"MSLayerGroup\" fill=\"#FFFFFF\"><path d=\"M58,45 L87.2,15.8 C90.9,12.1 90.9,6.3 87.3,2.7 C83.7,-0.9 77.8,-0.8 74.2,2.8 L45,32 L15.8,2.8 C12.1,-0.9 6.3,-0.9 2.7,2.7 C-0.9,6.3 -0.8,12.2 2.8,15.8 L32,45 L2.8,74.2 C-0.9,77.9 -0.9,83.7 2.7,87.3 C6.3,90.9 12.2,90.8 15.8,87.2 L45,58 L74.2,87.2 C77.9,90.9 83.7,90.9 87.3,87.3 C90.9,83.7 90.8,77.8 87.2,74.2 L58,45 L58,45 Z\" id=\"Shape\" sketch:type=\"MSShapeGroup\"></path></g></g></svg>"
+
+/***/ },
+/* 36 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var H = __webpack_require__(25);
+	module.exports = function() { var T = new H.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div class=\"bookingjs-poweredby\">");t.b("\n" + i);t.b("  <a href=\"http://booking.timekit.io\" target=\"_blank\">");t.b("\n" + i);t.b("    ");t.b(t.t(t.f("timekitIcon",c,p,0)));t.b("\n" + i);t.b("    <span>Powered by Timekit</span>");t.b("\n" + i);t.b("  </a>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}, "<div class=\"bookingjs-poweredby\">\n  <a href=\"http://booking.timekit.io\" target=\"_blank\">\n    {{& timekitIcon }}\n    <span>Powered by Timekit</span>\n  </a>\n</div>\n", H);return T; }();
+
+/***/ },
+/* 37 */
+/***/ function(module, exports) {
+
+	module.exports = "<svg class=\"bookingjs-timekiticon\" viewBox=\"0 0 495 594\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:sketch=\"http://www.bohemiancoding.com/sketch/ns\"><title>Full vector path</title><desc>Created with Sketch.</desc><defs></defs><g id=\"Page-1\" stroke=\"none\" stroke-width=\"1\" fill=\"none\" fill-rule=\"evenodd\" sketch:type=\"MSPage\"><g id=\"Artboard-8\" sketch:type=\"MSArtboardGroup\" transform=\"translate(-979.000000, -549.000000)\" fill=\"#AEAEAE\"><g id=\"Full-vector-path\" sketch:type=\"MSLayerGroup\" transform=\"translate(979.000000, 549.000000)\"><path d=\"M32.6783606,348.314972 L81.9095347,309.666147 L178.242802,387.91348 C213.042282,416.179589 268.948833,417.207556 304.79022,390.230569 L411.868735,309.63503 L461.989416,351.164228 L294.687237,477.088734 C265.004826,499.430003 217.635083,498.547293 188.834846,475.15411 L32.6783606,348.314972 Z M19.2354438,359.039602 C-6.62593762,382.117664 -5.82713003,417.651408 21.8567615,440.137832 L188.814783,575.750588 C217.626101,599.152772 265.020127,600.031261 294.666324,577.71725 L471.933566,444.292269 C501.091173,422.346008 502.419289,385.92569 475.267328,362.197265 L304.79022,490.511467 C268.948833,517.488455 213.042282,516.460488 178.242802,488.194379 L19.2354438,359.039602 Z M95.4596929,299.028626 L198.50357,218.134257 C227.693194,195.219007 274.527519,195.836287 303.106573,219.516436 L398.57111,298.61683 L294.687237,376.807835 C265.004826,399.149104 217.635083,398.266394 188.834846,374.873211 L95.4596929,299.028626 Z\" id=\"Base-layer\" sketch:type=\"MSShapeGroup\"></path><path d=\"M45.8421644,258.72646 L32.470588,247.865309 L198.50357,117.521482 C227.708304,94.5943704 274.527519,95.223512 303.106573,118.903661 L462.199296,250.725357 L448.401633,261.110541 L292.387775,131.839944 C269.89295,113.20109 231.857075,112.695864 208.877526,130.735908 L45.8421644,258.72646 Z M32.2967277,269.367817 L19.0412272,258.600949 C-6.62061571,281.684165 -5.74436993,317.105855 21.8366979,339.50876 L188.834846,475.15411 C217.635083,498.547293 265.004826,499.430003 294.687237,477.088734 L471.912654,343.695235 C501.008799,321.795234 502.426315,285.506694 475.470948,261.763118 L461.699258,272.12874 L463.151849,273.332334 C483.387128,290.098964 482.810002,314.466035 461.809671,330.272501 L284.584254,463.666001 C261.076006,481.360119 222.242635,480.64608 199.426891,462.113841 L32.4287426,326.468491 C12.2129453,310.048076 12.2096732,285.628236 32.2967277,269.367817 Z\" id=\"Middle-layer\" sketch:type=\"MSShapeGroup\"></path><path d=\"M303.106573,18.6227621 L473.870647,160.115153 C502.470886,183.812855 501.573077,221.089616 471.912654,243.414336 L294.687237,376.807835 C265.004826,399.149104 217.635083,398.266394 188.834846,374.873211 L21.8366979,239.227861 C-6.94564818,215.84921 -6.64628574,178.293025 22.5453033,155.376233 L198.50357,17.2405832 C227.708304,-5.6865285 274.527519,-5.05738689 303.106573,18.6227621 Z M292.387775,31.5590447 C269.89295,12.9201909 231.857075,12.4149656 208.877526,30.4550095 L32.9192595,168.590659 C12.2117199,184.847067 12.006219,209.599262 32.4287426,226.187592 L199.426891,361.832942 C222.242635,380.365181 261.076006,381.07922 284.584254,363.385102 L461.809671,229.991603 C482.810002,214.185136 483.387128,189.818065 463.151849,173.051435 L292.387775,31.5590447 Z\" id=\"Top-layer\" sketch:type=\"MSShapeGroup\"></path></g></g></g></svg>"
+
+/***/ }
+/******/ ])
+});
+;
+//# sourceMappingURL=booking.js.map;/*globals TimekitBooking, moment, xController, $LAB */
 
 //------------------------------------------------------
 // Controll scheduling widget

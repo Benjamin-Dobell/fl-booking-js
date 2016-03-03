@@ -36,9 +36,10 @@ module.exports = function (grunt) {
         })
         .fail(function (err) {
           grunt.log.error('[npmInstall] Error: ', err.stderr);
-          throw err;
+          grunt.fail.warn();
         })
         .finally(function () {
+          grunt.log.writeln('Changing current directory back to ' + rootDir);
 
           //Go back to the root directory
           process.chdir(rootDir);
