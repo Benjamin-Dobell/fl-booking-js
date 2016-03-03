@@ -48,7 +48,7 @@ xController(function (rootEl) {
   'use strict';
 
   //Dependency check
-  var dependencies = ['$LAB', 'moment', 'jQuery'];
+  var dependencies = ['moment', 'jQuery'];
   dependencies.forEach(function (dep) {
     if (!window[dep]) {
       throw new Error('Dependency "' + dep + '" not found.');
@@ -56,33 +56,14 @@ xController(function (rootEl) {
   });
 
   /**
-   * Replace Timekit API calls from booking.js with the right API.
-   * @function prepareBookingJs
-   * @param  {string} apiUrl
-   * @return {Promise} will resolve in void
-   */
-  function prepareBookingJs(baseFolder, apiUrl) {
-    return fetch(baseFolder + '/booking.js')
-      .then(function (res) {
-        return res.text();
-      })
-      .then(function (text) {
-        //Replace timekit object
-        var newText = text.replace(/var\s+timekit\s+=[\s\w\_\(\)]+;/,
-          'var timekit = FLScheduler("' + apiUrl + '");\n');
-
-        eval.call(window, newText); //jshint ignore:line
-      });
-  }
-
-  /**
    * Initialise the booking element with appropriate parameters
    * @function initBookingJs
    * @param {Object} config A configuration object
    * @return {void} [description]
    */
-  function initBookingJs(targetEl, config) {
+  function initBookingJs(targetEl, config, apiUrl) {
     var def = {
+      api: apiUrl, //This is essential for the thing to work.
       name: 'Book an interview',
       targetEl: targetEl,
       email: 'info@slvolunteers.com',
@@ -156,6 +137,7 @@ xController(function (rootEl) {
           if (name && email) {
             name.value = 'John';
             email.value = 'asdf@adsf.com';
+
             // name.style.display = 'block';
             // email.style.display = 'block';
           }
@@ -168,17 +150,9 @@ xController(function (rootEl) {
     var baseFolder = document.currentScript.src.replace(/\/[^\/]+$/, '');
     var apiUrl = rootEl.dataset.api || 'http://localhost:4000';
     var config = rootEl.dataset.configObj;
+    initBookingJs(rootEl, config, apiUrl);
+    setAutoFillForm();
 
-    $LAB.script(baseFolder + '/FLScheduler.js')
-      .wait(function () { //When finished loading
-
-        // Do stuff
-        prepareBookingJs(baseFolder, apiUrl)
-        .then(function () {
-          initBookingJs(rootEl, config);
-          setAutoFillForm();
-        });
-      });
   }
 
   init();
