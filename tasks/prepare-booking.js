@@ -2,7 +2,11 @@
 
 module.exports = function (grunt) {
 
-  // Actually load this plugin's task(s).
+  /**
+   * It replaces the dependency on Timekit API to a dependency on an alternative
+   * scheduler function.
+   * @function preapre-bookingjs task
+   */
   grunt.registerMultiTask('prepare-bookingjs',
     'Build booking-js.',
     function () {
