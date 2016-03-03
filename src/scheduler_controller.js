@@ -46,7 +46,7 @@ xController(function (rootEl) {
         },
         customer: {
           id: 'XXXXXXX user id XXXXXXXX',
-          timezone: moment.tz.guess(),
+          timezone: window.moment.tz.guess(),
         },
       },
       avatar: 'img/favicon.png', //This prevents the template from breaking

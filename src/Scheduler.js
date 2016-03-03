@@ -1,8 +1,8 @@
-module.exports = (function FLScheduler() {
+module.exports = (function Scheduler() {
   'use strict';
 
-  if (!(this instanceof FLScheduler)) {
-    return new FLScheduler();
+  if (!(this instanceof Scheduler)) {
+    return new Scheduler();
   }
 
   var _this = this;

@@ -1,6 +1,11 @@
 (function () {
   var APIGLOBAL;
-  
+
+  //Create window surrogate to protect the global namespace
+  var window = {};
+  for (key in this) {
+    window[key] = this[key];
+  }
 ;(function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory(require("jQuery"));
@@ -19459,7 +19464,7 @@ xController(function (rootEl) {
         },
         customer: {
           id: 'XXXXXXX user id XXXXXXXX',
-          timezone: moment.tz.guess(),
+          timezone: window.moment.tz.guess(),
         },
       },
       avatar: 'img/favicon.png', //This prevents the template from breaking

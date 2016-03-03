@@ -27,7 +27,7 @@ module.exports = function (grunt) {
     'prepare-bookingjs': {
       task: {
         src: 'lib/modified-booking-js/src/main.js',
-        schedulerAPI: 'src/FLScheduler.js',
+        schedulerAPI: 'src/Scheduler.js',
       },
     },
     concat: {
