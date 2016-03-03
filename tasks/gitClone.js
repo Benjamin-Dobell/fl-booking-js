@@ -35,7 +35,7 @@ module.exports = function (grunt) {
       grunt.verbose.writeln('Current working directory: ' + rootDir);
 
       try {
-        process.chdir(dest);
+        process.chdir('./' + dest);
         grunt.verbose.writeln('Changed current working directory to: ' + process.cwd());
 
       } catch (e) {

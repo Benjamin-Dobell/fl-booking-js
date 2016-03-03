@@ -18,7 +18,7 @@ module.exports = function (grunt) {
       var bookingJsDir = this.data.src;
 
       try {
-        process.chdir(bookingJsDir);
+        process.chdir('./' + bookingJsDir);
       } catch (e) {
         throw new Error('Error moving into booking-js directory');
       }
