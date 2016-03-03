@@ -1,12 +1,13 @@
 /*globals process, module, require*/
 
 module.exports = function (grunt) {
-  'use strict';
 
   // Actually load this plugin's task(s).
   grunt.registerMultiTask('copy-folder',
     'Copy a folder recursively.',
     function () {
+      'use strict';
+
       var src = this.data.src;
       var dest = this.data.dest;
 

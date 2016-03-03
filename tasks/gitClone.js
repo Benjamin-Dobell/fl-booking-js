@@ -23,20 +23,23 @@ module.exports = function (grunt) {
       }
 
       var fs = require('fs');
-      var rootDir = process.cwd();
-
-      try {
-        process.chdir(dest);
-      } catch (e) {
-        throw new Error('Error moving into "lib" directory');
-      }
-
-      var destContent = fs.readdirSync(process.cwd()) || [];
+      var destContent = fs.readdirSync('./' + dest) || [];
 
       if (destContent.indexOf(repoName) >= 0) {
         grunt.log.writeln('gitClone: ' + dest +
-            '/' + repoName + ' already exists. No need to clone it again.');
+        '/' + repoName + ' already exists. No need to clone it again.');
         return;
+      }
+
+      var rootDir = process.cwd();
+      grunt.verbose.writeln('Current working directory: ' + rootDir);
+
+      try {
+        process.chdir(dest);
+        grunt.verbose.writeln('Changed current working directory to: ' + process.cwd());
+
+      } catch (e) {
+        throw new Error('Error moving into "lib" directory');
       }
 
       //Tell grunt this is an async task.
@@ -57,7 +60,7 @@ module.exports = function (grunt) {
 
           //Go back to the root directory
           process.chdir(rootDir);
-
+          grunt.verbose.writeln('Changed current working directory to: ' + process.cwd());
           //Finish our async task
           grunt.log.writeln(process.cwd());
           done();
