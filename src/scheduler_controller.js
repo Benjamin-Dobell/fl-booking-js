@@ -26,6 +26,7 @@ xController(function (rootEl) {
       targetEl: targetEl,
       email: 'info@slvolunteers.com',
       calendar: 'Interviews',
+      apiToken: 'xxx',
       showCredits: false,
       goToFirstEvent: false, // Display and scroll to the first upcoming event in the calendar
       bookingGraph: 'confirm_decline', //'instant' 'confirm_decline'. Controls message after booking confirmation.
@@ -49,7 +50,7 @@ xController(function (rootEl) {
           timezone: moment.tz.guess(),
         },
       },
-      avatar: 'img/favicon.png', //This prevents the template from breaking
+      avatar: 'avatar.jpg', //This prevents the template from breaking
     };
     config = config || {};
     Object.keys(config).forEach(function (prop) {
@@ -106,7 +107,7 @@ xController(function (rootEl) {
 
   function init() {
     var baseFolder = document.currentScript.src.replace(/\/[^\/]+$/, '');
-    APIGLOBAL = rootEl.dataset.api || 'http://localhost:4000'; //Global variable defined in head.js
+    window.APIGLOBAL = rootEl.dataset.api || 'http://localhost:8080'; //Global variable defined in head.js
     var config = rootEl.dataset.configObj;
     initBookingJs(rootEl, config);
     setAutoFillForm();

@@ -7,7 +7,7 @@ module.exports = (function FLScheduler() {
 
   var _this = this;
   function request(method, url, data) {
-    var baseUrl = APIGLOBAL;
+    var baseUrl = window.APIGLOBAL;
 
     if (!baseUrl) {
       throw Error('Fatal: No "api" property in bookingjs config object.');
