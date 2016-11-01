@@ -4,7 +4,7 @@ A simple and beautiful appointment widget. An adaptation of [booking-js](https:/
 
 Check the [demo](http://fourlabsldn.github.io/fl-booking-js/examples/bookings.html) out.
 
-![Usage demo]('./examples/usage-demo.gif')
+![Usage demo](./examples/usage-demo.gif)
 
 ## How to use it
 
