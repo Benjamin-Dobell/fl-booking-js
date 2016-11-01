@@ -2,7 +2,7 @@
 A simple and beautiful appointment widget. An adaptation of [booking-js](https://github.com/timekit-io/booking-js).
 
 
-Check the [demo](./examples/bookings.html) out.
+Check the [demo](http://fourlabsldn.github.io/fl-booking-js/examples/bookings.html) out.
 
 ## How to use it
 
