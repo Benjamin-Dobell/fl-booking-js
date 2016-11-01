@@ -5,8 +5,8 @@ A simple and beautiful appointment widget. An adaptation of [booking-js](https:/
 
 ``` html
 <x-div class="scheduler"
-data-controller='js/scheduler/scheduler_controller'
-data-api="http://localhost:4000">
+  data-controller='js/scheduler/scheduler_controller'
+  data-api="http://localhost:4000">
 </x-div>
 ```
 
@@ -23,3 +23,4 @@ npm install fl-booking-js --save
 **Download**
 
 Just copy [fl-booking-js](https://github.com/fourlabsldn/fl-booking-js/blob/master/dist/fl-booking.min.js) file, and [its dependency x-div](https://raw.githubusercontent.com/fourlabsldn/x-div/master/js/x-div.js). Done.
+
