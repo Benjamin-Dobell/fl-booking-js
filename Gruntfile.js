@@ -27,7 +27,7 @@ module.exports = function (grunt) {
     'prepare-bookingjs': {
       task: {
         src: 'lib/modified-booking-js/src/main.js',
-        schedulerAPI: 'src/FLScheduler.js',
+        schedulerAPI: 'src/scheduler.js',
       },
     },
     concat: {
@@ -35,7 +35,7 @@ module.exports = function (grunt) {
         separator: ';',
       },
       dist: {
-        src: ['src/head.js', 'lib/modified-booking-js/dist/booking.js', 'src/scheduler_controller.js', 'src/tail.js'],
+        src: ['lib/modified-booking-js/dist/booking.js', 'src/scheduler_controller.js'],
         dest: 'dist/fl-booking.js',
       },
     },
@@ -61,6 +61,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.registerTask('default', ['build-bookingjs']);
-  grunt.registerTask('build', ['copy-folder', 'npmInstall', 'prepare-bookingjs', 'build-bookingjs', 'concat', 'uglify']);
+  grunt.registerTask('build', ['copy-folder', 'npmInstall', 'prepare-bookingjs', 'build-bookingjs', 'concat']);
   grunt.registerTask('postinstall', ['gitClone', 'copy-folder', 'npmInstall']);
 };
