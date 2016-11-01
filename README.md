@@ -4,6 +4,8 @@ A simple and beautiful appointment widget. An adaptation of [booking-js](https:/
 
 Check the [demo](http://fourlabsldn.github.io/fl-booking-js/examples/bookings.html) out.
 
+![Usage demo]('./examples/usage-demo.gif')
+
 ## How to use it
 
 Include it in the page as an x-div controller, specifying auto-fill data and an API endpoint.
