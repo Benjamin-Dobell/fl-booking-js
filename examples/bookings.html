@@ -16,9 +16,17 @@
   <script src="https://rawgit.com/fourlabsldn/x-div/master/dist/x-div.js"></script>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
+  <!-- In the Demo we will not really make calls to the server, we will use a mockup -->
+  <script src="server-mockup.js"></script>
+
   <h1 class="title">fl-booking</h1>
   <div class="container">
-    <x-div class="scheduler"  data-controller='../dist/fl-booking' data-api="http://localhost:8080" />
+    <x-div
+      data-controller='../dist/fl-booking'
+      data-api="http://localhost:8080"
+      data-autofill-user="James"
+      data-autofill-email="james.brown@soul.com"
+    />
   </div>
 
 </body>

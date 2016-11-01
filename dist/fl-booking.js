@@ -24071,6 +24071,10 @@ function parentHasClass(className, el) {
  * @function setAutoFillForm
  */
 function setAutoFillForm(rootEl, name, email) {
+  if (!(name && email)) {
+    return;
+  }
+
   rootEl.addEventListener('click', function (e) {
     if (!parentHasClass('fc-time-grid-event', e.target)) {
       return;
@@ -24107,7 +24111,7 @@ xController(function (rootEl) {
   function init() {
     window.APIGLOBAL = rootEl.dataset.api;
     initBookingJs(rootEl);
-    setAutoFillForm(rootEl, 'John', 'john@mayer.com');
+    setAutoFillForm(rootEl, rootEl.dataset.autofillUser, rootEl.dataset.autofillEmail);
   }
 
   init();
