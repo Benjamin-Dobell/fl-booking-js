@@ -123,6 +123,7 @@ var triggerEvent = function triggerEvent(name, target, data) {
 var api = {
   createBooking: function createBooking(container, data) {
     triggerEvent('createBooking', container, data);
+    return true;
   }
 };
 

@@ -44,7 +44,7 @@ const scheduler = {
   getUserTimezone,
   createBooking: data => {
     const results = listeners.map(f => f(data));
-    return Promise.all(results)[0];
+    return Promise.resolve(results[0]);
   },
   onCreateBooking: f => listeners.push(f),
 };

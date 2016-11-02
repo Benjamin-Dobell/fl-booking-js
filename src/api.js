@@ -8,6 +8,7 @@ const triggerEvent = (name, target, data) => {
 const api = {
   createBooking(container, data) {
     triggerEvent('createBooking', container, data);
+    return true;
   },
 };
 

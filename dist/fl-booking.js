@@ -61,9 +61,10 @@ var scheduler = {
   findTime: findTime,
   getUserTimezone: getUserTimezone,
   createBooking: function createBooking(data) {
-    return Promise.reject(listeners.map(function (f) {
+    var results = listeners.map(function (f) {
       return f(data);
-    })[0]);
+    });
+    return Promise.resolve(results[0]);
   },
   onCreateBooking: function onCreateBooking(f) {
     return listeners.push(f);
