@@ -6,7 +6,6 @@
  * to this object.
  *
  */
-
 function request(method, url, data) {
   const config = { method };
 
@@ -19,48 +18,35 @@ function request(method, url, data) {
     .then((json) => json);
 }
 
-function toRemoteResponse(data) {
-  return typeof data === 'string'
-    ? new Response(data)
-    : new Response(JSON.stringify(data));
+const urlPath = path => `${window.APIGLOBAL}${path}`;
+
+function findTime() {
+  return request('GET', urlPath('/findtime'));
+}
+
+function getUserTimezone() {
+  return Promise.resolve({
+    data: {
+      timezone: moment.tz.guess(),
+      utc_offset: moment().utcOffset(),
+    },
+  });
 }
 
 
-
-const urlPath = path => `${window.APIGLOBAL}${path}`;
-
+const listeners = [];
 const scheduler = {
-  configure() {},
-
-  setUser() {},
-
-  findTime(data) {
-    console.log(data);
-    return request('GET', urlPath('/findtime'));
+  configure() { return this; },
+  setUser() { return this; },
+  include() { return this; },
+  headers() { return this; },
+  findTime,
+  getUserTimezone,
+  createBooking: data => {
+    const results = listeners.map(f => f(data));
+    return Promise.all(results)[0];
   },
-
-  getUserTimezone() {
-    return Promise.resolve({
-      data: {
-        timezone: moment.tz.guess(),
-        utc_offset: moment().utcOffset(),
-      },
-    });
-  },
-
-  include() {
-    return this;
-  },
-
-  headers() {
-    return this;
-  },
-
-  createBooking(data) {
-    console.log('Creating booking with:');
-    console.dir(data);
-    return request('POST', urlPath('/bookings'), data);
-  },
+  onCreateBooking: f => listeners.push(f),
 };
 
 module.exports = scheduler;

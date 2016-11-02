@@ -12,7 +12,6 @@
  * to this object.
  *
  */
-
 function request(method, url, data) {
   var config = { method: method };
 
@@ -31,20 +30,26 @@ var urlPath = function urlPath(path) {
   return '' + window.APIGLOBAL + path;
 };
 
+function findTime() {
+  return request('GET', urlPath('/findtime'));
+}
+
+function getUserTimezone() {
+  return Promise.resolve({
+    data: {
+      timezone: moment.tz.guess(),
+      utc_offset: moment().utcOffset()
+    }
+  });
+}
+
+var listeners = [];
 var scheduler = {
-  configure: function configure() {},
-  setUser: function setUser() {},
-  findTime: function findTime(data) {
-    console.log(data);
-    return request('GET', urlPath('/findtime'));
+  configure: function configure() {
+    return this;
   },
-  getUserTimezone: function getUserTimezone() {
-    return Promise.resolve({
-      data: {
-        timezone: moment.tz.guess(),
-        utc_offset: moment().utcOffset()
-      }
-    });
+  setUser: function setUser() {
+    return this;
   },
   include: function include() {
     return this;
@@ -52,10 +57,16 @@ var scheduler = {
   headers: function headers() {
     return this;
   },
+
+  findTime: findTime,
+  getUserTimezone: getUserTimezone,
   createBooking: function createBooking(data) {
-    console.log('Creating booking with:');
-    console.dir(data);
-    return request('POST', urlPath('/bookings'), data);
+    return Promise.reject(listeners.map(function (f) {
+      return f(data);
+    })[0]);
+  },
+  onCreateBooking: function onCreateBooking(f) {
+    return listeners.push(f);
   }
 };
 

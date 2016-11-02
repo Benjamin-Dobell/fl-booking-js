@@ -6,10 +6,7 @@ const rename = require('gulp-rename');
 module.exports = organiser.register((task) => {
   gulp.task(task.name, () => {
     return gulp.src(task.src)
-    .pipe(replace(
-      /var\s+timekit\s+=[^;]+/,
-      `var timekit = window["${task.schedulerGlobalName}"]`
-    ))
+    .pipe(replace(task.pattern, task.replacement))
     .pipe(rename(task.outputName))
     .pipe(gulp.dest(task.dest));
   });

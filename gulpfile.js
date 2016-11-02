@@ -12,34 +12,44 @@ const schedulerGlobalName = 'sdl1478015358318';
 const organiser = require('gulp-organiser');
 organiser.registerAll('./gulp-tasks', {
   'transpile-to-es5': {
-    constroller: {
+    controller: {
       src: path.join(src, 'controller.js'),
       dest: build,
     },
     scheduler: {
-      src: 'src/scheduler.js',
+      src: path.join(src, 'scheduler.js'),
       dest: build,
       config: {
         moduleName: schedulerGlobalName,
       },
     },
   },
-  'modify-timekit-booking': {
-    src: 'lib/timekit-booking/dist/booking.js',
-    dest: build,
-    schedulerGlobalName,
-    outputName: 'modified-booking.js',
+  replace: {
+    'timekit-booking': {
+      src: 'lib/timekit-booking/dist/booking.js',
+      dest: build,
+      pattern: /var\s+timekit\s+=[^;]+/,
+      replacement: `var timekit = window["${schedulerGlobalName}"]`,
+      outputName: 'modified-booking.js',
+    },
+    controller: {
+      src: 'build/controller.js',
+      dest: build,
+      pattern: '$$ scheduler id $$',
+      replacement: schedulerGlobalName,
+      outputName: 'modified-controller.js',
+    },
   },
   'link-dependencies': {
     dest: 'lib',
   },
   concat: {
-    src: ['build/scheduler.js', 'build/modified-booking.js', 'build/controller.js'],
+    src: ['build/scheduler.js', 'build/modified-booking.js', 'build/modified-main.js'],
     dest,
     fileName: 'fl-booking.js',
   },
   build: {
     src: './',
-    tasks: ['link-dependencies', 'modify-timekit-booking', 'transpile-to-es5', 'concat'],
+    tasks: ['link-dependencies', 'transpile-to-es5', 'replace', 'concat'],
   },
 });

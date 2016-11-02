@@ -398,7 +398,7 @@ xController(function (rootEl) {
   });
 
   // This string will be replaced by the actual id
-  var scheduler = window['$$ scheduler id $$'];
+  var scheduler = window['sdl1478015358318'];
   scheduler.onCreateBooking.apply(scheduler, toConsumableArray(function (args) {
     return api.createBooking.apply(api, [rootEl].concat(toConsumableArray(args)));
   }));

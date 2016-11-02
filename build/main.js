@@ -114,6 +114,72 @@ var defaultConfig = {
   },
   avatar: 'avatar.jpg' };
 
+/* global moment */
+/**
+ *
+ * This file replaces the original scheduler object used by Timekit.io
+ * A compilation step substitutes the original reference to a reference
+ * to this object.
+ *
+ */
+function request(method, url, data) {
+  var config = { method: method };
+
+  if (method.toUpperCase() === 'POST') {
+    config.body = JSON.stringify(data);
+  }
+
+  return fetch(url, config).then(function (res) {
+    return res.json();
+  }).then(function (json) {
+    return json;
+  });
+}
+
+var urlPath = function urlPath(path) {
+  return '' + window.APIGLOBAL + path;
+};
+
+var emptyFunc = function emptyFunc() {
+  return null;
+};
+
+function findTime() {
+  return request('GET', urlPath('/findtime'));
+}
+
+function getUserTimezone() {
+  return Promise.resolve({
+    data: {
+      timezone: moment.tz.guess(),
+      utc_offset: moment().utcOffset()
+    }
+  });
+}
+
+function Scheduler() {
+  var listeners = [];
+
+  return {
+    configure: emptyFunc,
+    setUser: emptyFunc,
+    include: emptyFunc,
+    headers: emptyFunc,
+    findTime: findTime,
+    getUserTimezone: getUserTimezone,
+    createBooking: function createBooking(data) {
+      return listeners.map(function (f) {
+        return f(data);
+      })[0];
+    },
+    onCreateBooking: function onCreateBooking(f) {
+      return listeners.push(f);
+    }
+  };
+}
+
+var Scheduler_1 = Scheduler;
+
 // TODO: Make it compatible with IE9
 var triggerEvent = function triggerEvent(name, target, data) {
   var e = new CustomEvent(name, { detail: data });
@@ -397,11 +463,13 @@ xController(function (rootEl) {
     return assert(window[dep], 'Dependency ' + dep + ' not found.');
   });
 
-  // This string will be replaced by the actual id
-  var scheduler = window['$$ scheduler id $$'];
+  var scheduler = new Scheduler_1();
   scheduler.onCreateBooking.apply(scheduler, toConsumableArray(function (args) {
     return api.createBooking.apply(api, [rootEl].concat(toConsumableArray(args)));
   }));
+
+  // This string will be replaced by the actual id
+  window['$$ scheduler id $$'] = scheduler;
 
   window.APIGLOBAL = rootEl.dataset.api;
   var configuration = Object.assign({}, defaultConfig, { targetEl: rootEl });
@@ -411,4 +479,4 @@ xController(function (rootEl) {
 
 })));
 
-//# sourceMappingURL=controller.js.map
+//# sourceMappingURL=main.js.map

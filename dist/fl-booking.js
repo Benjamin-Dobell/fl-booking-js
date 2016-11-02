@@ -12,7 +12,6 @@
  * to this object.
  *
  */
-
 function request(method, url, data) {
   var config = { method: method };
 
@@ -31,20 +30,26 @@ var urlPath = function urlPath(path) {
   return '' + window.APIGLOBAL + path;
 };
 
+function findTime() {
+  return request('GET', urlPath('/findtime'));
+}
+
+function getUserTimezone() {
+  return Promise.resolve({
+    data: {
+      timezone: moment.tz.guess(),
+      utc_offset: moment().utcOffset()
+    }
+  });
+}
+
+var listeners = [];
 var scheduler = {
-  configure: function configure() {},
-  setUser: function setUser() {},
-  findTime: function findTime(data) {
-    console.log(data);
-    return request('GET', urlPath('/findtime'));
+  configure: function configure() {
+    return this;
   },
-  getUserTimezone: function getUserTimezone() {
-    return Promise.resolve({
-      data: {
-        timezone: moment.tz.guess(),
-        utc_offset: moment().utcOffset()
-      }
-    });
+  setUser: function setUser() {
+    return this;
   },
   include: function include() {
     return this;
@@ -52,10 +57,16 @@ var scheduler = {
   headers: function headers() {
     return this;
   },
+
+  findTime: findTime,
+  getUserTimezone: getUserTimezone,
   createBooking: function createBooking(data) {
-    console.log('Creating booking with:');
-    console.dir(data);
-    return request('POST', urlPath('/bookings'), data);
+    return Promise.reject(listeners.map(function (f) {
+      return f(data);
+    })[0]);
+  },
+  onCreateBooking: function onCreateBooking(f) {
+    return listeners.push(f);
   }
 };
 
@@ -24056,6 +24067,298 @@ var defaultConfig = {
   },
   avatar: 'avatar.jpg' };
 
+/* global moment */
+/**
+ *
+ * This file replaces the original scheduler object used by Timekit.io
+ * A compilation step substitutes the original reference to a reference
+ * to this object.
+ *
+ */
+function request(method, url, data) {
+  var config = { method: method };
+
+  if (method.toUpperCase() === 'POST') {
+    config.body = JSON.stringify(data);
+  }
+
+  return fetch(url, config).then(function (res) {
+    return res.json();
+  }).then(function (json) {
+    return json;
+  });
+}
+
+var urlPath = function urlPath(path) {
+  return '' + window.APIGLOBAL + path;
+};
+
+var emptyFunc = function emptyFunc() {
+  return null;
+};
+
+function findTime() {
+  return request('GET', urlPath('/findtime'));
+}
+
+function getUserTimezone() {
+  return Promise.resolve({
+    data: {
+      timezone: moment.tz.guess(),
+      utc_offset: moment().utcOffset()
+    }
+  });
+}
+
+function Scheduler() {
+  var listeners = [];
+
+  return {
+    configure: emptyFunc,
+    setUser: emptyFunc,
+    include: emptyFunc,
+    headers: emptyFunc,
+    findTime: findTime,
+    getUserTimezone: getUserTimezone,
+    createBooking: function createBooking(data) {
+      return listeners.map(function (f) {
+        return f(data);
+      })[0];
+    },
+    onCreateBooking: function onCreateBooking(f) {
+      return listeners.push(f);
+    }
+  };
+}
+
+var Scheduler_1 = Scheduler;
+
+// TODO: Make it compatible with IE9
+var triggerEvent = function triggerEvent(name, target, data) {
+  var e = new CustomEvent(name, { detail: data });
+  target.dispatchEvent(e);
+};
+
+var api = {
+  createBooking: function createBooking(container, data) {
+    triggerEvent('createBooking', container, data);
+  }
+};
+
+var asyncGenerator = function () {
+  function AwaitValue(value) {
+    this.value = value;
+  }
+
+  function AsyncGenerator(gen) {
+    var front, back;
+
+    function send(key, arg) {
+      return new Promise(function (resolve, reject) {
+        var request = {
+          key: key,
+          arg: arg,
+          resolve: resolve,
+          reject: reject,
+          next: null
+        };
+
+        if (back) {
+          back = back.next = request;
+        } else {
+          front = back = request;
+          resume(key, arg);
+        }
+      });
+    }
+
+    function resume(key, arg) {
+      try {
+        var result = gen[key](arg);
+        var value = result.value;
+
+        if (value instanceof AwaitValue) {
+          Promise.resolve(value.value).then(function (arg) {
+            resume("next", arg);
+          }, function (arg) {
+            resume("throw", arg);
+          });
+        } else {
+          settle(result.done ? "return" : "normal", result.value);
+        }
+      } catch (err) {
+        settle("throw", err);
+      }
+    }
+
+    function settle(type, value) {
+      switch (type) {
+        case "return":
+          front.resolve({
+            value: value,
+            done: true
+          });
+          break;
+
+        case "throw":
+          front.reject(value);
+          break;
+
+        default:
+          front.resolve({
+            value: value,
+            done: false
+          });
+          break;
+      }
+
+      front = front.next;
+
+      if (front) {
+        resume(front.key, front.arg);
+      } else {
+        back = null;
+      }
+    }
+
+    this._invoke = send;
+
+    if (typeof gen.return !== "function") {
+      this.return = undefined;
+    }
+  }
+
+  if (typeof Symbol === "function" && Symbol.asyncIterator) {
+    AsyncGenerator.prototype[Symbol.asyncIterator] = function () {
+      return this;
+    };
+  }
+
+  AsyncGenerator.prototype.next = function (arg) {
+    return this._invoke("next", arg);
+  };
+
+  AsyncGenerator.prototype.throw = function (arg) {
+    return this._invoke("throw", arg);
+  };
+
+  AsyncGenerator.prototype.return = function (arg) {
+    return this._invoke("return", arg);
+  };
+
+  return {
+    wrap: function (fn) {
+      return function () {
+        return new AsyncGenerator(fn.apply(this, arguments));
+      };
+    },
+    await: function (value) {
+      return new AwaitValue(value);
+    }
+  };
+}();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var get = function get(object, property, receiver) {
+  if (object === null) object = Function.prototype;
+  var desc = Object.getOwnPropertyDescriptor(object, property);
+
+  if (desc === undefined) {
+    var parent = Object.getPrototypeOf(object);
+
+    if (parent === null) {
+      return undefined;
+    } else {
+      return get(parent, property, receiver);
+    }
+  } else if ("value" in desc) {
+    return desc.value;
+  } else {
+    var getter = desc.get;
+
+    if (getter === undefined) {
+      return undefined;
+    }
+
+    return getter.call(receiver);
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var set = function set(object, property, value, receiver) {
+  var desc = Object.getOwnPropertyDescriptor(object, property);
+
+  if (desc === undefined) {
+    var parent = Object.getPrototypeOf(object);
+
+    if (parent !== null) {
+      set(parent, property, value, receiver);
+    }
+  } else if ("value" in desc && desc.writable) {
+    desc.value = value;
+  } else {
+    var setter = desc.set;
+
+    if (setter !== undefined) {
+      setter.call(receiver, value);
+    }
+  }
+
+  return value;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var toConsumableArray = function (arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+    return arr2;
+  } else {
+    return Array.from(arr);
+  }
+};
+
 /* globals TimekitBooking, moment, xController, $LAB */
 /**
  * Checks if an element or up to 4 of its parents have a class;
@@ -24113,20 +24416,20 @@ xController(function (rootEl) {
     return assert(window[dep], 'Dependency ' + dep + ' not found.');
   });
 
-  function initBookingJs(targetEl) {
-    var configuration = Object.assign({}, defaultConfig, { targetEl: targetEl });
-    new TimekitBooking().init(configuration);
-  }
+  var scheduler = new Scheduler_1();
+  scheduler.onCreateBooking.apply(scheduler, toConsumableArray(function (args) {
+    return api.createBooking.apply(api, [rootEl].concat(toConsumableArray(args)));
+  }));
 
-  function init() {
-    window.APIGLOBAL = rootEl.dataset.api;
-    initBookingJs(rootEl);
-    setAutoFillForm(rootEl, rootEl.dataset.autofillUser, rootEl.dataset.autofillEmail);
-  }
+  // This string will be replaced by the actual id
+  window['sdl1478015358318'] = scheduler;
 
-  init();
+  window.APIGLOBAL = rootEl.dataset.api;
+  var configuration = Object.assign({}, defaultConfig, { targetEl: rootEl });
+  new TimekitBooking().init(configuration);
+  setAutoFillForm(rootEl, rootEl.dataset.autofillUser, rootEl.dataset.autofillEmail);
 });
 
 })));
 
-//# sourceMappingURL=controller.js.map
+//# sourceMappingURL=main.js.map

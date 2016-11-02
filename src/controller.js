@@ -1,6 +1,7 @@
 /* globals TimekitBooking, moment, xController, $LAB */
 import assert from 'fl-assert';
 import defaultConfig from './defaultConfig';
+import api from './api';
 
 /**
  * Checks if an element or up to 4 of its parents have a class;
@@ -57,20 +58,16 @@ xController(rootEl => {
   // Dependency check
   ['moment', 'jQuery'].forEach(dep => assert(window[dep], `Dependency ${dep} not found.`));
 
-  function initBookingJs(targetEl) {
-    const configuration = Object.assign({}, defaultConfig, { targetEl });
-    new TimekitBooking().init(configuration);
-  }
+  // This string will be replaced by the actual id
+  const scheduler = window['$$ scheduler id $$'];
+  scheduler.onCreateBooking(...args => api.createBooking(rootEl, ...args));
 
-  function init() {
-    window.APIGLOBAL = rootEl.dataset.api;
-    initBookingJs(rootEl);
-    setAutoFillForm(
-      rootEl,
-      rootEl.dataset.autofillUser,
-      rootEl.dataset.autofillEmail
-    );
-  }
-
-  init();
+  window.APIGLOBAL = rootEl.dataset.api;
+  const configuration = Object.assign({}, defaultConfig, { targetEl: rootEl });
+  new TimekitBooking().init(configuration);
+  setAutoFillForm(
+    rootEl,
+    rootEl.dataset.autofillUser,
+    rootEl.dataset.autofillEmail
+  );
 });
