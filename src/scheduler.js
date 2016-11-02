@@ -18,12 +18,6 @@ function request(method, url, data) {
     .then((json) => json);
 }
 
-const urlPath = path => `${window.APIGLOBAL}${path}`;
-
-function findTime() {
-  return request('GET', urlPath('/findtime'));
-}
-
 function getUserTimezone() {
   return Promise.resolve({
     data: {
@@ -33,20 +27,19 @@ function getUserTimezone() {
   });
 }
 
+let findTime = () => {};
+let createBooking = () => {};
 
-const listeners = [];
 const scheduler = {
   configure() { return this; },
   setUser() { return this; },
   include() { return this; },
   headers() { return this; },
-  findTime,
   getUserTimezone,
-  createBooking: data => {
-    const results = listeners.map(f => f(data));
-    return Promise.resolve(results[0]);
-  },
-  onCreateBooking: f => listeners.push(f),
+  findTime: data => Promise.resolve(findTime(data)), // to be overridden by controller
+  createBooking: data => Promise.resolve(createBooking(data)), // to be overridden by controller
+  setFindTime(f) { findTime = f; },
+  setCreateBooking(f) { createBooking = f; },
 };
 
 module.exports = scheduler;

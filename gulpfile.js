@@ -15,6 +15,9 @@ organiser.registerAll('./gulp-tasks', {
     controller: {
       src: path.join(src, 'controller.js'),
       dest: build,
+      config: {
+        moduleName: 'flBooking', // This will be the main module name for the project
+      },
     },
     scheduler: {
       src: path.join(src, 'scheduler.js'),
@@ -44,7 +47,7 @@ organiser.registerAll('./gulp-tasks', {
     dest: 'lib',
   },
   concat: {
-    src: ['build/scheduler.js', 'build/modified-booking.js', 'build/modified-main.js'],
+    src: ['build/scheduler.js', 'build/modified-booking.js', 'build/modified-controller.js'],
     dest,
     fileName: 'fl-booking.js',
   },

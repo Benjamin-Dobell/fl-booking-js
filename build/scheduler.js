@@ -12,28 +12,6 @@
  * to this object.
  *
  */
-function request(method, url, data) {
-  var config = { method: method };
-
-  if (method.toUpperCase() === 'POST') {
-    config.body = JSON.stringify(data);
-  }
-
-  return fetch(url, config).then(function (res) {
-    return res.json();
-  }).then(function (json) {
-    return json;
-  });
-}
-
-var urlPath = function urlPath(path) {
-  return '' + window.APIGLOBAL + path;
-};
-
-function findTime() {
-  return request('GET', urlPath('/findtime'));
-}
-
 function getUserTimezone() {
   return Promise.resolve({
     data: {
@@ -43,7 +21,9 @@ function getUserTimezone() {
   });
 }
 
-var listeners = [];
+var _findTime = function findTime() {};
+var _createBooking = function createBooking() {};
+
 var scheduler = {
   configure: function configure() {
     return this;
@@ -58,16 +38,18 @@ var scheduler = {
     return this;
   },
 
-  findTime: findTime,
   getUserTimezone: getUserTimezone,
+  findTime: function findTime(data) {
+    return Promise.resolve(_findTime(data));
+  }, // to be overridden by controller
   createBooking: function createBooking(data) {
-    var results = listeners.map(function (f) {
-      return f(data);
-    });
-    return Promise.resolve(results[0]);
+    return Promise.resolve(_createBooking(data));
+  }, // to be overridden by controller
+  setFindTime: function setFindTime(f) {
+    _findTime = f;
   },
-  onCreateBooking: function onCreateBooking(f) {
-    return listeners.push(f);
+  setCreateBooking: function setCreateBooking(f) {
+    _createBooking = f;
   }
 };
 
