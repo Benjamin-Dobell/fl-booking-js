@@ -37,7 +37,7 @@ const scheduler = {
   headers() { return this; },
   getUserTimezone,
   findTime: data => Promise.resolve(findTime(data)), // to be overridden by controller
-  createBooking: data => Promise.resolve(createBooking(data)), // to be overridden by controller
+  createBooking: data => createBooking(data), // to be overridden by controller
   setFindTime(f) { findTime = f; },
   setCreateBooking(f) { createBooking = f; },
 };

@@ -8,23 +8,28 @@ Check the [demo](http://fourlabsldn.github.io/fl-booking-js/examples/bookings.ht
 
 ## How to use it
 
-Include it in the page as an x-div controller, specifying auto-fill data and an API endpoint.
-
-
-``` html
-<x-div
-  data-controller='../dist/fl-booking'
-  data-api="http://localhost:8080"
-  data-autofill-user="James"
-  data-autofill-email="james.brown@soul.com"
-/>
-```
-
-The endpoint will be queried in the following routes:
-**POST: `/findtime`**
-Answer should look like this:
+Just call it like this:
 
 ``` javascript
+  flBooking({
+    autofillUser: 'James',
+    autofillEmail: 'james@brown.com',
+    targetEl: document.querySelector('.booking-target'),
+    createBooking: data => { console.log(data); Promise.resolve(data) }, // must return a promise
+    getEvents: data => ({
+        "data": [
+          {
+            "start": "2016-11-02T12:00:00.000Z",
+            "end": "2016-11-02T13:00:00.000Z"
+          }
+        ]
+      }),
+  });
+```
+
+The events object must follow this type:
+
+``` json
 {
   "data" : [{
       "start": "2016-11-01T18:00:00.000Z",
@@ -43,16 +48,34 @@ Answer should look like this:
 
 ```
 
+The `createBooking` must return a `Promise` that should succeed if the booking is made and fail if it isnt.
 
-**GET: `/users/timezone/?email=myemail@host.com`**
-Answer should look like this:
+`createBooking` receives one argument, which is an object looking like this:
 
-``` javascript
+``` json
 {
-  data: {
-    timezone: 'Europe/Stockholm',
-    utc_offset: 1,
+  "event": {
+    "start": "2016-11-02T14:00:00+00:00",
+    "end": "2016-11-02T15:00:00+00:00",
+    "what": "Interview",
+    "where": "Online",
+    "description": "Comment: \n",
+    "calendar_id": "Interviews",
+    "participants": [
+      "james@brown.com"
+    ],
+    "invite": true,
+    "my_rsvp": "accepted",
+    "sync_provider": true
   },
+  "customer": {
+    "name": "James",
+    "email": "james@brown.com",
+    "timezone": "Europe/London",
+    "id": "XXXXXXX user id XXXXXXXX"
+  },
+  "graph": "confirm_decline",
+  "action": "create"
 }
 ```
 
@@ -60,10 +83,6 @@ Answer should look like this:
 
 For more configuration options give a look at the [defaultConfig](./src/defaultConfig.js) file.
 
-## Dependencies
-
-fl-booking-js depends on x-div which is a Web Component. Check the [browser support](http://caniuse.com/#search=Custom%20Elements)
-if you are taking it to production. You may need to use a [polyfill](http://webcomponents.org/polyfills/).
 
 ## Installation
 **NPM**
@@ -71,7 +90,3 @@ if you are taking it to production. You may need to use a [polyfill](http://webc
 ```bash
 npm install fl-booking-js --save
 ```
-
-**Download**
-
-Just copy [fl-booking-js](https://github.com/fourlabsldn/fl-booking-js/blob/master/dist/fl-booking.min.js) file, and [its dependency x-div](https://raw.githubusercontent.com/fourlabsldn/x-div/master/js/x-div.js). Done.

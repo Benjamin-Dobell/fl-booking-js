@@ -172,7 +172,6 @@ var utils = {
 function flBooking() {
   var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-  console.log('Self executing');
   // Dependency check
   ['moment', 'jQuery'].forEach(function (dep) {
     return assert(window[dep], 'Dependency ' + dep + ' not found.');

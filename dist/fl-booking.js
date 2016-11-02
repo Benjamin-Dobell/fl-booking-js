@@ -43,7 +43,7 @@ var scheduler = {
     return Promise.resolve(_findTime(data));
   }, // to be overridden by controller
   createBooking: function createBooking(data) {
-    return Promise.resolve(_createBooking(data));
+    return _createBooking(data);
   }, // to be overridden by controller
   setFindTime: function setFindTime(f) {
     _findTime = f;
@@ -24108,7 +24108,6 @@ var utils = {
 function flBooking() {
   var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-  console.log('Self executing');
   // Dependency check
   ['moment', 'jQuery'].forEach(function (dep) {
     return assert(window[dep], 'Dependency ' + dep + ' not found.');
