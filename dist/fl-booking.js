@@ -4,6 +4,7 @@
   (global.sdl1478015358318 = factory());
 }(this, (function () { 'use strict';
 
+/* global moment */
 /**
  *
  * This file replaces the original scheduler object used by Timekit.io
@@ -34,10 +35,19 @@ var scheduler = {
   configure: function configure() {},
   setUser: function setUser() {},
   findTime: function findTime(data) {
-    return request('POST', urlPath('/findtime'), data);
+    console.log(data);
+    return request('GET', urlPath('/findtime'));
   },
-  getUserTimezone: function getUserTimezone(data) {
-    return request('GET', urlPath('/users/timezone/?email=' + data.email));
+  getUserTimezone: function getUserTimezone() {
+    return Promise.resolve({
+      data: {
+        timezone: 'Europe/Stockholm',
+        utc_offset: 1
+      }
+    });
+  },
+  include: function include() {
+    return this;
   },
   headers: function headers() {
     return this;

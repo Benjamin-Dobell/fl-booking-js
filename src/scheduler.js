@@ -1,3 +1,4 @@
+/* global moment */
 /**
  *
  * This file replaces the original scheduler object used by Timekit.io
@@ -18,6 +19,14 @@ function request(method, url, data) {
     .then((json) => json);
 }
 
+function toRemoteResponse(data) {
+  return typeof data === 'string'
+    ? new Response(data)
+    : new Response(JSON.stringify(data));
+}
+
+
+
 const urlPath = path => `${window.APIGLOBAL}${path}`;
 
 const scheduler = {
@@ -26,11 +35,21 @@ const scheduler = {
   setUser() {},
 
   findTime(data) {
-    return request('POST', urlPath('/findtime'), data);
+    console.log(data);
+    return request('GET', urlPath('/findtime'));
   },
 
-  getUserTimezone(data) {
-    return request('GET', urlPath(`/users/timezone/?email=${data.email}`));
+  getUserTimezone() {
+    return Promise.resolve({
+      data: {
+        timezone: 'Europe/Stockholm',
+        utc_offset: 1,
+      },
+    });
+  },
+
+  include() {
+    return this;
   },
 
   headers() {
