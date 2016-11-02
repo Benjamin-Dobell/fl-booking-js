@@ -18,28 +18,24 @@ function request(method, url, data) {
     .then((json) => json);
 }
 
-function getUserTimezone() {
-  return Promise.resolve({
-    data: {
-      timezone: moment.tz.guess(),
-      utc_offset: moment().utcOffset(),
-    },
-  });
-}
-
 let findTime = () => {};
 let createBooking = () => {};
+let userTimezone = {
+  timezone: moment.tz.guess(),
+  utc_offset: moment().utcOffset(),
+};
 
 const scheduler = {
   configure() { return this; },
   setUser() { return this; },
   include() { return this; },
   headers() { return this; },
-  getUserTimezone,
+  getUserTimezone: () => Promise.resolve({ data: userTimezone }),
   findTime: data => Promise.resolve(findTime(data)), // to be overridden by controller
   createBooking: data => createBooking(data), // to be overridden by controller
   setFindTime(f) { findTime = f; },
   setCreateBooking(f) { createBooking = f; },
+  setUserTimezone(tz) { userTimezone = tz; },
 };
 
 module.exports = scheduler;

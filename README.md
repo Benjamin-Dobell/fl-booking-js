@@ -12,9 +12,13 @@ Just call it like this:
 
 ``` javascript
   flBooking({
+    targetEl: document.querySelector('.booking-target'),
     autofillUser: 'James',
     autofillEmail: 'james@brown.com',
-    targetEl: document.querySelector('.booking-target'),
+    timezone: {
+      timezone: 'Europe/London',
+      utc_offset: 0,
+    },
     createBooking: data => { console.log(data); Promise.resolve(data) }, // must return a promise
     getEvents: data => ({
         "data": [

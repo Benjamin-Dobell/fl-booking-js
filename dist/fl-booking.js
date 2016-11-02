@@ -12,17 +12,12 @@
  * to this object.
  *
  */
-function getUserTimezone() {
-  return Promise.resolve({
-    data: {
-      timezone: moment.tz.guess(),
-      utc_offset: moment().utcOffset()
-    }
-  });
-}
-
 var _findTime = function findTime() {};
 var _createBooking = function createBooking() {};
+var userTimezone = {
+  timezone: moment.tz.guess(),
+  utc_offset: moment().utcOffset()
+};
 
 var scheduler = {
   configure: function configure() {
@@ -38,7 +33,9 @@ var scheduler = {
     return this;
   },
 
-  getUserTimezone: getUserTimezone,
+  getUserTimezone: function getUserTimezone() {
+    return Promise.resolve({ data: userTimezone });
+  },
   findTime: function findTime(data) {
     return Promise.resolve(_findTime(data));
   }, // to be overridden by controller
@@ -50,6 +47,9 @@ var scheduler = {
   },
   setCreateBooking: function setCreateBooking(f) {
     _createBooking = f;
+  },
+  setUserTimezone: function setUserTimezone(tz) {
+    userTimezone = tz;
   }
 };
 
@@ -24115,15 +24115,19 @@ function flBooking() {
 
   var autofillUser = config.autofillUser,
       autofillEmail = config.autofillEmail,
+      timezone = config.timezone,
       targetEl = config.targetEl,
       createBooking = config.createBooking,
       getEvents = config.getEvents;
 
-  // This string will be replaced by the actual id
 
+  assert(timezone && timezone.timezone && timezone.utc_offset, 'Invalid timezone object');
+
+  // This string will be replaced by the actual id
   var scheduler = window['sdl1478015358318'];
   scheduler.setCreateBooking(createBooking);
   scheduler.setFindTime(getEvents);
+  scheduler.setUserTimezone(timezone);
 
   var configuration = Object.assign({}, defaultConfig, { targetEl: targetEl });
   new TimekitBooking().init(configuration);

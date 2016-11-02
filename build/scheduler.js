@@ -12,17 +12,12 @@
  * to this object.
  *
  */
-function getUserTimezone() {
-  return Promise.resolve({
-    data: {
-      timezone: moment.tz.guess(),
-      utc_offset: moment().utcOffset()
-    }
-  });
-}
-
 var _findTime = function findTime() {};
 var _createBooking = function createBooking() {};
+var userTimezone = {
+  timezone: moment.tz.guess(),
+  utc_offset: moment().utcOffset()
+};
 
 var scheduler = {
   configure: function configure() {
@@ -38,7 +33,9 @@ var scheduler = {
     return this;
   },
 
-  getUserTimezone: getUserTimezone,
+  getUserTimezone: function getUserTimezone() {
+    return Promise.resolve({ data: userTimezone });
+  },
   findTime: function findTime(data) {
     return Promise.resolve(_findTime(data));
   }, // to be overridden by controller
@@ -50,6 +47,9 @@ var scheduler = {
   },
   setCreateBooking: function setCreateBooking(f) {
     _createBooking = f;
+  },
+  setUserTimezone: function setUserTimezone(tz) {
+    userTimezone = tz;
   }
 };
 

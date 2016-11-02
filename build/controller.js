@@ -179,15 +179,19 @@ function flBooking() {
 
   var autofillUser = config.autofillUser,
       autofillEmail = config.autofillEmail,
+      timezone = config.timezone,
       targetEl = config.targetEl,
       createBooking = config.createBooking,
       getEvents = config.getEvents;
 
-  // This string will be replaced by the actual id
 
+  assert(timezone && timezone.timezone && timezone.utc_offset, 'Invalid timezone object');
+
+  // This string will be replaced by the actual id
   var scheduler = window['$$ scheduler id $$'];
   scheduler.setCreateBooking(createBooking);
   scheduler.setFindTime(getEvents);
+  scheduler.setUserTimezone(timezone);
 
   var configuration = Object.assign({}, defaultConfig, { targetEl: targetEl });
   new TimekitBooking().init(configuration);
