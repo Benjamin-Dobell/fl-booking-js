@@ -42,8 +42,8 @@ const scheduler = {
   getUserTimezone() {
     return Promise.resolve({
       data: {
-        timezone: 'Europe/Stockholm',
-        utc_offset: 1,
+        timezone: moment.tz.guess(),
+        utc_offset: moment().utcOffset(),
       },
     });
   },
