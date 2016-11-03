@@ -19,7 +19,7 @@ Just call it like this:
       timezone: 'Europe/London',
       utc_offset: 0,
     },
-    createBooking: data => { console.log(data); Promise.resolve(data) }, // must return a promise
+    createBooking: data => { console.log(data); return Promise.resolve(data) }, // must return a promise
     getEvents: data => ({
         "data": [
           {
