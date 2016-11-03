@@ -1,4 +1,4 @@
-/* global moment */
+import moment from 'moment-timezone';
 /**
  *
  * This file replaces the original scheduler object used by Timekit.io
@@ -6,18 +6,6 @@
  * to this object.
  *
  */
-function request(method, url, data) {
-  const config = { method };
-
-  if (method.toUpperCase() === 'POST') {
-    config.body = JSON.stringify(data);
-  }
-
-  return fetch(url, config)
-    .then((res) => res.json())
-    .then((json) => json);
-}
-
 let findTime = () => {};
 let createBooking = () => {};
 let userTimezone = {
@@ -38,4 +26,4 @@ const scheduler = {
   setUserTimezone(tz) { userTimezone = tz; },
 };
 
-module.exports = scheduler;
+export default scheduler;

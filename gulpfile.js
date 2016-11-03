@@ -55,4 +55,10 @@ organiser.registerAll('./gulp-tasks', {
     src: './',
     tasks: ['link-dependencies', 'transpile-to-es5', 'replace', 'concat'],
   },
+  'browser-sync': {
+    src: '.', // it doesn't matter, it's just so the task object is not ignored.
+    reloadOn: ['transpile-react'], // reload page when these tasks happen
+    startPath: 'examples/bookings.html',
+    baseDir: './',
+  },
 });

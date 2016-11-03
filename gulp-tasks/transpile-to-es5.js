@@ -24,6 +24,7 @@ const commonjs = require('rollup-plugin-commonjs');
 const nodeResolve = require('rollup-plugin-node-resolve');
 const organiser = require('gulp-organiser');
 const { curry } = require('lodash/fp');
+const json = require('rollup-plugin-json');
 
 const DEFAULT_CONFIG = {
   sourceMap: true,
@@ -33,6 +34,7 @@ const DEFAULT_CONFIG = {
   // Let's use UMD format as default so we can import it from anywhere
   format: 'umd',
   plugins: [
+    json(),
     // Import modules with jsnext:main
     nodeResolve({	jsnext: true, main: true }),
     // Allow importing commonjs modules

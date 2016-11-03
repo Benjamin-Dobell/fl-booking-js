@@ -1,6 +1,6 @@
-/* globals moment */
+import moment from 'moment-timezone';
 
-module.exports = {
+export default {
   targetEl: null,
   name: 'Book an interview',
   email: 'info@slvolunteers.com',

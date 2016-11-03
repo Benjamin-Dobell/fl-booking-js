@@ -1,4 +1,4 @@
-/* globals TimekitBooking, moment, xController, $LAB */
+/* globals TimekitBooking, xController, $LAB */
 import assert from 'fl-assert';
 import defaultConfig from './defaultConfig';
 import utils from './utils';
@@ -20,7 +20,9 @@ function flBooking(config = {}) {
   } = config;
 
   assert(
-    timezone && timezone.timezone && timezone.utc_offset,
+    timezone &&
+    timezone.timezone !== undefined &&
+    timezone.utc_offset !== undefined,
     'Invalid timezone object'
   );
 
