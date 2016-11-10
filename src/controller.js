@@ -32,8 +32,8 @@ function flBooking(config = {}) {
   scheduler.setFindTime(getEvents);
   scheduler.setUserTimezone(timezone);
 
-  const configuration = Object.assign({}, defaultConfig, { targetEl });
-  new TimekitBooking().init(configuration);
+  const timekitConfig = Object.assign({}, defaultConfig, config);
+  new TimekitBooking().init(timekitConfig);
 
   utils.setAutoFillForm(targetEl, autofillUser, autofillEmail);
 }
