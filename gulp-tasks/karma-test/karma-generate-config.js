@@ -32,7 +32,7 @@ function createConfigObject(testFiles) {
     files,
     exclude: [],
     preprocessors: {},
-    reporters: ['spec'],
+    reporters: ['mocha'],
     port: 9876,
     colors: true,
     autoWatch: true,

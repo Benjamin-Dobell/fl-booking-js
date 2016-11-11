@@ -63,11 +63,12 @@ organiser.registerAll('./gulp-tasks', {
   },
   'karma-test': {
     src: [
-      './node_modules/jquery/dist/jquery.js',
+      'http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js',
       './dist/fl-booking.js',
+      './examples/fake-events-creator.js',
       './tests/*-spec.js',
     ],
     // Whether to close the browser after the tests or not.
-    singleRun: true,
+    singleRun: false,
   },
 });

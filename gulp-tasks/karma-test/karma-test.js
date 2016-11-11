@@ -7,6 +7,7 @@ jasmine-core
 karma-requirejs
 karma-chrome-launcher
 karma-spec-reporter
+karma-mocha-reporter
  */
 
 const gulp = require('gulp');
