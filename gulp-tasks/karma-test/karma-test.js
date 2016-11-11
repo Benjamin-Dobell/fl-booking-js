@@ -6,6 +6,7 @@ karma-jasmine
 jasmine-core
 karma-requirejs
 karma-chrome-launcher
+karma-spec-reporter
  */
 
 const gulp = require('gulp');
@@ -23,13 +24,19 @@ module.exports = organiser.register((task) => {
     const config = tmp.fileSync();
     fs.writeFileSync(config.name, generateConfig(task.src));
 
-    return new KarmaServer({
-      configFile: config.name,
-      singleRun: task.singleRun !== 'undefined' ? task.singleRun : true,
-    },
-    function cleanUp() { // eslint-disable-line prefer-arrow-callback
+    try {
+      new KarmaServer({
+        configFile: config.name,
+        singleRun: task.singleRun !== 'undefined' ? task.singleRun : true,
+      },
+      function cleanUp() { // eslint-disable-line prefer-arrow-callback
+        config.removeCallback();
+        done();
+      }).start();
+    } catch (e) {
+      console.error('Karma errored.');
       config.removeCallback();
       done();
-    }).start();
+    }
   });
 });
