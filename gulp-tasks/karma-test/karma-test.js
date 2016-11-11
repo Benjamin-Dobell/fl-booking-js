@@ -5,6 +5,7 @@ tmp
 karma-jasmine
 jasmine-core
 karma-requirejs
+karma-chrome-launcher
  */
 
 const gulp = require('gulp');

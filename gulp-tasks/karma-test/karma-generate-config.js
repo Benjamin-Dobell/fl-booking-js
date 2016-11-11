@@ -25,7 +25,7 @@ function createConfigObject(runner, testFiles) {
   ];
 
   return {
-    basePath: '.',
+    basePath: process.cwd(),
     frameworks: ['jasmine', 'requirejs'],
     files,
     exclude: [],

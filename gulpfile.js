@@ -62,6 +62,10 @@ organiser.registerAll('./gulp-tasks', {
     baseDir: './',
   },
   'karma-test': {
-    src: ['node_modules/jquery/dist/jquery.js', './tests/*-spec.js'],
+    src: [
+      'node_modules/jquery/dist/jquery.js',
+      'dist/fl-booking.js',
+      './tests/*-spec.js',
+    ],
   },
 });
