@@ -1,8 +1,9 @@
 /* eslint-env jasmine */
-debugger;
+
+console.log('SOMETHING IS HAPPENING');
+
 describe('fl-booking', () => {
   it('should be defined', () => {
-    console.dir(window);
-    expect(window.flBooking).not.toBeDefined();
+    expect(window.flBooking).toBeDefined();
   });
 });

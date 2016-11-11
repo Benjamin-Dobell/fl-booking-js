@@ -18,29 +18,31 @@ function createConfigFileContent(configurationObject) {
   `;
 }
 
-function createConfigObject(runner, testFiles) {
-  const files = [
-    runner,
-    ...(testFiles.map(f => ({ pattern: f, included: true }))),
-  ];
+function createConfigObject(testFiles) {
+  const files = testFiles.map(f => ({
+    pattern: f,
+    included: true,
+    serverd: true,
+    nocache: true,
+  }));
 
   return {
     basePath: process.cwd(),
-    frameworks: ['jasmine', 'requirejs'],
+    frameworks: ['jasmine'],
     files,
     exclude: [],
     preprocessors: {},
     reporters: ['progress'],
     port: 9876,
     colors: true,
-    autoWatch: false,
+    autoWatch: true,
     browsers: ['Chrome'],
     concurrency: Infinity,
   };
 }
 
-module.exports = function generateConfig(runner, testFiles) {
-  const config = createConfigObject(runner, testFiles);
+module.exports = function generateConfig(testFiles) {
+  const config = createConfigObject(testFiles);
 
   return createConfigFileContent(config);
 };

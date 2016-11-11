@@ -58,7 +58,7 @@ organiser.registerAll('./gulp-tasks', {
   'browser-sync': {
     src: '.', // it doesn't matter, it's just so the task object is not ignored.
     reloadOn: ['transpile-react'], // reload page when these tasks happen
-    startPath: 'examples/bookings.html',
+    startPath: 'examples/barebones.html',
     baseDir: './',
   },
   'karma-test': {
@@ -68,6 +68,6 @@ organiser.registerAll('./gulp-tasks', {
       './tests/*-spec.js',
     ],
     // Whether to close the browser after the tests or not.
-    singleRun: false,
+    singleRun: true,
   },
 });
