@@ -1,6 +1,8 @@
 /* eslint-env jasmine */
-describe('jquery', () => {
-  it('is loaded', () => {
-    expect(window.jQuery).toBeDefined();
+debugger;
+describe('fl-booking', () => {
+  it('should be defined', () => {
+    console.dir(window);
+    expect(window.flBooking).not.toBeDefined();
   });
 });

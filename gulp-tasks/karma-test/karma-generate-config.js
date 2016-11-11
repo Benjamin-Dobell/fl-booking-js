@@ -35,7 +35,6 @@ function createConfigObject(runner, testFiles) {
     colors: true,
     autoWatch: false,
     browsers: ['Chrome'],
-    singleRun: true,
     concurrency: Infinity,
   };
 }

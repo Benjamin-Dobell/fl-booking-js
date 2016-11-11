@@ -63,9 +63,11 @@ organiser.registerAll('./gulp-tasks', {
   },
   'karma-test': {
     src: [
-      'node_modules/jquery/dist/jquery.js',
-      'dist/fl-booking.js',
+      './node_modules/jquery/dist/jquery.js',
+      './dist/fl-booking.js',
       './tests/*-spec.js',
     ],
+    // Whether to close the browser after the tests or not.
+    singleRun: false,
   },
 });
