@@ -13,6 +13,11 @@ function createConfigFileContent(configurationObject) {
     const conf = ${JSON.stringify(configurationObject)};
     conf.logLevel = config.LOG_INFO;
 
+    // Set chrome tests for Travis CI
+    if(process.env.TRAVIS){
+      configuration.browsers = ['Chrome_travis_ci'];
+    }
+
     return config.set(conf);
   };
   `;
@@ -37,6 +42,12 @@ function createConfigObject(testFiles) {
     colors: true,
     autoWatch: true,
     browsers: ['Chrome'],
+    customLaunchers: {
+      Chrome_travis_ci: {
+        base: 'Chrome',
+        flags: ['--no-sandbox'],
+      },
+    },
     concurrency: Infinity,
   };
 }
