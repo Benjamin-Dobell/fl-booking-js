@@ -25,10 +25,14 @@ module.exports = organiser.register((task) => {
     const config = tmp.fileSync();
     fs.writeFileSync(config.name, generateConfig(task.src));
 
+    const singleRun = (process.env.TRAVIS || task.singleRun !== 'undefined')
+      ? true
+      : task.singleRun;
+
     try {
       new KarmaServer({
         configFile: config.name,
-        singleRun: task.singleRun !== 'undefined' ? task.singleRun : true,
+        singleRun,
       },
       function cleanUp() { // eslint-disable-line prefer-arrow-callback
         config.removeCallback();
