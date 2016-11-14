@@ -15,7 +15,7 @@ function createConfigFileContent(configurationObject) {
 
     // Set chrome tests for Travis CI
     if(process.env.TRAVIS){
-      configuration.browsers = ['Chrome_travis_ci'];
+      conf.browsers = ['Chrome_travis_ci'];
     }
 
     return config.set(conf);
