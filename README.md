@@ -1,4 +1,7 @@
 # fl-booking-js
+
+![Build status](https://travis-ci.org/fourlabsldn/fl-booking-js.svg?branch=master)
+
 A simple and beautiful appointment widget. An adaptation of [booking-js](https://github.com/timekit-io/booking-js).
 
 
