@@ -27,7 +27,7 @@ function setAutoFillForm(rootEl, name, email) {
   }
 
   rootEl.addEventListener('click', e => {
-    if (!parentHasClass('fc-time-grid-event', e.target)) {
+    if (!parentHasClass('fc-event', e.target)) {
       return;
     }
 
